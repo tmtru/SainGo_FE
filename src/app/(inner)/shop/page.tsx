@@ -10,6 +10,7 @@ import Link from 'next/link';
 import ProductService, { Product, ProductFilterDto } from "@/data/Services/ProductService";
 import { Pagination } from "@mui/material";
 import CategoryService, { Category } from "@/data/Services/CategoryService";
+import CustomLoader from "@/components/common/CustomLoader";
 
 
 
@@ -390,7 +391,7 @@ export default function Home() {
               <div className="tab-content" id="myTabContent">
                 {loading ? (
                   <div className="col-12 text-center py-5">
-                    <p>Loading products...</p>
+                    <CustomLoader />
                   </div>
                 ) : error ? (
                   <div className="col-12 text-center py-5">
@@ -417,6 +418,7 @@ export default function Home() {
                                   : post.salePrice.toString()
                               }
                               BasePrice={post.basePrice.toString()}
+                              StockAvailable={post.stockQuantity}
                             />
                           </div>
                         </div>

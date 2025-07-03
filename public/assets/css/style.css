@@ -22331,7 +22331,7 @@ body.modal-open {
   height: 16px;
   width: 16px;
   /* padding:5px; */
-  color:#fff;
+  color: #fff;
 }
 
 /* .single-filter-box .filterbox-body .price-input-area .range:active::-webkit-slider-thumb {
@@ -22653,7 +22653,8 @@ body.modal-open {
 .product-area-wrapper-shopgrid-list.with-list .single-shopping-card-one.discount-offer {
   align-items: center;
 }
-.product-area-wrapper-shopgrid-list.with-list .single-shopping-card-one.discount-offer .thumbnail-preview{
+
+.product-area-wrapper-shopgrid-list.with-list .single-shopping-card-one.discount-offer .thumbnail-preview {
   max-width: 238px
 }
 
@@ -28765,10 +28766,120 @@ form.contact-form-1 .single-select select {
   background: #fff;
   padding: 15px;
 }
+
 select {
-    height: 50px;
-    border-radius: 6px;
-    border: 1px solid #E2E2E2;
-    background: #fff;
-    padding: 15px;
+  height: 50px;
+  border-radius: 6px;
+  border: 1px solid #E2E2E2;
+  background: #fff;
+  padding: 15px;
+}
+
+/* Container cho toàn bộ phần số lượng */
+.quantity-area-shop-details {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  /* Khoảng cách với các phần tử khác */
+}
+
+.quantity-area-shop-details label {
+  font-weight: 600;
+  margin-right: 15px;
+  /* Khoảng cách giữa label và input */
+  color: #333;
+  /* Màu chữ */
+  font-size: 16px;
+}
+
+/* Container cho input và buttons */
+.product-quantity-input {
+  display: flex;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  /* Đảm bảo góc bo tròn cho cả border */
+  max-width: 150px;
+  /* Giới hạn chiều rộng */
+}
+
+/* Nút tăng/giảm số lượng */
+.product-quantity-input button {
+  background-color: #f8f8f8;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  /* Độ rộng cố định cho nút */
+}
+
+.product-quantity-input button:hover:not(:disabled) {
+  background-color: #e0e0e0;
+  color: #000;
+}
+
+.product-quantity-input button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background-color: #f2f2f2;
+}
+
+.product-quantity-input button i {
+  font-size: 14px;
+  /* Kích thước icon */
+}
+
+
+/* Input field cho số lượng */
+.product-quantity-input .qty-input {
+  width: 60px;
+  /* Độ rộng của input */
+  text-align: center;
+  border: none;
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  padding: 8px 5px;
+  font-size: 16px;
+  -moz-appearance: textfield;
+  /* Ẩn mũi tên mặc định trên Firefox */
+}
+
+/* Ẩn mũi tên mặc định trên Chrome/Safari/Edge */
+.product-quantity-input .qty-input::-webkit-outer-spin-button,
+.product-quantity-input .qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.product-quantity-input .qty-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+.sold-out-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.sold-out-overlay .overlay-content {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 4px 10px;
+  border-radius: 4px;
 }

@@ -1,9 +1,54 @@
 'use client';
 
-import { useState } from 'react';
+import { useAuth } from '@/components/Context/AuthContext';
+import OrderService, { Order } from '@/data/Services/OrderService';
+import UserAddressService, { UserAddress } from '@/data/Services/UserAddress';
+import UserService, { UserProfile } from '@/data/Services/UserService';
+import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 
 const AccountTabs = () => {
-  const [activeTab, setActiveTab] = useState('track');
+  const [activeTab, setActiveTab] = useState('account');
+  const [profile, setProfile] = useState<UserProfile>({});
+  const [addresses, setAddresses] = useState<UserAddress[]>([]);
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const { user } = useAuth();
+  useEffect(() => {
+    // gọi orders từ server
+    OrderService.getMyOrders().then(res => setOrders(res.data));
+  }, []);
+  useEffect(() => {
+    UserService.getProfile().then(res => {
+      setProfile({
+        ...res.data,
+        gender: res.data.gender ? res.data.gender : 'other'
+      });
+    });
+    console.log(user?.roleName);
+    UserAddressService.getMyAddresses().then(res => setAddresses(res.data));
+  }, []);
+
+  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setProfile(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfile(prev => ({ ...prev, avatarUrl: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    await UserService.updateProfile(profile);
+    alert('Thông tin đã được cập nhật!');
+  };
 
   return (
     <div className="account-tab-area-start rts-section-gap">
@@ -11,115 +56,104 @@ const AccountTabs = () => {
         <div className="row">
           <div className="col-lg-3">
             <div className="nav accout-dashborard-nav flex-column nav-pills me-3" role="tablist">
-              <button
-                className={`nav-link ${activeTab === 'dashboard' ? 'active' : ''}`}
-                onClick={() => setActiveTab('dashboard')}
-              >
-                <i className="fa-regular fa-chart-line"></i> Dashboard
+              <button className={`nav-link ${activeTab === 'account' ? 'active' : ''}`} onClick={() => setActiveTab('account')}>
+                <i className="fa-regular fa-user"></i> Thông tin cá nhân
               </button>
-              <button
-                className={`nav-link ${activeTab === 'order' ? 'active' : ''}`}
-                onClick={() => setActiveTab('order')}
-              >
-                <i className="fa-regular fa-bag-shopping"></i> Order
+              <button className={`nav-link ${activeTab === 'address' ? 'active' : ''}`} onClick={() => setActiveTab('address')}>
+                <i className="fa-regular fa-location-dot"></i> Địa chỉ giao hàng
               </button>
-              <button
-                className={`nav-link ${activeTab === 'track' ? 'active' : ''}`}
-                onClick={() => setActiveTab('track')}
-              >
-                <i className="fa-regular fa-tractor"></i> Track Your Order
+              <button className={`nav-link ${activeTab === 'order' ? 'active' : ''}`} onClick={() => setActiveTab('order')}>
+                <i className="fa-regular fa-bag-shopping"></i> Đơn hàng
               </button>
-              <button
-                className={`nav-link ${activeTab === 'address' ? 'active' : ''}`}
-                onClick={() => setActiveTab('address')}
-              >
-                <i className="fa-regular fa-location-dot"></i> My Address
+              <button className={`nav-link ${activeTab === 'track' ? 'active' : ''}`} onClick={() => setActiveTab('track')}>
+                <i className="fa-regular fa-tractor"></i> Tra cứu đơn
               </button>
-              <button
-                className={`nav-link ${activeTab === 'account' ? 'active' : ''}`}
-                onClick={() => setActiveTab('account')}
-              >
-                <i className="fa-regular fa-user"></i> Account Details
-              </button>
-              <button className="nav-link">
-                <a href="/login">
-                  <i className="fa-light fa-right-from-bracket"></i> Log Out
-                </a>
-              </button>
+              {user?.roleName === 'Admin' && (
+                <Link href="/dashboard" className="nav-link">
+                  <i className="fa-regular fa-tachometer-alt"></i> Dashboard
+                </Link>
+              )}
+
             </div>
           </div>
+
           <div className="col-lg-9 pl--50 pl_md--10 pl_sm--10 pt_md--30 pt_sm--30">
             <div className="tab-content">
-
-              {activeTab === 'dashboard' && (
-                <div className="dashboard-account-area">
-                  <h2 className="title">
-                    Hello Raisa! (Not Raisa?) <a href="/login">Log Out.</a>
-                  </h2>
-                  <p className="disc">
-                    From your account dashboard you can view your recent orders,
-                    manage your shipping and billing addresses, and edit your password and account details.
-                  </p>
-                </div>
-              )}
-
               {activeTab === 'order' && (
                 <div className="order-table-account">
-                  <div className="h2 title">Your Orders</div>
-                  <div className="table-responsive">
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Order</th>
-                          <th>Date</th>
-                          <th>Status</th>
-                          <th>Total</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>#1357</td>
-                          <td>March 45, 2020</td>
-                          <td>Processing</td>
-                          <td>$125.00 for 2 item</td>
-                          <td><a href="#" className="btn-small d-block">View</a></td>
-                        </tr>
-                        <tr>
-                          <td>#2468</td>
-                          <td>June 29, 2020</td>
-                          <td>Completed</td>
-                          <td>$364.00 for 5 item</td>
-                          <td><a href="#" className="btn-small d-block">View</a></td>
-                        </tr>
-                        <tr>
-                          <td>#2366</td>
-                          <td>August 02, 2020</td>
-                          <td>Completed</td>
-                          <td>$280.00 for 3 item</td>
-                          <td><a href="#" className="btn-small d-block">View</a></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                  <div className="h2 title mb-4">Đơn hàng của bạn</div>
+                  {orders.length === 0 ? (
+                    <p>Bạn chưa có đơn hàng nào.</p>
+                  ) : (
+                    <div className="accordion" id="orderAccordion">
+                      {orders.map((order, index) => (
+                        <div className="accordion-body mb-3 border rounded" key={order.id}>
+                          <h2 className="accordion-header" id={`heading-${order.id}`}>
+                            <button
+                              className={`accordion-button ${expandedOrderId === order.id ? '' : 'collapsed'}`}
+                              type="button"
+                              style={{ fontSize: '16px' }}
+                              onClick={() =>
+                                setExpandedOrderId(expandedOrderId === order.id ? null : order.id ?? null)
+                              }
+                            >
+                              <div className="d-flex flex-column text-start">
+                                <span><strong>Đơn:</strong> #{order?.id?.slice(0, 8)}</span>
+                                <span>
+                                  <strong>Ngày:</strong>{' '}
+                                  {order?.createdAt ? new Date(order.createdAt).toLocaleString('vi-VN') : 'Không xác định'}
+                                </span>
+
+                                <span><strong>Trạng thái:</strong> {order.statusId}</span>
+                                <span><strong>Tổng tiền:</strong> {order.totalAmount.toLocaleString('vi-VN')}₫</span>
+                              </div>
+                            </button>
+                          </h2>
+                          {expandedOrderId === order.id && (
+                            <div className="accordion-collapse collapse show">
+                              <div className="accordion-body p-3">
+                                <h6>Chi tiết sản phẩm</h6>
+                                <table className="table table-sm">
+                                  <thead>
+                                    <tr>
+                                      <th>Tên sản phẩm</th>
+                                      <th>Số lượng</th>
+                                      <th>Đơn giá</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {order.orderItems.map((item) => (
+                                      <tr key={item.productId}>
+                                        <td>{item.productName}</td>
+                                        <td>{item.quantity}</td>
+                                        <td>{item.unitPrice.toLocaleString('vi-VN')}₫</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                                <div><strong>Địa chỉ giao hàng:</strong> {order.deliveryAddress?.fullAddress} </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
+
 
               {activeTab === 'track' && (
                 <div className="tracing-order-account">
-                  <h2 className="title">Orders tracking</h2>
-                  <p>
-                    To keep up with the status of your order, kindly input your OrderID
-                    in the designated box below and click the "Track" button.
-                  </p>
+                  <h2 className="title">Tra cứu đơn hàng</h2>
                   <form className="order-tracking">
                     <div className="single-input">
                       <label>Order Id</label>
-                      <input type="text" placeholder="Found in your order confirmation email" required />
+                      <input type="text" placeholder="Tìm trong email xác nhận đơn hàng" required />
                     </div>
                     <div className="single-input">
-                      <label>Billing email</label>
-                      <input type="email" placeholder="Email You use during checkout" />
+                      <label>Email đặt hàng</label>
+                      <input type="email" placeholder="Email bạn dùng khi thanh toán" />
                     </div>
                     <button className="rts-btn btn-primary" type="submit">Track</button>
                   </form>
@@ -127,49 +161,87 @@ const AccountTabs = () => {
               )}
 
               {activeTab === 'address' && (
-                <div className="shipping-address-billing-address-account">
-                  <div className="half">
-                    <h2 className="title">Billing Address</h2>
-                    <p className="address">
-                      3522 Interstate <br />
-                      75 Business Spur, <br />
-                      Sault Ste. <br />
-                      Marie, MI 49783 <br />
-                      New York
-                    </p>
-                    <a href="#">Edit</a>
-                  </div>
-                  <div className="half">
-                    <h2 className="title">Shipping Address</h2>
-                    <p className="address">
-                      3522 Interstate <br />
-                      75 Business Spur, <br />
-                      Sault Ste. <br />
-                      Marie, MI 49783 <br />
-                      New York
-                    </p>
-                    <a href="#">Edit</a>
-                  </div>
+                <div className="">
+                  <h2 className="title">Địa chỉ giao hàng của bạn</h2>
+                  {addresses.length === 0 ? (
+                    <p>Chưa có địa chỉ nào.</p>
+                  ) : (
+                    <ul className="list-group">
+                      {addresses.map(addr => (
+                        <li key={addr.id} className="list-group-item p-4">
+                          <strong>{addr.name}</strong><br />
+                          {addr.fullAddress}<br />
+                          {addr.ward}, {addr.district}, {addr.city}<br />
+                          {addr.isDefault && <span className="badge bg-success">Mặc định</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               )}
 
               {activeTab === 'account' && (
-                <form className="account-details-area">
-                  <h2 className="title">Account Details</h2>
-                  <div className="input-half-area">
-                    <div className="single-input">
-                      <input type="text" placeholder="First Name" />
+                <form className="account-details-area" onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }}>
+                  <h2 className="title">Thông tin cá nhân</h2>
+                  <div className="row">
+                    <div className="col-md-3 mb-3 text-center me-5" style={{ maxWidth: '200px' }}>
+                      {profile.avatarUrl ? (
+                        <img src={profile.avatarUrl} alt="Avatar" className="rounded-circle shadow" style={{ width: '100%', aspectRatio: 1, objectFit: 'cover' }} />
+                      ) : (
+                        <div className="bg-light rounded-circle shadow" style={{ width: '100%', paddingTop: '100%' }} />
+                      )}
+                      <input
+                        ref={avatarInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="d-none"
+                        onChange={handleAvatarUpload}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-secondary  mb-2"
+                        onClick={() => avatarInputRef.current?.click()}
+                      >
+                        Đổi ảnh
+                      </button>
                     </div>
-                    <div className="single-input">
-                      <input type="text" placeholder="Last Name" />
+                    <div className="col-md-8">
+                      <div className="single-input">
+                        <label>Họ tên</label>
+                        <input type="text" name="fullName" value={profile.fullName || ''} onChange={handleProfileChange} />
+                      </div>
+                      <div className="single-input">
+                        <label>Số điện thoại</label>
+                        <input type="text" name="phone" value={profile.phone || ''} onChange={handleProfileChange} />
+                      </div>
+                      <div className="single-input">
+                        <label>Giới tính</label>
+                        <select name="gender" value={profile.gender || 'other'} onChange={handleProfileChange}>
+                          <option value="all">-- Chọn giới tính --</option>
+                          <option value="male">Nam</option>
+                          <option value="female">Nữ</option>
+                          <option value="other">Khác</option>
+                        </select>
+                      </div>
+                      <div className="single-input">
+                        <label>Ngày sinh</label>
+                        <input
+                          type="date"
+                          name="dob"
+                          value={profile.dob ?? ''}
+                          onChange={(e) =>
+                            setProfile((prev) => ({
+                              ...prev,
+                              dob: e.target.value || undefined, // giữ null/undefined nếu user xóa
+                            }))
+                          }
+                        />
+                      </div>
+
+
+                      <button type="submit" className="rts-btn btn-primary mt-3">Lưu thay đổi</button>
                     </div>
                   </div>
-                  <input type="text" placeholder="Display Name" required />
-                  <input type="email" placeholder="Email Address *" required />
-                  <input type="password" placeholder="Current Password *" required />
-                  <input type="password" placeholder="New Password *" />
-                  <input type="password" placeholder="Confirm Password *" />
-                  <button className="rts-btn btn-primary">Save Change</button>
                 </form>
               )}
 

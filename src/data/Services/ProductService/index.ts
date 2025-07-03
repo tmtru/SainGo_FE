@@ -33,7 +33,7 @@ export interface ProductFilterDto {
     PageNumber?: number
     pageSize?: number
     sortBy?: string
-    sortDirection?: "asc" | "desc"
+    sortDesc?: boolean
 }
 
 export interface PaginatedResponse<T> {

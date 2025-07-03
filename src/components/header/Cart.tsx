@@ -15,8 +15,8 @@ const CartDropdown: React.FC = () => {
   return (
     <div className="btn-border-only cart category-hover-header">
       <i className="fa-sharp fa-regular fa-cart-shopping" />
-      <span className="text">Cart</span>
-
+      <span className="text">Giỏ hàng</span>
+      <span className="number">{cartItems.length}</span>
       <div className="category-sub-menu card-number-show">
         <h5 className="shopping-cart-number">
           Shopping Cart ({cartItems.length.toString().padStart(2, '0')})

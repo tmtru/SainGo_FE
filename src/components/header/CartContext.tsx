@@ -20,6 +20,7 @@ interface CartContextProps {
   removeFromCart: (id: string) => Promise<void>;
   updateItemQuantity: (productId: string, quantity: number) => Promise<void>;
   isCartLoaded: boolean;
+  clearCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextProps | undefined>(undefined);
@@ -169,6 +170,14 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const clearCart = async () => {
+    try {
+      setCartItems([]);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const value = useMemo(
     () => ({
       cartItems,
@@ -177,6 +186,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       removeFromCart,
       updateItemQuantity,
       isCartLoaded,
+      clearCart,
     }),
     [cartItems, isCartLoaded]
   );

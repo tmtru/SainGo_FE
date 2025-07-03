@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import HeaderNav from './HeaderNav';
 import CategoryMenu from './CategoryMenu';
@@ -9,92 +9,27 @@ import BackToTop from "@/components/common/BackToTop";
 import { useCompare } from '@/components/header/CompareContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '../Context/AuthContext';
 
 function HeaderOne() {
+    const { isAuthenticated, logout } = useAuth();
     const { compareItems } = useCompare();
-    const isLoggedIn = typeof window !== "undefined" && localStorage.getItem('token') !== null;
-
-    // Countdown setup
-    useEffect(() => {
-        const countDownElements = document.querySelectorAll<HTMLElement>('.countDown');
-        const endDates: Date[] = [];
-
-        countDownElements.forEach((el) => {
-            const match = el.innerText.match(/([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{4}) ([0-9]{2}):([0-9]{2}):([0-9]{2})/);
-            if (!match) return;
-
-            const end = new Date(+match[3], +match[1] - 1, +match[2], +match[4], +match[5], +match[6]);
-            if (end > new Date()) {
-                endDates.push(end);
-                const next = calcTime(end.getTime() - new Date().getTime());
-                el.innerHTML = renderDisplay(next);
-            } else {
-                el.innerHTML = `<p class="end">Sorry, your session has expired.</p>`;
-            }
-        });
-
-        const interval = setInterval(() => {
-            countDownElements.forEach((el, i) => {
-                const end = endDates[i];
-                if (!end) return;
-                const now = new Date();
-                const diff = end.getTime() - now.getTime();
-
-                if (diff <= 0) {
-                    el.innerHTML = `<p class="end">Sorry, your session has expired.</p>`;
-                } else {
-                    const next = calcTime(diff);
-                    el.innerHTML = renderDisplay(next);
-                }
-            });
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    const calcTime = (milliseconds: number) => {
-        const secondsTotal = Math.floor(milliseconds / 1000);
-        const days = Math.floor(secondsTotal / 86400);
-        const hours = Math.floor((secondsTotal % 86400) / 3600);
-        const minutes = Math.floor((secondsTotal % 3600) / 60);
-        const seconds = secondsTotal % 60;
-        return [days, hours, minutes, seconds].map((v) => v.toString().padStart(2, '0'));
-    };
-
-    const renderDisplay = (timeArr: string[]) => {
-        return timeArr
-            .map((item) => `<div class='container'><div class='a'><div>${item}</div></div></div>`)
-            .join('');
-    };
-
     const router = useRouter();
+
     const [searchTerm, setSearchTerm] = useState('');
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
     const allSuggestions = [
-        "Profitable business makes your profit Best Solution",
-        "Details Profitable business makes your profit",
-        "One Profitable business makes your profit",
-        "Me Profitable business makes your profit",
-        "Details business makes your profit",
-        "Firebase business makes your profit",
-        "Netlyfy business makes your profit",
-        "Profitable business makes your profit",
-        "Valuable business makes your profit",
-        "System business makes your profit",
-        "Profitables business makes your profit",
-        "Content business makes your profit",
-        "Dalivaring business makes your profit",
-        "Staning business makes your profit",
-        "Best business makes your profit",
-        "cooler business makes your profit",
-        "Best-one Profitable business makes your profit",
-        "Super Fresh Meat",
-        "Original Fresh frut",
-        "Organic Fresh frut",
-        "Lite Fresh frut"
+        "Giải pháp kinh doanh có lãi",
+        "Chi tiết kinh doanh có lãi",
+        "Một giải pháp kinh doanh",
+        "Sản phẩm tươi sống cao cấp",
+        "Trái cây hữu cơ nguyên chất",
+        "Rau củ sạch mỗi ngày",
+        "Thịt siêu tươi ngon",
+        "Sản phẩm tốt nhất hôm nay"
     ];
 
     useEffect(() => {
@@ -139,30 +74,7 @@ function HeaderOne() {
     return (
         <>
             <div className="rts-header-one-area-one">
-                {/* top bar
-                <div className="header-top-area">
-                    <div className="container">
-                        <div className="row">
-                            <div className="col-lg-12">
-                                <div className="bwtween-area-header-top">
-                                    <div className="discount-area">
-                                        <p className="disc">
-                                            FREE delivery &amp; 40% Discount for next 3 orders! Place your 1st order in.
-                                        </p>
-                                        <div className="countdown">
-                                            <div className="countDown">10/05/2025 10:20:00</div>
-                                        </div>
-                                    </div>
-                                    <div className="contact-number-area">
-                                        <p>Need help? Call Us: <a href="tel:+4733378901">+258 3268 21485</a></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> */}
-
-                {/* mid bar */}
+                {/* Thanh thông tin */}
                 <div className="header-mid-one-wrapper">
                     <div className="container">
                         <div className="row">
@@ -170,33 +82,12 @@ function HeaderOne() {
                                 <div className="header-mid-wrapper-between">
                                     <div className="nav-sm-left">
                                         <ul className="nav-h_top">
-                                            <li><a href="/about">About Us</a></li>
-                                            <li><a href="/account">My Account</a></li>
-                                            <li><a href="/wishlist">Wishlist</a></li>
+                                            <li><a href="/about">Giới thiệu</a></li>
+                                            <li><a href="/contact">Liên hệ</a></li>
                                         </ul>
-                                        
                                     </div>
                                     <div className="nav-sm-left">
-                                        <p className="para">We deliver to your everyday from 7:00 to 22:00</p>
-                                        {/* <ul className="nav-h_top language">
-                                            <li className="category-hover-header language-hover">
-                                                <a href="#">English</a>
-                                                <ul className="category-sub-menu">
-                                                    <li><a href="#"><span>Italian</span></a></li>
-                                                    <li><a href="#"><span>Russian</span></a></li>
-                                                    <li><a href="#"><span>Chinian</span></a></li>
-                                                </ul>
-                                            </li>
-                                            <li className="category-hover-header language-hover">
-                                                <a href="#">USD</a>
-                                                <ul className="category-sub-menu">
-                                                    <li><a href="#"><span>Rubol</span></a></li>
-                                                    <li><a href="#"><span>Rupi</span></a></li>
-                                                    <li><a href="#"><span>Euro</span></a></li>
-                                                </ul>
-                                            </li>
-                                            <li><a href="/trackorder">Track Order</a></li>
-                                        </ul> */}
+                                        <p className="para">Chúng tôi giao hàng mỗi ngày từ 7:00 đến 22:00</p>
                                     </div>
                                 </div>
                             </div>
@@ -204,45 +95,40 @@ function HeaderOne() {
                     </div>
                 </div>
 
-                {/* logo + search */}
-                ;
-
+                {/* Logo + Tìm kiếm */}
                 <div className="search-header-area-main">
                     <div className="container">
                         <div className="row">
                             <div className="col-lg-12">
                                 <div className="logo-search-category-wrapper">
-                                    {/* Logo */}
                                     <Link href="/" className="logo-area">
-                                        <img src="/assets/images/logo/logo-01.svg" alt="logo-main" className="logo" />
+                                        <img src="/assets/images/logo/logo-01.svg" alt="Trang chủ" className="logo" />
                                     </Link>
 
                                     <div className="category-search-wrapper">
-                                        <div className="category-btn category-hover-header">
-                                            <img className="parent" src="/assets/images/icons/bar-1.svg" alt="icons" />
-                                            <span>Categories</span>
+                                        {/* <div className="category-btn category-hover-header">
+                                            <img className="parent" src="/assets/images/icons/bar-1.svg" alt="Danh mục" />
+                                            <span>Danh mục</span>
                                             <CategoryMenu />
-                                        </div>
+                                        </div> */}
 
-                                        {/* Search Form */}
                                         <form onSubmit={handleSubmit} className="search-header" autoComplete="off">
                                             <input
                                                 ref={inputRef}
                                                 type="text"
-                                                placeholder="Search for products, categories or brands"
+                                                placeholder="Tìm sản phẩm, danh mục, thương hiệu..."
                                                 required
                                                 value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}
                                                 onFocus={() => searchTerm.length > 0 && setShowSuggestions(true)}
                                             />
                                             <button type="submit" className="rts-btn btn-primary radious-sm with-icon">
-                                                <div className="btn-text">Search</div>
+                                                <div className="btn-text">Tìm kiếm</div>
                                                 <div className="arrow-icon">
                                                     <i className="fa-light fa-magnifying-glass" />
                                                 </div>
                                             </button>
 
-                                            {/* Autocomplete dropdown */}
                                             {showSuggestions && suggestions.length > 0 && (
                                                 <ul
                                                     className="autocomplete-suggestions"
@@ -264,7 +150,7 @@ function HeaderOne() {
                                                         <li
                                                             key={index}
                                                             onClick={() => handleSuggestionClick(suggestion)}
-                                                            onMouseDown={(e) => e.preventDefault()} // prevent input blur
+                                                            onMouseDown={(e) => e.preventDefault()}
                                                             style={{
                                                                 padding: '8px 12px',
                                                                 cursor: 'pointer',
@@ -278,36 +164,69 @@ function HeaderOne() {
                                         </form>
                                     </div>
 
-                                    {/* Actions: search/menu buttons */}
                                     <div className="actions-area">
                                         <div className="search-btn" id="searchs">
-                                            <svg width={17} height={16} viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="..." fill="#1F1F25" />
-                                            </svg>
+                                            <i className="fa-light fa-magnifying-glass" />
                                         </div>
                                         <div className="menu-btn" id="menu-btn">
-                                            <svg width={20} height={16} viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect y={14} width={20} height={2} fill="#1F1F25" />
-                                                <rect y={7} width={20} height={2} fill="#1F1F25" />
-                                                <rect width={20} height={2} fill="#1F1F25" />
-                                            </svg>
+                                            <i className="fa-light fa-bars" />
                                         </div>
                                     </div>
 
-                                    {/* Account, Compare, Wishlist, Cart */}
                                     <div className="accont-wishlist-cart-area-header">
-                                        <Link href="/account" className="btn-border-only account">
-                                            <i className="fa-light fa-user" />
-                                            <span>Account</span>
-                                        </Link>
-
-                                        <Link href="/shop-compare" className="btn-border-only account compare-number">
+                                        {/* <Link href="/shop-compare" className="btn-border-only account compare-number">
                                             <i className="fa-regular fa-code-compare" />
                                             <span className="number">{compareItems.length}</span>
-                                        </Link>
+                                        </Link> */}
 
                                         <WishList />
-                                        {isLoggedIn && <Cart />}
+
+                                        {isAuthenticated && <Cart />}
+
+                                        {isAuthenticated ? (
+                                            <>
+                                                <Link
+                                                    href="/account"
+                                                    className="btn-border-only account"
+                                                >
+                                                    <i className="fa-light fa-user" />
+                                                </Link>
+
+                                                <button
+                                                    onClick={logout}
+                                                    className="btn-border-only account"
+                                                    style={{
+                                                        backgroundColor: '#ffeaea',
+                                                        border: '1px solid #e54848',
+                                                        color: '#d32626',
+                                                        padding: '6px 12px',
+                                                        marginLeft: '8px',
+                                                        borderRadius: '4px',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                >
+                                                    <i className="fa-light fa-arrow-right-from-bracket" />
+                                                    <span style={{ marginLeft: '4px' }}>Đăng xuất</span>
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <Link
+                                                href="/login"
+                                                className="btn-border-only account"
+                                                style={{
+                                                    backgroundColor: '#e6f2ff',
+                                                    border: '1px solid #3399ff',
+                                                    color: '#0066cc',
+                                                    padding: '6px 12px',
+                                                    marginLeft: '8px',
+                                                    borderRadius: '4px',
+                                                }}
+                                            >
+                                                <i className="fa-light fa-user" />
+                                                <span style={{ marginLeft: '4px' }}>Đăng nhập</span>
+                                            </Link>
+                                        )}
+
                                     </div>
                                 </div>
                             </div>
@@ -315,9 +234,10 @@ function HeaderOne() {
                     </div>
                 </div>
 
-                {/* main nav */}
+                {/* Điều hướng chính */}
                 <HeaderNav />
             </div>
+
             <Sidebar />
             <BackToTop />
         </>

@@ -60,10 +60,10 @@ const Header: React.FC = () => {
                             <div className="main-wrapper-action-2 d-flex">
                                 <div className="accont-wishlist-cart-area-header">
                                     <Link href="/account" className="btn-border-only account">
-                                        <i className="fa-light fa-user" /> Account
+                                        <i className="fa-light fa-user" />
                                     </Link>
                                     <Link href="/wishlist" className="btn-border-only wishlist">
-                                        <i className="fa-regular fa-heart" /> Wishlist
+                                        <i className="fa-regular fa-heart" />
                                     </Link>
                                     <div className="btn-border-only cart category-hover-header">
                                         <i className="fa-sharp fa-regular fa-cart-shopping" />

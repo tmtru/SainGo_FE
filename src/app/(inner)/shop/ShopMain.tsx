@@ -18,6 +18,7 @@ interface BlogGridMainProps {
     ProductTitle?: string;
     Price?: string;
     BasePrice?: string;
+    StockAvailable?: number; // Số lượng hàng có sẵn
 }
 
 const BlogGridMain: React.FC<BlogGridMainProps> = ({
@@ -27,6 +28,7 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
     ProductTitle,
     Price,
     BasePrice,
+    StockAvailable = 0, // Mặc định là 0 nếu không có giá trị
 }) => {
     type ModalType = 'one' | 'two' | 'three' | null;
     const [activeModal, setActiveModal] = useState<ModalType>(null);
@@ -99,6 +101,7 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
 
     const handleCompare = () => {
         addToCompare({
+            id: Id,
             image: `/assets/images/grocery/${ProductImage}`,
             name: ProductTitle ?? 'Default Product Title',
             price: Price ?? '0',
@@ -113,7 +116,7 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
 
     const handleWishlist = () => {
         addToWishlist({
-            id: Date.now(),
+            id: Id,
             image: `/assets/images/grocery/${ProductImage}`,
             title: ProductTitle ?? 'Default Product Title',
             price: parseFloat(Price ?? '0'),
@@ -132,6 +135,7 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
                     ProductTitle={ProductTitle}
                     Price={Price}
                     BasePrice={BasePrice}
+                    StockAvailable={StockAvailable}
                 />
             </div>
 

@@ -7,6 +7,7 @@ import WeeklyBestSellingMain from "@/components/product-main/WeeklyBestSellingMa
 import "swiper/css";
 import "swiper/css/navigation";
 import ProductService, { Product } from "@/data/Services/ProductService";
+import CustomLoader from "../common/CustomLoader";
 
 const FeatureProduct: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -29,7 +30,8 @@ const FeatureProduct: React.FC = () => {
         fetchProducts();
     }, [limit]);
 
-    if (loading) return <p>Loading featured products...</p>;
+    if (loading) return <CustomLoader />;
+
 
     // Chia sản phẩm thành các nhóm để tạo nhiều slide (tùy logic bạn muốn)
     const groupProducts = (products: Product[], groupSize: number) => {
@@ -95,7 +97,7 @@ const FeatureProduct: React.FC = () => {
                                                     ProductTitle={product.name}
                                                     Price={product.salePrice.toString()}
                                                     BasePrice={product.basePrice.toString()}
-                                                    
+                                                    StockAvailable={product.stockQuantity}
                                                 />
                                             </div>
                                         ))}
