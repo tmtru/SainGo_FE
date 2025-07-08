@@ -15,12 +15,11 @@ export default function Home() {
         <div className="demo-one">
             <HeaderOne />
             <AboutBanner />
-            <CounterOne/>
+            {/* <CounterOne/> */}
             <AboutOne/>
-            <Team/>
             <ServiceOne/>
-            <TestimonilsOne/>
-            <ShortService/>
+            {/* <TestimonilsOne/>
+            <ShortService/> */}
 
 
 

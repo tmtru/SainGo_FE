@@ -1,4 +1,5 @@
 "use client"
+import { useAuth } from '../Context/AuthContext';
 import CategoryMenu from './CategoryMenu';
 import MobileMenu from './MobileMenu';
 import { useState } from 'react';
@@ -7,7 +8,7 @@ const Sidebar = () => {
 
     // tab
     const [activeTab, setActiveTab] = useState<string>('tab1');
-
+    const { isAuthenticated, logout } = useAuth();
 
 
 
@@ -44,32 +45,32 @@ const Sidebar = () => {
                     <nav>
                         <div className="nav nav-tabs" id="nav-tab" role="tablist">
                             <button
-                               onClick={() => setActiveTab('tab1')}
-                                                className={`nav-link ${activeTab === 'tab1' ? 'active' : ''}`}>
+                                onClick={() => setActiveTab('tab1')}
+                                className={`nav-link ${activeTab === 'tab1' ? 'active' : ''}`}>
                                 Menu
                             </button>
                             <button
                                 onClick={() => setActiveTab('tab2')}
-                                                className={`nav-link ${activeTab === 'tab2' ? 'active' : ''}`}>
+                                className={`nav-link ${activeTab === 'tab2' ? 'active' : ''}`}>
                                 Category
                             </button>
                         </div>
                     </nav>
                     <div className="tab-content" id="nav-tabContent">
                         {activeTab === 'tab1' &&
-                        <div>
-                            {/* mobile menu area start */}
-                            <div className="mobile-menu-main">
-                                <MobileMenu/>
-                            </div>
-                            {/* mobile menu area end */}
-                        </div>}
+                            <div>
+                                {/* mobile menu area start */}
+                                <div className="mobile-menu-main">
+                                    <MobileMenu />
+                                </div>
+                                {/* mobile menu area end */}
+                            </div>}
                         {activeTab === 'tab2' &&
-                        <div>
-                            <div className="category-btn category-hover-header menu-category">
-                                <CategoryMenu/>
+                            <div>
+                                <div className="category-btn category-hover-header menu-category">
+                                    <CategoryMenu />
+                                </div>
                             </div>
-                        </div>
                         }
                     </div>
                 </div>
@@ -85,31 +86,41 @@ const Sidebar = () => {
                             <a href="#">02345697871</a>
                         </div>
                     </div>
-                    <div className="buton-area-bottom">
-                        <a href="/login" className="rts-btn btn-primary">
-                            Sign In
-                        </a>
-                        <a href="/register" className="rts-btn btn-primary">
-                            Sign Up
-                        </a>
-                    </div>
+                    {!isAuthenticated ? (
+                        <div className="buton-area-bottom">
+                            <a href="/login" className="rts-btn btn-primary">
+                                Sign In
+                            </a>
+                            <a href="/register" className="rts-btn btn-primary">
+                                Sign Up
+                            </a>
+                        </div>) : (
+                        <div className="buton-area-bottom">
+                            <a href="/account" className="rts-btn btn-primary">
+                                Tài khoản
+                            </a>
+                            <button onClick={logout} className="rts-btn btn-primary">
+                                Logout
+                            </button>
+                        </div>
+                    )}
                 </div>
                 {/* button area wrapper end */}
             </div>
             <div className="search-input-area">
                 <div className="container">
                     <div className="search-input-inner">
-                    <div className="input-div">
-                        <input
-                        id="searchInput1"
-                        className="search-input"
-                        type="text"
-                        placeholder="Search by keyword or #"
-                        />
-                        <button>
-                        <i className="far fa-search" />
-                        </button>
-                    </div>
+                        <div className="input-div">
+                            <input
+                                id="searchInput1"
+                                className="search-input"
+                                type="text"
+                                placeholder="Search by keyword or #"
+                            />
+                            <button>
+                                <i className="far fa-search" />
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div id="close" className="search-close-icon" onClick={handleSearchClose}>

@@ -1,204 +1,83 @@
-import React from 'react'
+import React from 'react';
 
 function FooterOne() {
     return (
-        <div><>
-            {/* rts footer one area start */}
+        <>
+            {/* Khu vực chân trang bắt đầu */}
             <div className="rts-footer-area pt--80 bg_light-1">
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-12">
                             <div className="footer-main-content-wrapper pb--70 pb_sm--30">
-                                {/* single footer area wrapper */}
+                                {/* Giới thiệu công ty */}
                                 <div className="single-footer-wized">
-                                    <h3 className="footer-title">About Company</h3>
+                                    <h3 className="footer-title">Về Chúng Tôi</h3>
                                     <div className="call-area">
                                         <div className="icon">
                                             <i className="fa-solid fa-phone-rotary" />
                                         </div>
                                         <div className="info">
-                                            <span>Have Question? Call Us 24/7</span>
-                                            <a href="#" className="number">
-                                                +258 3692 2569
-                                            </a>
+                                            <span>Có thắc mắc? Gọi ngay 24/7</span>
+                                            <span className="number">+258 3692 2569</span>
                                         </div>
                                     </div>
                                     <div className="opening-hour">
                                         <div className="single">
-                                            <p>
-                                                Monday - Friday: <span>8:00am - 6:00pm</span>
-                                            </p>
+                                            <p>Thứ 2 - Thứ 6: <span>8:00 - 18:00</span></p>
                                         </div>
                                         <div className="single">
-                                            <p>
-                                                Saturday: <span>8:00am - 6:00pm</span>
-                                            </p>
+                                            <p>Thứ 7: <span>8:00 - 18:00</span></p>
                                         </div>
                                         <div className="single">
-                                            <p>
-                                                Sunday: <span>Service Close</span>
-                                            </p>
+                                            <p>Chủ Nhật: <span>Đóng cửa</span></p>
                                         </div>
                                     </div>
                                 </div>
-                                {/* single footer area wrapper */}
-                                {/* single footer area wrapper */}
+
+                                {/* Danh mục cửa hàng */}
                                 <div className="single-footer-wized">
-                                    <h3 className="footer-title">Our Stores</h3>
-                                    <div className="footer-nav">
-                                        <ul>
-                                            <li>
-                                                <a href="#">Delivery Information</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">Privacy Policy</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">Terms &amp; Conditions</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">Support Center</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">Careers</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                {/* single footer area wrapper */}
-                                {/* single footer area wrapper */}
-                                <div className="single-footer-wized">
-                                    <h3 className="footer-title">Shop Categories</h3>
-                                    <div className="footer-nav">
-                                        <ul>
-                                            <li>
-                                                <a href="#">Contact Us</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">Information</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">About Us</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">Careers</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">Nest Stories</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                {/* single footer area wrapper */}
-                                {/* single footer area wrapper */}
-                                <div className="single-footer-wized">
-                                    <h3 className="footer-title">Useful Links</h3>
-                                    <div className="footer-nav">
-                                        <ul>
-                                            <li>
-                                                <a href="#">Cancellation &amp; Returns</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">Report Infringement</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">Payments</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">Shipping</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">FAQ</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                {/* single footer area wrapper */}
-                                {/* single footer area wrapper */}
-                                <div className="single-footer-wized">
-                                    <h3 className="footer-title">Our Newsletter</h3>
-                                    <p className="disc-news-letter">
-                                        Subscribe to the mailing list to receive updates one <br /> the
-                                        new arrivals and other discounts
-                                    </p>
-                                    <form className="footersubscribe-form" action="#">
-                                        <input
-                                            type="email"
-                                            placeholder="Your email address"
-                                            required
-                                        />
-                                        <button className="rts-btn btn-primary">Subscribe</button>
-                                    </form>
-                                    <p className="dsic">
-                                        I would like to receive news and special offer
-                                    </p>
-                                </div>
-                                {/* single footer area wrapper */}
-                            </div>
-                            <div className="social-and-payment-area-wrapper">
-                                <div className="social-one-wrapper">
-                                    <span>Follow Us:</span>
-                                    <ul>
-                                        <li>
-                                            <a href="#">
-                                                <i className="fa-brands fa-facebook-f" />
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <i className="fa-brands fa-twitter" />
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <i className="fa-brands fa-youtube" />
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <i className="fa-brands fa-whatsapp" />
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <i className="fa-brands fa-instagram" />
-                                            </a>
-                                        </li>
+                                    <h3 className="footer-title">Danh Mục Mua Sắm</h3>
+                                    <ul className="footer-nav">
+                                        <li>Liên hệ</li>
+                                        <li>Giới thiệu</li>
+                                        <li>Tuyển dụng</li>
+                                        <li>Thông tin sản phẩm</li>
+                                        <li>Câu chuyện thương hiệu</li>
                                     </ul>
                                 </div>
-                                <div className="payment-access">
-                                    <span>Payment Accepts:</span>
-                                    <img src="assets/images/payment/01.png" alt="" />
+
+                                {/* Liên kết hữu ích */}
+                                <div className="single-footer-wized">
+                                    <h3 className="footer-title">Liên Kết Hữu Ích</h3>
+                                    <ul className="footer-nav">
+                                        <li>Chính sách đổi trả</li>
+                                        <li>Chính sách vận chuyển</li>
+                                        <li>Phương thức thanh toán</li>
+                                        <li>Câu hỏi thường gặp</li>
+                                        <li>Trung tâm hỗ trợ</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {/* Mạng xã hội và thanh toán */}
+                            <div className="social-and-payment-area-wrapper">
+                                <div className="social-one-wrapper">
+                                    <span>Theo dõi chúng tôi:</span>
+                                    <ul>
+                                        <li><i className="fa-brands fa-facebook-f" /></li>
+                                        <li><i className="fa-brands fa-twitter" /></li>
+                                        <li><i className="fa-brands fa-youtube" /></li>
+                                        <li><i className="fa-brands fa-whatsapp" /></li>
+                                        <li><i className="fa-brands fa-instagram" /></li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            {/* rts footer one area end */}
-            {/* rts copyright-area start */}
-            <div className="rts-copyright-area">
-                <div className="container">
-                    <div className="row">
-                        <div className="col-lg-12">
-                            <div className="copyright-between-1">
-                                <p className="disc">
-                                    Copyright 2025 <a href="#">©Ekomart</a>. All rights reserved.
-                                </p>
-                                <a href="#" className="playstore-app-area">
-                                    <span>Download App</span>
-                                    <img src="assets/images/payment/02.png" alt="" />
-                                    <img src="assets/images/payment/03.png" alt="" />
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {/* rts copyright-area end */}
         </>
-        </div>
-    )
+    );
 }
 
-export default FooterOne
+export default FooterOne;

@@ -93,7 +93,7 @@ const FeatureProduct: React.FC = () => {
                                                 <WeeklyBestSellingMain
                                                     Id={product.id}
                                                     Slug={product.slug}
-                                                    ProductImage={"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/1200px-Good_Food_Display_-_NCI_Visuals_Online.jpg"}
+                                                    ProductImage={product.thumbnailUrl}
                                                     ProductTitle={product.name}
                                                     Price={product.salePrice.toString()}
                                                     BasePrice={product.basePrice.toString()}

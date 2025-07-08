@@ -1,668 +1,659 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import DataTable, { TableColumn } from 'react-data-table-component';
-import { useSearchParams, useRouter } from 'next/navigation';
-import ProductService, { Product, ProductFilterDto } from "@/data/Services/ProductService";
-import CategoryService, { Category } from "@/data/Services/CategoryService";
-import CustomLoader from "@/components/common/CustomLoader";
-import { Pagination } from "@mui/material";
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// A simple, reusable accordion component for the filter sidebar
-const FilterAccordion = ({ title, children }: { title: string, children: React.ReactNode }) => {
-  const [isOpen, setIsOpen] = useState(true);
+import AdminProductService, { AdminProduct } from '@/data/Services/AdminService/ProductManageService';
+import CategoryService, { Category } from '@/data/Services/CategoryService';
+
+interface ProductTableProps {
+  products: AdminProduct[];
+  categories: Category[];
+  onEdit: (product: AdminProduct) => void;
+  onDelete: (productId: string) => void;
+  onToggleStatus: (productId: string, isAvailable: boolean) => void;
+  onToggleFeatured: (productId: string, isFeatured: boolean) => void;
+}
+
+const ProductTable: React.FC<ProductTableProps> = ({
+  products,
+  categories,
+  onEdit,
+  onDelete,
+  onToggleStatus,
+  onToggleFeatured,
+}) => {
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  const getCategoryName = (categoryId: string) => {
+    const category = categories.find(c => c.id === categoryId);
+    return category ? category.name : 'Chưa phân loại';
+  };
+
+  const getStatusBadge = (isAvailable: boolean) => {
+    return isAvailable ? (
+      <span className="badge bg-success">
+        <i className="fas fa-check-circle me-1"></i>
+        Có sẵn
+      </span>
+    ) : (
+      <span className="badge bg-danger">
+        <i className="fas fa-times-circle me-1"></i>
+        Hết hàng
+      </span>
+    );
+  };
+
+  const getDiscountBadge = (basePrice: number, salePrice: number) => {
+    if (salePrice && basePrice > salePrice) {
+      const discount = Math.round(((basePrice - salePrice) / basePrice) * 100);
+      return (
+        <span className="badge bg-warning text-dark">
+          -{discount}%
+        </span>
+      );
+    }
+    return null;
+  };
 
   return (
-    <div className="filter-accordion mb-3">
-      <button
-        className="accordion-header d-flex justify-content-between align-items-center w-100 btn"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <h6 className="mb-0 fw-semibold">{title}</h6>
-        <i className={`fa fa-chevron-down transition-transform ${isOpen ? 'rotate-180' : ''}`}></i>
-      </button>
-      {isOpen && (
-        <div className="accordion-body mt-3">
-          {children}
-        </div>
-      )}
-      <style jsx>{`
-                .accordion-header { text-align: left; padding: 0; }
-                .transition-transform { transition: transform 0.2s ease-in-out; }
-                .rotate-180 { transform: rotate(180deg); }
-            `}</style>
+    <div className="table-responsive">
+      <table className="table table-hover table-striped">
+        <thead style={{ backgroundColor: '#e8f5e8' }}>
+          <tr>
+            <th style={{ color: '#2d5a3d', minWidth: '80px' }}>Hình ảnh</th>
+            <th style={{ color: '#2d5a3d', minWidth: '200px' }}>Tên sản phẩm</th>
+            <th style={{ color: '#2d5a3d', minWidth: '120px' }}>Danh mục</th>
+            <th style={{ color: '#2d5a3d', minWidth: '120px' }}>Giá</th>
+            <th style={{ color: '#2d5a3d', minWidth: '100px' }}>Trạng thái</th>
+            <th style={{ color: '#2d5a3d', minWidth: '100px' }}>Tính năng</th>
+            <th style={{ color: '#2d5a3d', minWidth: '120px' }}>Ngày tạo</th>
+            <th style={{ color: '#2d5a3d', minWidth: '150px' }}>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((product) => (
+            <tr key={product.id}>
+              <td>
+                <div
+                  className="rounded-3 overflow-hidden shadow-sm"
+                  style={{ width: '60px', height: '60px', border: '2px solid #4a7c59' }}
+                >
+                  <Image
+                    src={product.thumbnailUrl || '/placeholder.png'}
+                    alt={product.name}
+                    width={60}
+                    height={60}
+                    style={{ objectFit: 'cover' }}
+                    className="rounded-3"
+                  />
+                </div>
+              </td>
+              <td>
+                <div>
+                  <h6 className="mb-1 fw-bold">{product.name}</h6>
+                  <small className="text-muted">
+                    {product.unit} {product.unitSize}
+                  </small>
+                  {product.sku && (
+                    <div>
+                      <small className="text-muted">SKU: {product.sku}</small>
+                    </div>
+                  )}
+                </div>
+              </td>
+              <td>
+                <span className="badge bg-light text-dark">
+                  {getCategoryName(product.mainCategoryId)}
+                </span>
+              </td>
+              <td>
+                <div>
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="fw-bold text-success">
+                      {formatCurrency(product.salePrice || product.basePrice)}
+                    </span>
+                    {getDiscountBadge(product.basePrice, product.salePrice ? product.salePrice : 0)}
+                  </div>
+                  {product.salePrice && product.basePrice > product.salePrice && (
+                    <small className="text-muted text-decoration-line-through">
+                      {formatCurrency(product.basePrice)}
+                    </small>
+                  )}
+                </div>
+              </td>
+              <td>
+                <div className="d-flex align-items-center">
+                  {getStatusBadge(product.isAvailable ? product.isAvailable : false)}
+                </div>
+              </td>
+              <td>
+                <div className="d-flex flex-column gap-1">
+                  {product.isFeatured && (
+                    <span className="badge bg-warning text-dark">
+                      <i className="fas fa-star me-1"></i>
+                      Nổi bật
+                    </span>
+                  )}
+                  {product.isOrganic && (
+                    <span className="badge bg-success">
+                      <i className="fas fa-leaf me-1"></i>
+                      Hữu cơ
+                    </span>
+                  )}
+                  {product.isFreshProduct && (
+                    <span className="badge bg-info">
+                      <i className="fas fa-snowflake me-1"></i>
+                      Tươi sống
+                    </span>
+                  )}
+                </div>
+              </td>
+              <td>
+                {product.createdAt && (
+                  <small className="text-muted">
+
+                    {new Date(product.createdAt).toLocaleDateString('vi-VN')}
+                  </small>
+                )}
+              </td>
+              <td>
+                <div className="d-flex gap-1">
+                  <button
+                    onClick={() => onEdit(product)}
+                    className="btn btn-outline-primary btn-sm"
+                    title="Chỉnh sửa"
+                  >
+                    <i className="fas fa-edit"></i>
+                  </button>
+                  <button
+                    onClick={() => onToggleStatus(product.id, !product.isAvailable)}
+                    className={`btn btn-sm ${product.isAvailable ? 'btn-outline-warning' : 'btn-outline-success'}`}
+                    title={product.isAvailable ? 'Ẩn sản phẩm' : 'Hiển thị sản phẩm'}
+                  >
+                    <i className={`fas ${product.isAvailable ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                  </button>
+                  <button
+                    onClick={() => onToggleFeatured(product.id, !product.isFeatured)}
+                    className={`btn btn-sm ${product.isFeatured ? 'btn-warning' : 'btn-outline-warning'}`}
+                    title={product.isFeatured ? 'Bỏ nổi bật' : 'Đánh dấu nổi bật'}
+                  >
+                    <i className="fas fa-star"></i>
+                  </button>
+                  <button
+                    onClick={() => onDelete(product.id)}
+                    className="btn btn-outline-danger btn-sm"
+                    title="Xóa"
+                  >
+                    <i className="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
 
-
-interface EditFormData {
-  name?: string;
-  basePrice?: number;
-  salePrice?: number;
-  stockQuantity?: number;
-  categoryId?: string;
-  description?: string;
-}
-
-const ProductDashboard = () => {
-  const searchParams = useSearchParams();
+export default function ProductManagePage() {
   const router = useRouter();
+  const [products, setProducts] = useState<AdminProduct[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<AdminProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const [selectedFeature, setSelectedFeature] = useState('');
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
-  // API response states
-  const [products, setProducts] = useState<Product[]>([]);
-  const [allCategories, setAllCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [totalPages, setTotalPages] = useState<number>(0);
-  const [totalItems, setTotalItems] = useState<number>(0);
-
-  // Edit states
-  const [editProductId, setEditProductId] = useState<string | null>(null);
-  const [editFormData, setEditFormData] = useState<EditFormData>({});
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
-  // Filter states initialized from URL search parameters
-  const [localSearchQuery, setLocalSearchQuery] = useState<string>(
-    searchParams.get('keyword') || ''
-  );
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    searchParams.get('categoryId')?.split(',') || []
-  );
-  const [minPrice, setMinPrice] = useState<number>(
-    parseFloat(searchParams.get('minPrice') || '0')
-  );
-  const [maxPrice, setMaxPrice] = useState<number>(
-    parseFloat(searchParams.get('maxPrice') || '999999999')
-  );
-  const [pageNumber, setPageNumber] = useState<number>(
-    parseInt(searchParams.get('pageNumber') || '1', 10)
-  );
-  const [pageSize, setPageSize] = useState<number>(
-    parseInt(searchParams.get('pageSize') || '15', 10)
-  );
-
-  // UI states
-  const [selectedRows, setSelectedRows] = useState<Product[]>([]);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(localSearchQuery);
-  const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
-
-  const dropdownRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-  // BƯỚC 1: Thêm state để quản lý việc sắp xếp
-  const [sortField, setSortField] = useState(searchParams.get('sortBy') || 'createdAt');
-  const [sortDesc, setSortDesc] = useState(
-    searchParams.get('sortDesc') === 'true' // ← sửa đúng kiểu boolean
-  );
-  // Debounce search query
+  // Load data
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(localSearchQuery);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [localSearchQuery]);
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        const [productsRes, categoriesRes] = await Promise.all([
+          AdminProductService.getAll(),
+          CategoryService.getAllCategory(),
+        ]);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const isInside = Array.from(dropdownRefs.current.values()).some(ref =>
-        ref && ref.contains(event.target as Node)
-      );
-      if (!isInside) setActiveDropdown(null);
+        setProducts(productsRes.data);
+        setCategories(categoriesRes.data);
+      } catch (error) {
+        console.error('Error loading data:', error);
+        toast.error('Không thể tải dữ liệu');
+      } finally {
+        setIsLoading(false);
+      }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+
+    loadData();
   }, []);
 
-  // Reset page number when filters change
+  // Filter and search products
   useEffect(() => {
-    setPageNumber(1);
-  }, [debouncedSearchQuery, selectedCategories, minPrice, maxPrice]);
+    let filtered = [...products];
 
-  // Fetch products and categories
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      setError(null);
-
-      const params = new URLSearchParams();
-      const filterDto: ProductFilterDto = {};
-
-      if (debouncedSearchQuery) {
-        filterDto.keyword = debouncedSearchQuery;
-        params.append('keyword', debouncedSearchQuery);
-      }
-
-      if (selectedCategories.length > 0) {
-        const joined = selectedCategories.join(',');
-        filterDto.categoryId = joined;
-        params.append('categoryId', joined);
-      }
-
-      if (minPrice !== 0) {
-        filterDto.minPrice = minPrice;
-        params.append('minPrice', minPrice.toString());
-      }
-
-      if (maxPrice !== 999999999) {
-        filterDto.maxPrice = maxPrice;
-        params.append('maxPrice', maxPrice.toString());
-      }
-
-      filterDto.PageNumber = pageNumber;
-      params.append('pageNumber', pageNumber.toString());
-
-      filterDto.pageSize = pageSize;
-      params.append('pageSize', pageSize.toString());
-      // BƯỚC 2: Thêm tham số sắp xếp vào DTO và URL
-      filterDto.sortBy = sortField;
-      params.append('sortBy', sortField);
-
-      filterDto.sortDesc = sortDesc;
-      params.append('sortDesc', sortDesc.toString()); 
-      
-      // Update URL
-      router.push(`?${params.toString()}`, { scroll: false });
-
-      try {
-        const response = await ProductService.getFilteredProducts(filterDto);
-        const { items, totalPages, totalItems } = response.data;
-        setProducts(items);
-        setTotalPages(totalPages);
-        setTotalItems(totalItems);
-      } catch (err: any) {
-        console.error("Failed to fetch products:", err);
-        setError(err.response?.data?.message || err.message || 'An unexpected error occurred.');
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchCategories = async () => {
-      try {
-        const response = await CategoryService.getAllCategory();
-        setAllCategories(response.data);
-      } catch (err: any) {
-        console.error("Failed to fetch categories:", err);
-        setError(err.response?.data?.message || err.message || 'An unexpected error occurred while fetching categories.');
-      }
-    };
-
-    fetchProducts();
-    fetchCategories();
-  }, [
-    debouncedSearchQuery,
-    selectedCategories,
-    minPrice,
-    maxPrice,
-    pageNumber,
-    pageSize,
-    sortField, // Thêm vào dependency array
-    sortDesc, // Thêm vào dependency array
-    router
-  ]);
-  const handleSort = (column: TableColumn<Product>, direction: 'asc' | 'desc') => {
-    if (column.sortField) {
-      setSortField(column.sortField);
-      setSortDesc(direction === 'desc'); 
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.sku?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
-  };
-  
-  // Handle filter changes
-  const handleCategoryChange = (category: string): void => {
-    setSelectedCategories(prev => {
-      const newState = prev.includes(category)
-        ? prev.filter((cat: string) => cat !== category)
-        : [...prev, category];
-      setPageNumber(1);
-      return newState;
-    });
-  };
 
-  const handlePriceRangeCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value, checked } = e.target;
+    // Category filter
+    if (selectedCategory) {
+      filtered = filtered.filter(product => product.mainCategoryId === selectedCategory);
+    }
 
-    setSelectedPriceRanges(prev => {
-      const updated = checked
-        ? [...prev, value]
-        : prev.filter(v => v !== value);
-
-      if (updated.length === 0) {
-        setMinPrice(0);
-        setMaxPrice(999999999);
-      } else {
-        const minValues = updated.map(v => parseInt(v.split("-")[0], 10));
-        const maxValues = updated.map(v => parseInt(v.split("-")[1], 10));
-        setMinPrice(Math.min(...minValues));
-        setMaxPrice(Math.max(...maxValues));
-      }
-      setPageNumber(1);
-      return updated;
-    });
-  };
-
-  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setLocalSearchQuery(e.target.value);
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent): void => {
-    e.preventDefault();
-    setDebouncedSearchQuery(localSearchQuery.trim());
-  };
-
-  const handlePageChange = (page: number) => {
-    setPageNumber(page);
-  };
-
-  // Edit functionality
-  const handleEdit = (id: string) => {
-    const productToEdit = products.find(p => p.id === id);
-    if (productToEdit) {
-      setEditFormData({
-        name: productToEdit.name,
-        basePrice: productToEdit.basePrice,
-        salePrice: productToEdit.salePrice,
-        stockQuantity: productToEdit.stockQuantity,
-        // categoryId: productToEdit.categoryId, // Uncomment if needed
-        description: productToEdit.description,
+    // Status filter
+    if (selectedStatus) {
+      filtered = filtered.filter(product => {
+        if (selectedStatus === 'available') return product.isAvailable;
+        if (selectedStatus === 'unavailable') return !product.isAvailable;
+        return true;
       });
-      setEditProductId(id);
-      setActiveDropdown(null);
     }
-  };
 
-  const handleSave = async () => {
-    if (!editProductId || isSubmitting) return;
-    setIsSubmitting(true);
-    try {
-      // API call to update product would go here
-      // await ProductService.updateProduct(editProductId, editFormData);
-
-      setProducts(products.map(p =>
-        p.id === editProductId ? { ...p, ...editFormData } as Product : p
-      ));
-      toast.success('Product updated successfully!');
-    } catch (err: any) {
-      console.error("Failed to update product:", err);
-      toast.error('Failed to update product.');
-    } finally {
-      setIsSubmitting(false);
-      setEditProductId(null);
-      setEditFormData({});
+    // Feature filter
+    if (selectedFeature) {
+      filtered = filtered.filter(product => {
+        if (selectedFeature === 'featured') return product.isFeatured;
+        if (selectedFeature === 'organic') return product.isOrganic;
+        if (selectedFeature === 'fresh') return product.isFreshProduct;
+        return true;
+      });
     }
-  };
 
-  const handleCancel = () => {
-    setEditProductId(null);
-    setEditFormData({});
-  };
+    // Sort
+    filtered.sort((a, b) => {
+      let aValue: any = a[sortBy as keyof AdminProduct];
+      let bValue: any = b[sortBy as keyof AdminProduct];
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
-        // API call to delete product would go here
-        // await ProductService.deleteProduct(id);
-        setProducts(products.filter(p => p.id !== id));
-        toast.success('Product deleted successfully!');
-      } catch (err: any) {
-        console.error("Failed to delete product:", err);
-        toast.error('Failed to delete product.');
-      } finally {
-        setActiveDropdown(null);
+      if (sortBy === 'createdAt') {
+        aValue = new Date(aValue);
+        bValue = new Date(bValue);
       }
+
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    setFilteredProducts(filtered);
+    setCurrentPage(1);
+  }, [products, searchTerm, selectedCategory, selectedStatus, selectedFeature, sortBy, sortOrder]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+
+  const handleEdit = (product: AdminProduct) => {
+    router.push(`/dashboard/update-product/${product.id}`);
+  };
+
+  const handleDelete = async (productId: string) => {
+    if (!window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
+
+    try {
+      await AdminProductService.remove(productId);
+      toast.success('Xóa sản phẩm thành công!');
+      setProducts(prev => prev.filter(p => p.id !== productId));
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast.error('Không thể xóa sản phẩm');
     }
   };
 
-  const handleAddProduct = () => router.push('/dashboard/products/add');
-
-  const formatPrice = (price: number): string => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-  const formatDate = (dateString: string): string => new Date(dateString).toLocaleDateString('vi-VN');
-  const getCategoryName = (categoryId: string): string => allCategories.find(cat => cat.id === categoryId)?.name || 'N/A';
-
-  // Modern styles for react-data-table-component
-  // Modern styles for react-data-table-component
-  // Modern styles for react-data-table-component
-  const customStyles = {
-    header: {
-      style: {
-        display: 'none' as const, // We use our own card header
-      },
-    },
-    headRow: {
-      style: {
-        backgroundColor: '#f8f9fa',
-        borderBottomWidth: '1px',
-        borderColor: '#dee2e6',
-        fontWeight: 600,
-        color: '#495057',
-      },
-    },
-    rows: {
-      style: {
-        minHeight: '72px',
-        // FIX: Use 'as const' to assert the specific literal type
-        borderBottomStyle: 'solid' as const,
-        borderBottomWidth: '1px',
-        borderBottomColor: '#f1f1f1',
-      },
-      highlightOnHoverStyle: {
-        backgroundColor: '#f8f9fa',
-        transitionDuration: '0.15s',
-        transitionProperty: 'background-color' as const,
-      },
-    },
-    cells: {
-      style: {
-        padding: '12px 16px',
-      },
-    },
-    noData: {
-      style: {
-        padding: '48px',
-        fontSize: '1rem',
-        color: '#6c757d',
-      },
-    },
+  const handleToggleStatus = async (productId: string, isAvailable: boolean) => {
+    try {
+      await AdminProductService.updateStatus(productId, isAvailable);
+      toast.success(isAvailable ? 'Hiển thị sản phẩm thành công!' : 'Ẩn sản phẩm thành công!');
+      setProducts(prev => prev.map(p =>
+        p.id === productId ? { ...p, isAvailable } : p
+      ));
+    } catch (error) {
+      console.error('Error updating product status:', error);
+      toast.error('Không thể cập nhật trạng thái sản phẩm');
+    }
   };
 
-  const columns: TableColumn<Product>[] = [
-    {
-      name: 'Product',
-      selector: row => row.name,
-      sortable: true,
-      sortField: 'name',
-      cell: row => (
-        <div className="d-flex align-items-center py-2">
-          <img
-            src={row.thumbnailUrl || '/assets/images/default-product.png'}
-            alt={row.name}
-            className="rounded me-3"
-            style={{ width: '48px', height: '48px', objectFit: 'cover' }}
-          />
-          {editProductId === row.id ? (
-            <input
-              type="text"
-              value={editFormData.name || ''}
-              onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
-              className="form-control form-control-sm"
-            />
-          ) : (
-            <div>
-              <p className="fw-semibold mb-0 text-dark">{row.name}</p>
-              <small className="text-muted">SKU: {row.slug}</small>
-            </div>
-          )}
-        </div>
-      ),
-      minWidth: '300px',
-    },
-    // { // Uncomment this block to re-enable the Category column
-    //     name: 'Category',
-    //     selector: row => getCategoryName(row.categoryId || ''),
-    //     sortable: true,
-    //     cell: row => editProductId === row.id ? (
-    //         <select
-    //             value={editFormData.categoryId || ''}
-    //             onChange={(e) => setEditFormData({ ...editFormData, categoryId: e.target.value })}
-    //             className="form-select form-select-sm"
-    //         >
-    //             <option value="">Select Category</option>
-    //             {allCategories.map(cat => (
-    //                 <option key={cat.id} value={cat.id}>{cat.name}</option>
-    //             ))}
-    //         </select>
-    //     ) : (
-    //         <span className="badge bg-light text-dark">{getCategoryName(row.categoryId || '')}</span>
-    //     ),
-    // },
-    {
-      name: 'Base Price',
-      selector: row => row.basePrice,
-      sortable: true,
-      sortField: 'price',
-      cell: row => editProductId === row.id ? (
-        <input
-          type="number"
-          value={editFormData.basePrice || 0}
-          onChange={(e) => setEditFormData({ ...editFormData, basePrice: parseFloat(e.target.value) || 0 })}
-          className="form-control form-control-sm"
-          style={{ width: '120px' }}
-        />
-      ) : (
-        <p className="mb-0">{formatPrice(row.basePrice)}</p>
-      ),
-    },
-    {
-      name: 'Sale Price',
-      sortField: 'price',
-      selector: row => row.salePrice || 0,
-      sortable: true,
-      cell: row => editProductId === row.id ? (
-        <input
-          type="number"
-          value={editFormData.salePrice || 0}
-          onChange={(e) => setEditFormData({ ...editFormData, salePrice: parseFloat(e.target.value) || 0 })}
-          className="form-control form-control-sm"
-          style={{ width: '120px' }}
-        />
-      ) : (
-        <p className="mb-0">{row.salePrice ? formatPrice(row.salePrice) : '—'}</p>
-      ),
-    },
-    {
-      name: 'Stock',
-      selector: row => row.stockQuantity,
-      sortable: true,
-      cell: row => editProductId === row.id ? (
-        <input
-          type="number"
-          value={editFormData.stockQuantity || 0}
-          onChange={(e) => setEditFormData({ ...editFormData, stockQuantity: parseInt(e.target.value) || 0 })}
-          className="form-control form-control-sm"
-          style={{ width: '100px' }}
-        />
-      ) : (
-        <div className="text-center">
-          <p className={`fw-semibold mb-0 ${row.stockQuantity < 10 ? 'text-danger' : 'text-success'}`}>
-            {row.stockQuantity}
-          </p>
-          {row.stockQuantity === 0 && <small className="badge bg-danger-light text-danger">Out of Stock</small>}
-          {row.stockQuantity > 0 && row.stockQuantity < 10 && <small className="badge bg-warning-light text-warning">Low Stock</small>}
-        </div>
-      ),
-    },
-    {
-      name: 'Created Date',
-      selector: row => row.createdAt || '',
-      sortable: true,
-      sortField: 'createdAt',
-      cell: row => <p className="text-muted mb-0">{row.createdAt ? formatDate(row.createdAt) : '—'}</p>,
-    },
-    {
-      name: 'Action',
-      cell: row => (
-        <div style={{ position: 'relative' }}>
-          {editProductId === row.id ? (
-            <div className="d-flex gap-2">
-              <button className="btn btn-sm btn-success" onClick={handleSave} disabled={isSubmitting}>
-                <i className="fa fa-check"></i>
-              </button>
-              <button className="btn btn-sm btn-secondary" onClick={handleCancel} disabled={isSubmitting}>
-                <i className="fa fa-times"></i>
-              </button>
-            </div>
-          ) : (
-            <>
-              <button
-                className="btn btn-sm btn-light"
-                onClick={() => setActiveDropdown(prev => prev === row.id ? null : row.id)}
-              >
-                <i className="fa fa-ellipsis-h"></i>
-              </button>
-              {activeDropdown === row.id && (
-                <div
-                  className="dropdown-menu show shadow-lg border-0"
-                  ref={(el) => {
-                    if (el) dropdownRefs.current.set(row.id, el);
-                    else dropdownRefs.current.delete(row.id);
-                  }}
-                  style={{ position: 'absolute', right: '100%', top: 0, zIndex: 10, minWidth: '120px' }}
-                >
-                  <button className="dropdown-item d-flex align-items-center" onClick={() => handleEdit(row.id)}>
-                    <i className="fa fa-edit me-2 text-muted"></i> Edit
-                  </button>
-                  <button className="dropdown-item d-flex align-items-center text-danger" onClick={() => handleDelete(row.id)}>
-                    <i className="fa fa-trash me-2 text-muted"></i> Delete
-                  </button>
+  const handleToggleFeatured = async (productId: string, isFeatured: boolean) => {
+    try {
+      await AdminProductService.updateFeatured(productId, isFeatured);
+      toast.success(isFeatured ? 'Đánh dấu nổi bật thành công!' : 'Bỏ đánh dấu nổi bật thành công!');
+      setProducts(prev => prev.map(p =>
+        p.id === productId ? { ...p, isFeatured } : p
+      ));
+    } catch (error) {
+      console.error('Error updating featured status:', error);
+      toast.error('Không thể cập nhật trạng thái nổi bật');
+    }
+  };
+
+  const resetFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory('');
+    setSelectedStatus('');
+    setSelectedFeature('');
+    setSortBy('createdAt');
+    setSortOrder('desc');
+    setCurrentPage(1);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container-fluid py-4" style={{ backgroundColor: '#f8fffe' }}>
+        <div className="row justify-content-center">
+          <div className="col-12">
+            <div className="card shadow-lg border-0">
+              <div className="card-body text-center py-5">
+                <div className="spinner-border text-success" role="status">
+                  <span className="visually-hidden">Loading...</span>
                 </div>
-              )}
-            </>
-          )}
-        </div>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-  ];
-
-  return (
-    <div className="product-dashboard p-3 p-md-4 bg-light">
-      <div className="container-fluid">
-        <div className="row g-4">
-          {/* Sidebar Filters */}
-          <div className="col-xl-3 col-lg-4">
-            <div className="card border-0 shadow-sm">
-              <div className="card-header bg-white py-3">
-                <h5 className="card-title mb-0 fw-bold">Filters</h5>
-              </div>
-              <div className="card-body p-4">
-                {/* Search */}
-                <div className="mb-4">
-                  <label className="form-label fw-semibold">Search</label>
-                  <form onSubmit={handleSearchSubmit}>
-                    <div className="input-group">
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Product name..."
-                        value={localSearchQuery}
-                        onChange={handleSearchInputChange}
-                      />
-                      <button type="submit" className="btn btn-outline-secondary">
-                        <i className="fa fa-search"></i>
-                      </button>
-                    </div>
-                  </form>
-                </div>
-
-                {/* Filters with Accordion */}
-                <FilterAccordion title="Price Range">
-                  {[
-                    { label: "Under 500,000₫", value: "0-500000" },
-                    { label: "500,000₫ – 1,000,000₫", value: "500000-1000000" },
-                    { label: "1,000,000₫ – 3,000,000₫", value: "1000000-3000000" },
-                    { label: "3,000,000₫ – 10,000,000₫", value: "3000000-10000000" },
-                    { label: "Over 10,000,000₫", value: "10000000-999999999" },
-                  ].map(({ label, value }) => (
-                    <div className="form-check" key={value}>
-                      <input
-                        id={`price-${value}`}
-                        type="checkbox"
-                        className="form-check-input"
-                        value={value}
-                        onChange={handlePriceRangeCheckbox}
-                        checked={selectedPriceRanges.includes(value)}
-                      />
-                      <label className="form-check-label" htmlFor={`price-${value}`}>{label}</label>
-                    </div>
-                  ))}
-                </FilterAccordion>
-
-                <FilterAccordion title="Categories">
-                  {allCategories.map((cat: Category) => (
-                    <div className="form-check" key={cat.id}>
-                      <input
-                        id={cat.id}
-                        type="checkbox"
-                        className="form-check-input"
-                        checked={selectedCategories.includes(cat.id)}
-                        onChange={() => handleCategoryChange(cat.id)}
-                      />
-                      <label className="form-check-label" htmlFor={cat.id}>{cat.name}</label>
-                    </div>
-                  ))}
-                </FilterAccordion>
+                <p className="mt-3 text-muted">Đang tải danh sách sản phẩm...</p>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
 
-          {/* Main Content */}
-          <div className="col-xl-9 col-lg-8">
-            <div className="card border-0 shadow-sm">
-              <div className="card-header bg-white p-3 d-flex justify-content-between align-items-center">
-                <div>
-                  <h5 className="card-title mb-0 fw-bold">All Products</h5>
-                  <small className="text-muted">
-                    {loading ? "Loading..." : `${totalItems} products found`}
-                  </small>
+  return (
+    <div className="container-fluid py-4" style={{ backgroundColor: '#f8fffe' }}>
+      <div className="row">
+        <div className="col-12">
+          <div className="card shadow-lg border-0">
+            {/* Header */}
+            <div className="card-header text-white" style={{ background: 'linear-gradient(135deg, #2d5a3d, #4a7c59)', color: 'white' }}>
+              <div className="d-flex justify-content-between align-items-center" style={{ padding: '20px', color: 'white' }}>
+                <div className="d-flex align-items-center">
+                  <i className="fas fa-boxes me-3 fs-4"></i>
+                  <div>
+                    <h3 className="mb-0" style={{ color: "white" }}>Quản Lý Sản Phẩm</h3>
+                    <p className="mb-0 opacity-75" style={{ color: "white" }}>Tổng cộng {filteredProducts.length} sản phẩm</p>
+                  </div>
                 </div>
-                <button className="btn btn-primary d-flex align-items-center" onClick={handleAddProduct}>
-                  <i className="fa fa-plus me-2"></i>
-                  Add Product
+                <button
+                  onClick={() => router.push('/dashboard/add-product')}
+                  className="btn btn-light btn-lg"
+                  style={{ fontWeight: 'bold' }}
+                >
+                  <i className="fas fa-plus me-2"></i>
+                  Thêm Sản Phẩm
                 </button>
               </div>
+            </div>
 
-              <div className="card-body p-0">
-                {error && <div className="alert alert-danger m-3">{error}</div>}
-                {loading ? (
-                  <div className="text-center py-5"><CustomLoader /></div>
-                ) : (
-                  <>
-                      <div className="table-responsive">
-                        {/* BƯỚC 5: Cấu hình DataTable cho server-side sorting */}
-                        <DataTable
-                          columns={columns}
-                          data={products}
-                          selectableRows
-                          onSelectedRowsChange={({ selectedRows }) => setSelectedRows(selectedRows)}
-                          pagination={false}
-                          noDataComponent="No products found matching your filters."
-                          customStyles={customStyles}
-                          highlightOnHover
-                          sortServer // Bật chế độ server-side
-                          onSort={handleSort} // Gán hàm xử lý
-                          defaultSortFieldId={columns.find(c => c.sortField === sortField)?.id}
-                          defaultSortAsc={!sortDesc}
-                        />
-                      </div>
+            {/* Filters */}
+            <div className="card-body">
+              <div className="row mb-4">
+                <div className="col-12">
+                  <div className="card border-0" style={{ backgroundColor: '#f0f8f0' }}>
+                    <div className="card-body">
+                      <div className="row g-3">
+                        <div className="col-md-3">
+                          <label className="form-label fw-bold">Tìm kiếm</label>
+                          <div className="input-group">
+                            <span className="input-group-text" style={{ backgroundColor: '#e8f5e8', color: '#2d5a3d' }}>
+                              <i className="fas fa-search"></i>
+                            </span>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Tên sản phẩm, SKU..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              style={{ borderColor: '#4a7c59' }}
+                            />
+                          </div>
+                        </div>
 
-                    {totalPages > 1 && (
-                      <div className="d-flex justify-content-center p-3 border-top">
-                        <Pagination
-                          count={totalPages}
-                          page={pageNumber}
-                          onChange={(_, page) => handlePageChange(page)}
-                          color="primary"
-                          shape="rounded"
-                          showFirstButton
-                          showLastButton
-                        />
+                        <div className="col-md-2">
+                          <label className="form-label fw-bold">Danh mục</label>
+                          <select
+                            className="form-select"
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            style={{ borderColor: '#4a7c59' }}
+                          >
+                            <option value="">Tất cả</option>
+                            {categories.map(category => (
+                              <option key={category.id} value={category.id}>
+                                {category.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="col-md-2">
+                          <label className="form-label fw-bold">Trạng thái</label>
+                          <select
+                            className="form-select"
+                            value={selectedStatus}
+                            onChange={(e) => setSelectedStatus(e.target.value)}
+                            style={{ borderColor: '#4a7c59' }}
+                          >
+                            <option value="">Tất cả</option>
+                            <option value="available">Có sẵn</option>
+                            <option value="unavailable">Hết hàng</option>
+                          </select>
+                        </div>
+
+                        <div className="col-md-2">
+                          <label className="form-label fw-bold">Tính năng</label>
+                          <select
+                            className="form-select"
+                            value={selectedFeature}
+                            onChange={(e) => setSelectedFeature(e.target.value)}
+                            style={{ borderColor: '#4a7c59' }}
+                          >
+                            <option value="">Tất cả</option>
+                            <option value="featured">Nổi bật</option>
+                            <option value="organic">Hữu cơ</option>
+                            <option value="fresh">Tươi sống</option>
+                          </select>
+                        </div>
+
+                        <div className="col-md-2">
+                          <label className="form-label fw-bold">Sắp xếp</label>
+                          <select
+                            className="form-select"
+                            value={`${sortBy}-${sortOrder}`}
+                            onChange={(e) => {
+                              const [field, order] = e.target.value.split('-');
+                              setSortBy(field);
+                              setSortOrder(order as 'asc' | 'desc');
+                            }}
+                            style={{ borderColor: '#4a7c59' }}
+                          >
+                            <option value="createdAt-desc">Mới nhất</option>
+                            <option value="createdAt-asc">Cũ nhất</option>
+                            <option value="name-asc">Tên A-Z</option>
+                            <option value="name-desc">Tên Z-A</option>
+                            <option value="basePrice-asc">Giá thấp đến cao</option>
+                            <option value="basePrice-desc">Giá cao đến thấp</option>
+                          </select>
+                        </div>
+
+                        <div className="col-md-1">
+                          <label className="form-label fw-bold">&nbsp;</label>
+                          <button
+                            onClick={resetFilters}
+                            className="btn btn-outline-secondary d-block w-100"
+                            title="Xóa bộ lọc"
+                          >
+                            <i className="fas fa-undo"></i>
+                          </button>
+                        </div>
                       </div>
-                    )}
-                  </>
-                )}
+                    </div>
+                  </div>
+                </div>
               </div>
+
+              {/* Statistics */}
+              <div className="row mb-4">
+                <div className="col-12">
+                  <div className="row g-3">
+                    <div className="col-md-3">
+                      <div className="card bg-primary text-white">
+                        <div className="card-body">
+                          <div className="d-flex align-items-center">
+                            <i className="fas fa-boxes fa-2x me-3"></i>
+                            <div>
+                              <h4 className="mb-0">{products.length}</h4>
+                              <p className="mb-0" style={{ color: "white" }}>Tổng sản phẩm</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="card bg-success text-white">
+                        <div className="card-body">
+                          <div className="d-flex align-items-center">
+                            <i className="fas fa-check-circle fa-2x me-3"></i>
+                            <div>
+                              <h4 className="mb-0">{products.filter(p => p.isAvailable).length}</h4>
+                              <p className="mb-0" style={{ color: "white" }}>Có sẵn</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="card bg-warning text-white">
+                        <div className="card-body">
+                          <div className="d-flex align-items-center">
+                            <i className="fas fa-star fa-2x me-3"></i>
+                            <div>
+                              <h4 className="mb-0">{products.filter(p => p.isFeatured).length}</h4>
+                              <p className="mb-0" style={{ color: "white" }}>Nổi bật</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="card bg-danger text-white">
+                        <div className="card-body">
+                          <div className="d-flex align-items-center">
+                            <i className="fas fa-times-circle fa-2x me-3"></i>
+                            <div>
+                              <h4 className="mb-0">{products.filter(p => !p.isAvailable).length}</h4>
+                              <p className="mb-0" style={{ color: "white" }}>Hết hàng</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Products Table */}
+              <div className="row">
+                <div className="col-12">
+                  {paginatedProducts.length > 0 ? (
+                    <ProductTable
+                      products={paginatedProducts}
+                      categories={categories}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      onToggleStatus={handleToggleStatus}
+                      onToggleFeatured={handleToggleFeatured}
+                    />
+                  ) : (
+                    <div className="text-center py-5">
+                      <i className="fas fa-box-open fa-3x text-muted mb-3"></i>
+                      <h5 className="text-muted">Không tìm thấy sản phẩm nào</h5>
+                      <p className="text-muted">
+                        {products.length === 0
+                          ? 'Hãy thêm sản phẩm đầu tiên của bạn'
+                          : 'Thử thay đổi bộ lọc để tìm sản phẩm khác'
+                        }
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="row mt-4">
+                  <div className="col-12">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div>
+                        <span className="text-muted">
+                          Hiển thị {startIndex + 1} - {Math.min(startIndex + itemsPerPage, filteredProducts.length)}
+                          trong tổng số {filteredProducts.length} sản phẩm
+                        </span>
+                      </div>
+                      <nav>
+                        <ul className="pagination mb-0">
+                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => setCurrentPage(currentPage - 1)}
+                              disabled={currentPage === 1}
+                            >
+                              <i className="fas fa-chevron-left"></i>
+                            </button>
+                          </li>
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                            <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                              <button
+                                className="page-link"
+                                onClick={() => setCurrentPage(page)}
+                                style={currentPage === page ? { backgroundColor: '#4a7c59', borderColor: '#4a7c59' } : {}}
+                              >
+                                {page}
+                              </button>
+                            </li>
+                          ))}
+                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => setCurrentPage(currentPage + 1)}
+                              disabled={currentPage === totalPages}
+                            >
+                              <i className="fas fa-chevron-right"></i>
+                            </button>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       <ToastContainer
-        position="bottom-right"
+        position="top-right"
         autoClose={3000}
         hideProgressBar={false}
         newestOnTop={false}
@@ -671,10 +662,42 @@ const ProductDashboard = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="colored"
       />
+
+      <style jsx>{`
+        .form-control:focus, .form-select:focus {
+          border-color: #4a7c59;
+          box-shadow: 0 0 0 0.2rem rgba(74, 124, 89, 0.25);
+        }
+        
+        .btn-outline-primary {
+          color: #4a7c59;
+          border-color: #4a7c59;
+        }
+        
+        .btn-outline-primary:hover {
+          background-color: #4a7c59;
+          border-color: #4a7c59;
+          color: white;
+        }
+        
+        .table-hover tbody tr:hover {
+          background-color: rgba(74, 124, 89, 0.05);
+        }
+        
+        .page-link {
+          color: #4a7c59;
+        }
+        
+        .page-link:hover {
+          color: #2d5a3d;
+          background-color: rgba(74, 124, 89, 0.1);
+        }
+        
+        .badge {
+          font-size: 0.75em;
+        }
+      `}</style>
     </div>
   );
-};
-
-export default ProductDashboard;
+}

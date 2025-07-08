@@ -2,22 +2,27 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import CategoryService, { Category } from '@/data/Services/CategoryService';
 import AdminProductService, {
   AdminProductVariantDto,
-  CreateAdminProductDto,
+  UpdateAdminProductDto,
+  AdminProduct,
 } from '@/data/Services/AdminService/ProductManageService';
 import UploadService from '@/data/Services/UploadImage';
 
-export default function AddProductPage() {
+export default function UpdateProductPage() {
   const router = useRouter();
+  const params = useParams();
+  const productId = params.id as string;
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [form, setForm] = useState<CreateAdminProductDto>({
+  const [originalProduct, setOriginalProduct] = useState<AdminProduct | null>(null);
+  const [form, setForm] = useState<UpdateAdminProductDto>({
+    id: '',
     mainCategoryId: '',
     name: '',
     slug: '',
@@ -43,20 +48,125 @@ export default function AddProductPage() {
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [variants, setVariants] = useState<AdminProductVariantDto[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // State for pricing calculation
   const [discountType, setDiscountType] = useState<'percentage' | 'amount'>('percentage');
   const [discountValue, setDiscountValue] = useState<number>(10);
+  const [manualSalePrice, setManualSalePrice] = useState(false);
 
+  // Load categories
   useEffect(() => {
     (async () => {
-      const catRes = await CategoryService.getAllCategory();
-      setCategories(catRes.data);
+      try {
+        const catRes = await CategoryService.getAllCategory();
+        setCategories(catRes.data);
+      } catch (error) {
+        console.error('Error loading categories:', error);
+        toast.error('Không thể tải danh mục');
+      }
     })();
   }, []);
 
+  // Load product data
   useEffect(() => {
-    if (form.basePrice > 0) {
+    if (!productId) return;
+
+    (async () => {
+      try {
+        setIsLoading(true);
+        const response = await AdminProductService.getById(productId);
+        const product = response.data;
+        console.log('Loaded product:', product.imageUrls);
+        setOriginalProduct(product);
+
+        // Populate form with existing data
+        setForm({
+          id: product.id,
+          mainCategoryId: product.mainCategoryId || '',
+          subCategoryId: product.subCategoryId || '',
+          brandId: product.brandId || '',
+          name: product.name || '',
+          slug: product.slug || '',
+          description: product.description || '',
+          shortDescription: product.shortDescription || '',
+          sku: product.sku || '',
+          barcode: product.barcode || '',
+          basePrice: product.basePrice || 0,
+          salePrice: product.salePrice || 0,
+          costPrice: product.costPrice || 0,
+          weight: product.weight || 0,
+          dimensions: product.dimensions || '',
+          unit: product.unit || 1,
+          unitSize: product.unitSize || '',
+          thumbnailUrl: product.thumbnailUrl || '',
+          imageUrls: product.imageUrls || '',
+          initialStock: product.stockQuantity || 0,
+          lowStockThreshold: product.lowStockThreshold || 0,
+          maxOrderQuantity: product.maxOrderQuantity || 0,
+          minOrderQuantity: product.minOrderQuantity || 0,
+          isAvailable: product.isAvailable ?? true,
+          isFeatured: product.isFeatured ?? false,
+          isOrganic: product.isOrganic ?? false,
+          isFreshProduct: product.isFreshProduct ?? false,
+          metaTitle: product.metaTitle || '',
+          metaDescription: product.metaDescription || '',
+          displayOrder: product.displayOrder || 0,
+          variants: product.variants || [],
+        });
+
+        // Set images
+        if (product.thumbnailUrl) {
+          setPreviewThumb(product.thumbnailUrl);
+        }
+        if (product.imageUrls) {
+          try {
+            const urls = JSON.parse(product.imageUrls);
+            if (Array.isArray(urls)) {
+              setPreviewImages(urls);
+            } else {
+              setPreviewImages([]);
+            }
+          } catch (err) {
+            console.error('Lỗi parse imageUrls:', err);
+            setPreviewImages([]);
+          }
+        }
+
+
+        // Set variants
+        if (product.variants && product.variants.length > 0) {
+          setVariants(product.variants);
+        }
+
+        // Calculate discount if applicable
+        if (product.basePrice && product.salePrice && product.basePrice > product.salePrice) {
+          const discountAmount = product.basePrice - product.salePrice;
+          const discountPercent = (discountAmount / product.basePrice) * 100;
+
+          // Determine if it's likely a percentage or amount discount
+          if (discountPercent % 1 === 0 && discountPercent <= 50) {
+            setDiscountType('percentage');
+            setDiscountValue(discountPercent);
+          } else {
+            setDiscountType('amount');
+            setDiscountValue(discountAmount);
+          }
+        }
+
+      } catch (error) {
+        console.error('Error loading product:', error);
+        toast.error('Không thể tải thông tin sản phẩm');
+        router.push('/dashboard/products');
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, [productId, router]);
+
+  // Auto-calculate sale price
+  useEffect(() => {
+    if (form.basePrice > 0 && !manualSalePrice) {
       let calculatedSalePrice = 0;
 
       if (discountType === 'percentage') {
@@ -72,7 +182,7 @@ export default function AddProductPage() {
         salePrice: parseFloat(calculatedSalePrice.toFixed(2)),
       }));
     }
-  }, [form.basePrice, discountType, discountValue]);
+  }, [form.basePrice, discountType, discountValue, manualSalePrice]);
 
   const handleChange = (e: any) => {
     const { id, type, value, checked } = e.target;
@@ -88,11 +198,13 @@ export default function AddProductPage() {
       ...prev,
       basePrice: value,
     }));
+    setManualSalePrice(false);
   };
 
   const handleDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value) || 0;
     setDiscountValue(value);
+    setManualSalePrice(false);
   };
 
   const handleManualSalePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,6 +213,7 @@ export default function AddProductPage() {
       ...prev,
       salePrice: value,
     }));
+    setManualSalePrice(true);
   };
 
   const formatCurrency = (value: number) => {
@@ -149,41 +262,60 @@ export default function AddProductPage() {
     setIsSubmitting(true);
 
     try {
-      if (variants.length === 0 && (!form.initialStock || form.initialStock < 0)) {
-        toast.error('Please enter initial stock if there are no variants.');
+      if (variants.length === 0 && (form.initialStock == null || form.initialStock ==undefined || form.initialStock < 0)) {
+        toast.error('Vui lòng nhập số lượng sản phẩm hiện có.');
         setIsSubmitting(false);
         return;
       }
 
-      let thumbUrl = '';
+      let thumbUrl = form.thumbnailUrl || '';
       if (thumbnail) {
         const res = await UploadService.uploadSingle(thumbnail);
         thumbUrl = res.data;
       }
 
-      const imgUrls: string[] = [];
-      for (const file of images) {
-        const res = await UploadService.uploadSingle(file);
-        imgUrls.push(res.data);
+      let imageUrls = form.imageUrls || '';
+      if (images.length > 0) {
+        const uploadPromises = images.map(file => UploadService.uploadSingle(file));
+        const uploadResults = await Promise.all(uploadPromises);
+        imageUrls = uploadResults.map(res => res.data).join(',');
       }
 
-      const payload: CreateAdminProductDto = {
+      const payload: UpdateAdminProductDto = {
         ...form,
         thumbnailUrl: thumbUrl,
-        imageUrls: imgUrls.join(','),
+        imageUrls: imageUrls,
         variants: variants,
       };
 
-      await AdminProductService.create(payload);
-      toast.success('Product created successfully!');
-      router.push('/dashboard/products');
+      await AdminProductService.update(productId, payload);
+      toast.success('Cập nhật sản phẩm thành công!');
     } catch (err: any) {
       console.error(err);
-      toast.error('Error: ' + (err.response?.data?.message || err.message));
+      toast.error('Lỗi: ' + (err.response?.data?.message || err.message));
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="container-fluid py-4" style={{ backgroundColor: '#f8fffe' }}>
+        <div className="row justify-content-center">
+          <div className="col-lg-10">
+            <div className="card shadow-lg border-0">
+              <div className="card-body text-center py-5">
+                <div className="spinner-border text-success" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+                <p className="mt-3 text-muted">Đang tải thông tin sản phẩm...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container-fluid py-4" style={{ backgroundColor: '#f8fffe' }}>
@@ -191,9 +323,14 @@ export default function AddProductPage() {
         <div className="col-lg-10">
           <div className="card shadow-lg border-0">
             <div className="card-header text-white" style={{ background: 'linear-gradient(135deg, #2d5a3d, #4a7c59)' }}>
-              <div className="d-flex align-items-center">
-                <i className="fas fa-plus-circle me-2 fs-4"></i>
-                <h2 className="mb-0 fs-3">Thêm Sản Phẩm Mới</h2>
+              <div className="d-flex align-items-center" style={{ gap: '10px', padding: '20px', color: 'white' }}>
+                <i className="fas fa-edit me-2 fs-4"></i>
+                <h3 className="mb-0" style={{ color: "white" }}>Cập Nhật Sản Phẩm</h3>
+                {originalProduct && (
+                  <span className="badge bg-light text-dark ms-2">
+                    ID: {originalProduct.id}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -210,7 +347,7 @@ export default function AddProductPage() {
                         </h5>
                       </div>
                       <div className="card-body">
-                        <div className="row">
+                        <div className="row pb-5">
                           <div className="col-md-6">
                             <div className="mb-3">
                               <label className="form-label fw-bold">
@@ -240,7 +377,6 @@ export default function AddProductPage() {
                                 style={{ borderColor: '#4a7c59' }}
                                 placeholder="san-pham-moi"
                               />
-                              <div className="form-text">URL thân thiện cho sản phẩm</div>
                             </div>
 
                             <div className="mb-3">
@@ -262,7 +398,6 @@ export default function AddProductPage() {
                               </select>
                             </div>
                           </div>
-
 
                           <div className="col-md-6">
                             {/* Enhanced Pricing Section */}
@@ -301,7 +436,10 @@ export default function AddProductPage() {
                                     name="discountType"
                                     id="percentage"
                                     checked={discountType === 'percentage'}
-                                    onChange={() => setDiscountType('percentage')}
+                                    onChange={() => {
+                                      setDiscountType('percentage');
+                                      setManualSalePrice(false);
+                                    }}
                                   />
                                   <label className="btn btn-outline-success" htmlFor="percentage">
                                     <i className="fas fa-percent me-1"></i>
@@ -314,7 +452,10 @@ export default function AddProductPage() {
                                     name="discountType"
                                     id="amount"
                                     checked={discountType === 'amount'}
-                                    onChange={() => setDiscountType('amount')}
+                                    onChange={() => {
+                                      setDiscountType('amount');
+                                      setManualSalePrice(false);
+                                    }}
                                   />
                                   <label className="btn btn-outline-success" htmlFor="amount">
                                     <i className="fas fa-dollar-sign me-1"></i>
@@ -329,7 +470,6 @@ export default function AddProductPage() {
                                   {discountType === 'percentage' ? '%' : '₫'}
                                 </span>
                                 <input
-          
                                   type="number"
                                   value={discountValue || ''}
                                   onChange={handleDiscountChange}
@@ -353,7 +493,7 @@ export default function AddProductPage() {
                                 />
                               </div>
 
-                              {form.salePrice != undefined && form.salePrice > 0 && (
+                              {form.salePrice !== undefined && form.salePrice > 0 && (
                                 <div className="form-text">
                                   <span className="text-success fw-bold">
                                     {formatCurrency(form.salePrice)}
@@ -366,10 +506,9 @@ export default function AddProductPage() {
                                 </div>
                               )}
                             </div>
-
-
                           </div>
                         </div>
+
                         <div
                           className="p-3"
                           style={{
@@ -449,7 +588,7 @@ export default function AddProductPage() {
                           <div className="col-md-6">
                             <div className="mb-3">
                               <label className="form-label fw-bold">
-                                Hình Đại Diện <span className="text-danger">*</span>
+                                Hình Đại Diện
                               </label>
                               <div className="text-center">
                                 <div className="position-relative d-inline-block mb-3">
@@ -457,11 +596,10 @@ export default function AddProductPage() {
                                     className="rounded-3 overflow-hidden shadow-sm"
                                     style={{ width: '200px', height: '200px', border: '3px solid #4a7c59' }}
                                   >
-                                    <Image
+                                    <img
                                       src={previewThumb}
                                       alt="Thumbnail"
-                                      fill
-                                      style={{ objectFit: 'cover' }}
+                                      style={{ objectFit: 'fill' }}
                                       className="rounded-3"
                                     />
                                   </div>
@@ -476,12 +614,12 @@ export default function AddProductPage() {
                                   accept="image/*"
                                   onChange={handleThumbChange}
                                   className="form-control"
-                                  style={{ borderColor: '#4a7c59' }}
+                                  style={{ borderColor: '#4a7c59', objectFit: 'fill' }}
                                   id="thumbnail"
                                 />
                                 <label htmlFor="thumbnail" className="btn btn-outline-success mt-2">
                                   <i className="fas fa-upload me-2"></i>
-                                  Chọn Hình Đại Diện
+                                  Thay Đổi Hình Đại Diện
                                 </label>
                               </div>
                             </div>
@@ -497,11 +635,10 @@ export default function AddProductPage() {
                                       className="position-relative rounded-3 overflow-hidden shadow-sm"
                                       style={{ height: '80px', border: '2px solid #4a7c59' }}
                                     >
-                                      <Image
+                                      <img
                                         src={src}
                                         alt={`img-${i}`}
-                                        fill
-                                        style={{ objectFit: 'cover' }}
+                                        style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                                         className="rounded-3"
                                       />
                                     </div>
@@ -519,7 +656,7 @@ export default function AddProductPage() {
                               />
                               <label htmlFor="gallery" className="btn btn-outline-success mt-2">
                                 <i className="fas fa-plus me-2"></i>
-                                Thêm Hình Ảnh
+                                Thay Đổi Hình Ảnh
                               </label>
                             </div>
                           </div>
@@ -529,11 +666,12 @@ export default function AddProductPage() {
                   </div>
                 </div>
 
+
                 {/* Variants Section */}
                 <div className="row mb-4">
                   <div className="col-12">
                     <div className="card border-0 mb-4" style={{ backgroundColor: '#f0f8f0' }}>
-                      {/* <div className="card-header bg-transparent border-bottom-0">
+                      {/*     <div className="card-header bg-transparent border-bottom-0">
                         <div className="d-flex justify-content-between align-items-center">
                           <h5 className="mb-0" style={{ color: '#2d5a3d' }}>
                             <i className="fas fa-boxes me-2"></i>
@@ -549,9 +687,9 @@ export default function AddProductPage() {
                             Thêm Biến Thể
                           </button>
                         </div>
-                      </div> */}
+                      </div>
                       <div className="card-body">
-                        {/* {variants.length === 0 ? (
+                        {variants.length === 0 ? (
                           <div className="text-center py-4">
                             <i className="fas fa-box-open fa-3x text-muted mb-3"></i>
                             <p className="text-muted">Chưa có biến thể nào. Nhấn "Thêm Biến Thể" để bắt đầu.</p>
@@ -640,29 +778,29 @@ export default function AddProductPage() {
                           </div>
                         )} */}
 
-                        {/* Initial stock nếu không có variants */}
-                        {variants.length === 0 && (
-                          <div className="row">
-                            <div className="col-md-4">
-                              <div className="mb-3">
-                                <label className="form-label fw-bold">
-                                  Số Lượng Ban Đầu <span className="text-danger">*</span>
-                                </label>
-                                <input
-                                  id="initialStock"
-                                  type="number"
-                                  value={form.initialStock || ''}
-                                  onChange={handleChange}
-                                  required
-                                  className="form-control"
-                                  style={{ borderColor: '#4a7c59' }}
-                                  placeholder="Nhập số lượng..."
-                                />
-                              </div>
+                      {/* Initial stock nếu không có variants */}
+                      {variants.length === 0 && (
+                        <div className="row">
+                          <div className="col-md-4">
+                            <div className="mb-3">
+                              <label className="form-label fw-bold">
+                                Số Lượng Ban Đầu <span className="text-danger">*</span>
+                              </label>
+                              <input
+                                id="initialStock"
+                                type="number"
+                                value={form.initialStock || 0}
+                                onChange={handleChange}
+                                required
+                                className="form-control"
+                                style={{ borderColor: '#4a7c59' }}
+                                placeholder="Nhập số lượng..."
+                              />
                             </div>
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
+
                     </div>
                   </div>
                 </div>
@@ -848,7 +986,17 @@ export default function AddProductPage() {
           </div>
         </div>
       </div>
-
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
       <style jsx>{`
         .form-control:focus, .form-select:focus {
           border-color: #4a7c59;

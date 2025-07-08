@@ -25,10 +25,7 @@ export default function Home() {
            <FeatureOne />
          <FeatureProduct />
           <DiscountProduct />
-          <WeeklyBestSelling />
-          <FeatureDiscount />
           <TrandingProduct />
-          <BlogOne />
           <FooterOne />
         </div>
       </CartProvider>

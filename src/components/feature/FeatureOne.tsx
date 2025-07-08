@@ -1,5 +1,5 @@
-"use client"
-import React from 'react'
+"use client";
+import React from "react";
 
 function FeatureOne() {
     return (
@@ -7,7 +7,7 @@ function FeatureOne() {
             <div className="rts-feature-area rts-section-gap">
                 <div className="container">
                     <div className="row g-4">
-                        <div className="col-xl-20 col-lg-6 col-md-6 col-sm-6 col-12">
+                        <div className="col-xl-25 col-lg-3 col-md-6 col-sm-6 col-24">
                             <div className="single-feature-area">
                                 <div className="icon">
                                     <svg
@@ -28,46 +28,12 @@ function FeatureOne() {
                                     </svg>
                                 </div>
                                 <div className="content">
-                                    <h4 className="title">Wide Assortment</h4>
-                                    <span>Orders $50 or more</span>
+                                    <h4 className="title">Đa dạng sản phẩm</h4>
+                                    {/* <span>Áp dụng cho đơn hàng từ 50$</span> */}
                                 </div>
                             </div>
                         </div>
-                        <div className="col-xl-20 col-lg-6 col-md-6 col-sm-6 col-12">
-                            <div className="single-feature-area">
-                                <div className="icon">
-                                    <svg
-                                        width={37}
-                                        height={44}
-                                        viewBox="0 0 37 44"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="M35.0347 19.5029C32.0518 11.3353 26.6248 5.76684 26.3952 5.53386L24.2276 3.33326V11.6016C24.2276 12.3124 23.658 12.8906 22.9578 12.8906C22.2577 12.8906 21.688 12.3124 21.688 11.6016C21.688 5.20446 16.5614 0 10.26 0H8.99021V1.28906C8.99021 7.30933 5.09884 11.646 2.14143 17.2212C-0.841884 22.8449 -0.69916 29.7349 2.51381 35.2021C5.7234 40.6636 11.5291 44 17.7786 44H18.3686C24.1822 44 29.6369 41.1045 32.9597 36.2545C36.2819 31.4054 37.056 25.0371 35.0347 19.5029ZM30.8748 34.7824C28.0265 38.9398 23.3513 41.4219 18.3686 41.4219H17.7786C12.4416 41.4219 7.42813 38.5325 4.69471 33.8813C1.93691 29.1886 1.81535 23.2733 4.37726 18.4436C7.17519 13.1691 10.9752 8.81934 11.4744 2.662C15.803 3.26502 19.1483 7.04412 19.1483 11.6015C19.1483 13.7338 20.8572 15.4687 22.9577 15.4687C25.0581 15.4687 26.767 13.7338 26.767 11.6015V9.91607C28.54 12.2131 31.0138 15.9094 32.6534 20.399C34.3856 25.1416 33.704 30.653 30.8748 34.7824Z"
-                                            fill="#629D23"
-                                        />
-                                        <path
-                                            d="M16.6089 22C16.6089 19.8676 14.9 18.1328 12.7996 18.1328C10.6991 18.1328 8.99021 19.8676 8.99021 22C8.99021 24.1324 10.6991 25.8672 12.7996 25.8672C14.9 25.8672 16.6089 24.1324 16.6089 22ZM11.5298 22C11.5298 21.2892 12.0994 20.7109 12.7996 20.7109C13.4997 20.7109 14.0693 21.2892 14.0693 22C14.0693 22.7108 13.4997 23.2891 12.7996 23.2891C12.0994 23.2891 11.5298 22.7108 11.5298 22Z"
-                                            fill="#629D23"
-                                        />
-                                        <path
-                                            d="M22.9578 28.4453C20.8573 28.4453 19.1485 30.1801 19.1485 32.3125C19.1485 34.4449 20.8573 36.1797 22.9578 36.1797C25.0583 36.1797 26.7672 34.4449 26.7672 32.3125C26.7672 30.1801 25.0583 28.4453 22.9578 28.4453ZM22.9578 33.6016C22.2577 33.6016 21.688 33.0233 21.688 32.3125C21.688 31.6017 22.2577 31.0234 22.9578 31.0234C23.658 31.0234 24.2276 31.6017 24.2276 32.3125C24.2276 33.0233 23.658 33.6016 22.9578 33.6016Z"
-                                            fill="#629D23"
-                                        />
-                                        <path
-                                            d="M10.5466 34.0632L23.2407 18.599L25.1911 20.249L12.4969 35.7132L10.5466 34.0632Z"
-                                            fill="#629D23"
-                                        />
-                                    </svg>
-                                </div>
-                                <div className="content">
-                                    <h4 className="title">Easy Return Policy</h4>
-                                    <span>Orders $50 or more</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-xl-20 col-lg-6 col-md-6 col-sm-6 col-12">
+                        <div className="col-xl-25 col-lg-3 col-md-6 col-sm-6 col-12">
                             <div className="single-feature-area">
                                 <div className="icon">
                                     <svg
@@ -112,12 +78,13 @@ function FeatureOne() {
                                     </svg>
                                 </div>
                                 <div className="content">
-                                    <h4 className="title">Best Prices &amp; Offers</h4>
-                                    <span>Orders $50 or more</span>
+                                    <h4 className="title">Giá tốt và nhiều ưu đãi</h4>
+                                    {/* <span>Áp dụng cho đơn hàng từ 50$</span> */}
                                 </div>
                             </div>
                         </div>
-                        <div className="col-xl-20 col-lg-6 col-md-6 col-sm-6 col-12">
+
+                        <div className="col-xl-25 col-lg-3 col-md-6 col-sm-6 col-12">
                             <div className="single-feature-area">
                                 <div className="icon">
                                     <svg
@@ -138,12 +105,13 @@ function FeatureOne() {
                                     </svg>
                                 </div>
                                 <div className="content">
-                                    <h4 className="title">Support 24/7</h4>
-                                    <span>Orders $50 or more</span>
+                                    <h4 className="title">Hỗ trợ 24/7</h4>
+                                    {/* <span>Áp dụng cho đơn hàng từ 50$</span> */}
                                 </div>
                             </div>
                         </div>
-                        <div className="col-xl-20 col-lg-6 col-md-6 col-sm-6 col-12">
+
+                        <div className="col-xl-25 col-lg-3 col-md-6 col-sm-6 col-12">
                             <div className="single-feature-area">
                                 <div className="icon">
                                     <svg
@@ -180,17 +148,16 @@ function FeatureOne() {
                                     </svg>
                                 </div>
                                 <div className="content">
-                                    <h4 className="title">Best Prices &amp; Offers</h4>
-                                    <span>Orders $50 or more</span>
+                                    <h4 className="title">Ưu đãi và khuyến mãi hấp dẫn</h4>
+                                    {/* <span>Áp dụng cho đơn hàng từ 50$</span> */}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
-    )
+    );
 }
 
-export default FeatureOne
+export default FeatureOne;

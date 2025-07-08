@@ -38,8 +38,7 @@ const Header: React.FC = () => {
                                 <Nav />
                             </div>
                             <div className="right-btn-area">
-                                <Link href="#" className="btn-narrow">Trending Products</Link>
-                                <button className="rts-btn btn-primary">Get 30% Discount Now <span>Sale</span></button>
+                                <button className="rts-btn btn-primary">Mua ngay để nhận giảm giá cực ưu đãi <span>Sale</span></button>
                             </div>
                         </div>
                     </div>
@@ -59,13 +58,13 @@ const Header: React.FC = () => {
                             </div>
                             <div className="main-wrapper-action-2 d-flex">
                                 <div className="accont-wishlist-cart-area-header">
-                                    <Link href="/account" className="btn-border-only account">
+                                    {/* <Link href="/account" className="btn-border-only account">
                                         <i className="fa-light fa-user" />
-                                    </Link>
+                                    </Link> */}
                                     <Link href="/wishlist" className="btn-border-only wishlist">
                                         <i className="fa-regular fa-heart" />
                                     </Link>
-                                    <div className="btn-border-only cart category-hover-header">
+                                    {/* <div className="btn-border-only cart category-hover-header">
                                         <i className="fa-sharp fa-regular fa-cart-shopping" />
                                         <span className="text">My Cart</span>
                                         <span className="number">{cartItems.length}</span>
@@ -112,7 +111,7 @@ const Header: React.FC = () => {
                                             </div>
                                         </div>
                                         <Link href="/cart" className="over_link" />
-                                    </div>
+                                    </div> */}
                                 </div>
                                 <div className="actions-area">
                                     <div className="search-btn" onClick={handleSearchOpen}>

@@ -13,6 +13,7 @@ import { decode_data } from "@/lib/encoder";
 import STORAGE, { getStorage, setStorage, deleteStorage } from "@/lib/storage";
 import UserService, { User, UserProfile } from "@/data/Services/UserService";
 import AuthService from "@/data/Services/AuthSerivce";
+import { useRouter } from "next/navigation";
 
 // ================== Context Type ==================
 type AuthContextType = {
@@ -28,6 +29,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // ================== Auth Provider ==================
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+    const router = useRouter();
     const [token, setToken] = useState<string | null>(null);
     const [user, setUser] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
@@ -77,7 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             throw error;
         }
     };
-      
+
 
     const logout = () => {
         setToken(null);
@@ -86,7 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         deleteStorage(STORAGE.REFRESH_TOKEN);
         deleteStorage(STORAGE.USER_INFO);
         toast.info("Đã đăng xuất");
-        if (typeof window !== "undefined") window.location.replace("/login");
+        router.push("/login");
     };
 
     const contextValue = useMemo(

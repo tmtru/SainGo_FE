@@ -40,6 +40,16 @@ const menuItems: MenuItem[] = [
   //   icon: "/assets/images-dashboard/icons/03.svg",
   // },
   {
+    title: "Categories",
+    icon: "/assets/images-dashboard/icons/07.svg",
+    href: "/dashboard/manage-category",
+  },
+  {
+    title: "Coupon",
+    icon: "/assets/images-dashboard/icons/coupon.svg",
+    href: "/dashboard/manage-coupon",
+  },
+  {
     title: "Vendor",
     icon: "/assets/images-dashboard/icons/04.svg",
     children: [
@@ -123,7 +133,7 @@ const SidebarMenu = () => {
               </Link>
             ) : (
               <Link href={item.href || "#"}>
-                <img src={item.icon} alt="icon" className="icon" />
+                <img src={item.icon} alt="icon" className="icon" style={{maxWidth: '24px', maxHeight: '24px'}} />
                 <p>{item.title}</p>
               </Link>
             )}

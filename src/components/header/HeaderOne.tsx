@@ -21,29 +21,6 @@ function HeaderOne() {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const allSuggestions = [
-        "Giải pháp kinh doanh có lãi",
-        "Chi tiết kinh doanh có lãi",
-        "Một giải pháp kinh doanh",
-        "Sản phẩm tươi sống cao cấp",
-        "Trái cây hữu cơ nguyên chất",
-        "Rau củ sạch mỗi ngày",
-        "Thịt siêu tươi ngon",
-        "Sản phẩm tốt nhất hôm nay"
-    ];
-
-    useEffect(() => {
-        if (searchTerm.trim().length > 0) {
-            const filtered = allSuggestions.filter(item =>
-                item.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-            setSuggestions(filtered.slice(0, 5));
-            setShowSuggestions(true);
-        } else {
-            setSuggestions([]);
-            setShowSuggestions(false);
-        }
-    }, [searchTerm]);
 
     const handleSuggestionClick = (suggestion: string) => {
         setSearchTerm(suggestion);
@@ -83,7 +60,6 @@ function HeaderOne() {
                                     <div className="nav-sm-left">
                                         <ul className="nav-h_top">
                                             <li><a href="/about">Giới thiệu</a></li>
-                                            <li><a href="/contact">Liên hệ</a></li>
                                         </ul>
                                     </div>
                                     <div className="nav-sm-left">
@@ -128,39 +104,6 @@ function HeaderOne() {
                                                     <i className="fa-light fa-magnifying-glass" />
                                                 </div>
                                             </button>
-
-                                            {showSuggestions && suggestions.length > 0 && (
-                                                <ul
-                                                    className="autocomplete-suggestions"
-                                                    style={{
-                                                        position: 'absolute',
-                                                        backgroundColor: '#fff',
-                                                        border: '1px solid #ccc',
-                                                        marginTop: '4px',
-                                                        width: '100%',
-                                                        maxHeight: '200px',
-                                                        overflowY: 'auto',
-                                                        zIndex: 1000,
-                                                        listStyleType: 'none',
-                                                        padding: 0,
-                                                        borderRadius: '4px',
-                                                    }}
-                                                >
-                                                    {suggestions.map((suggestion, index) => (
-                                                        <li
-                                                            key={index}
-                                                            onClick={() => handleSuggestionClick(suggestion)}
-                                                            onMouseDown={(e) => e.preventDefault()}
-                                                            style={{
-                                                                padding: '8px 12px',
-                                                                cursor: 'pointer',
-                                                            }}
-                                                        >
-                                                            {suggestion}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            )}
                                         </form>
                                     </div>
 

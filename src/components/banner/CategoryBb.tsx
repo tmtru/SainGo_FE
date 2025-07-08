@@ -1,30 +1,33 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import Image from "next/image";
 import Link from "next/link";
 
+
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
-
-const categories = [
-  { img: "/assets/images/category/01.png", name: "Organic Vegetable" },
-  { img: "/assets/images/category/02.png", name: "Organic Vegetable" },
-  { img: "/assets/images/category/03.png", name: "Organic Vegetable" },
-  { img: "/assets/images/category/04.png", name: "Organic Vegetable" },
-  { img: "/assets/images/category/05.png", name: "Organic Vegetable" },
-  { img: "/assets/images/category/06.png", name: "Organic Vegetable" },
-  { img: "/assets/images/category/07.png", name: "Organic Vegetable" },
-  { img: "/assets/images/category/08.png", name: "Organic Vegetable" },
-  { img: "/assets/images/category/09.png", name: "Organic Vegetable" },
-  { img: "/assets/images/category/10.png", name: "Organic Vegetable" },
-  { img: "/assets/images/category/06.png", name: "Organic Vegetable" },
-];
+import CategoryService, { Category } from "@/data/Services/CategoryService";
 
 function CategoryBannerBottom() {
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await CategoryService.getAllCategory();
+        setCategories(response.data || []);
+      } catch (error) {
+        console.error("Lỗi khi tải danh mục:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
     <div className="rts-caregory-area-one">
       <div className="container">
@@ -47,14 +50,17 @@ function CategoryBannerBottom() {
                   480: { slidesPerView: 3, spaceBetween: 12 },
                   640: { slidesPerView: 4, spaceBetween: 12 },
                   840: { slidesPerView: 4, spaceBetween: 12 },
-                  1140: { slidesPerView: 10, spaceBetween: 12 },
+                  1140: { slidesPerView: 7, spaceBetween: 12 },
                 }}
               >
-                {categories.map((cat, idx) => (
-                  <SwiperSlide key={idx}>
-                    <Link href="/shop-grid-sidebar" className="single-category-one">
+                {categories.map((cat) => (
+                  <SwiperSlide key={cat.id}>
+                    <Link
+                      href={`/shop?categoryId=${cat.id}`}
+                      className="single-category-one"
+                    >
                       <Image
-                        src={cat.img}
+                        src={cat.iconUrl || "/assets/images/category/default.png"}
                         alt={cat.name}
                         width={60}
                         height={60}

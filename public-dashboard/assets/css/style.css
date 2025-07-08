@@ -19748,3 +19748,6 @@ li.has-dropdown .submenu li>a .badge {
 .single-payment .inner-content img {
   margin-left: -10px;
 }
+.dashboard-input input[type=checkbox] {
+  display: none;
+}

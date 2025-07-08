@@ -104,71 +104,79 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
   return (
     <>
       <div>
-      <div className="relative group image-and-action-area-wrapper">
-        <Link href={`/shop/${Id}`} className="thumbnail-preview">
-          {productSale > 0 && (
-            <div className="badge">
-              <span>
-                {productSale}% <br />
-                Off
-              </span>
-              <i className="fa-solid fa-bookmark" />
-            </div>
-          )}
-          <img
-            src={ProductImage}
-            alt="product"
-            className={isOutOfStock ? 'opacity-60' : ''}
-          />
-          {isOutOfStock && (
-            <div className="sold-out-overlay">
-              <div className="overlay-content">Hết hàng</div>
-            </div>
-          )}
+        <div className="relative group image-and-action-area-wrapper">
+          <Link href={`/shop/${Id}`} className="thumbnail-preview">
+            {productSale > 0 && (
+              <div className="badge">
+                <span>
+                  {productSale}% <br />
+                  Off
+                </span>
+                <i className="fa-solid fa-bookmark" />
+              </div>
+            )}
+            <img
+              src={ProductImage}
+              alt="product"
+              className={`object-fit-cover ${isOutOfStock ? 'opacity-60' : ''}`}
+              style={{ width: '100%', height: '150px' }}
+            />
+            {isOutOfStock && (
+              <div className="sold-out-overlay">
+                <div className="overlay-content">Hết hàng</div>
+              </div>
+            )}
 
-        </Link>
-        <div className="action-share-option">
-          <span
-            className="single-action openuptip"
-            title="Add To Wishlist"
-            onClick={!isOutOfStock ? handleWishlist : undefined}
-            style={{ pointerEvents: isOutOfStock ? 'none' : 'auto', opacity: isOutOfStock ? 0.5 : 1 }}
-          >
-            <i className="fa-light fa-heart" />
-          </span>
-          <span
-            className="single-action openuptip"
-            title="Compare"
-            onClick={!isOutOfStock ? handleCompare : undefined}
-            style={{ pointerEvents: isOutOfStock ? 'none' : 'auto', opacity: isOutOfStock ? 0.5 : 1 }}
-          >
-            <i className="fa-solid fa-arrows-retweet" />
-          </span>
-          <span
-            className="single-action openuptip"
-            title="Quick View"
-            onClick={() => setActiveModal('two')}
-          >
-            <i className="fa-regular fa-eye" />
-          </span>
+          </Link>
+          <div className="action-share-option">
+            <span
+              className="single-action openuptip"
+              title="Add To Wishlist"
+              onClick={!isOutOfStock ? handleWishlist : undefined}
+              style={{ pointerEvents: isOutOfStock ? 'none' : 'auto', opacity: isOutOfStock ? 0.5 : 1 }}
+            >
+              <i className="fa-light fa-heart" />
+            </span>
+            {/* <span
+              className="single-action openuptip"
+              title="Compare"
+              onClick={!isOutOfStock ? handleCompare : undefined}
+              style={{ pointerEvents: isOutOfStock ? 'none' : 'auto', opacity: isOutOfStock ? 0.5 : 1 }}
+            >
+              <i className="fa-solid fa-arrows-retweet" />
+            </span> */}
+            <span
+              className="single-action openuptip"
+              title="Quick View"
+              onClick={() => setActiveModal('two')}
+            >
+              <i className="fa-regular fa-eye" />
+            </span>
+          </div>
+
         </div>
-
-</div>
         <div className="body-content">
           <Link href={`/shop/${Id}`}>
             <h4 className="title">{ProductTitle}</h4>
           </Link>
           <span className="availability">500g Pack</span>
-          <div className="price-area">
-            <span className="current">{formatCurrency(Price)}</span>
-            {productSale > 0 && (
+
+
+          {productSale > 0 ? (
+            <div className="price-area">
+              <span className="current">{formatCurrency(Price)}</span>
               <div className="previous">{formatCurrency(BasePrice)}</div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="price-area">
+              <span className="current">{formatCurrency(BasePrice)}</span>
+            </div>
+          )}
+
         </div>
       </div>
 
-      <CompareModal show={activeModal === 'one'} handleClose={() => setActiveModal(null)} />
+      {/* <CompareModal show={activeModal === 'one'} handleClose={() => setActiveModal(null)} /> */}
       <ProductDetails
         show={activeModal === 'two'}
         handleClose={() => setActiveModal(null)}

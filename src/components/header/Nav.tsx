@@ -9,7 +9,7 @@ function NavItem() {
             <nav>
                 <ul className="parent-nav">
                     <li className="parent has-dropdown">
-                        <Link className="nav-link" href="#">
+                        {/* <Link className="nav-link" href="#">
                             Home
                         </Link>
                         <ul className="submenu">
@@ -38,19 +38,21 @@ function NavItem() {
                                     Home Five
                                 </Link>
                             </li>
-                        </ul>
+                        </ul> */}
+                        <Link className="" href="/">
+                            Trang chủ
+                        </Link>
                     </li>
                     <li className="parent">
                         <Link href="/about">About</Link>
                     </li>
                     <li className="parent with-megamenu">
-                        <Link href="#">Shop</Link>
-                        <div className="rts-megamenu">
+                        <Link href="/shop">Danh mục sản phẩm</Link>
+                        {/* <div className="rts-megamenu">
                             <div className="wrapper">
                                 <div className="row align-items-center">
                                     <div className="col-lg-8">
                                         <div className="megamenu-item-wrapper">
-                                            {/* single item areas start */}
                                             <div className="single-megamenu-wrapper">
                                                 <p className="title">Shop Layout</p>
                                                 <ul>
@@ -76,8 +78,7 @@ function NavItem() {
                                                     </li>
                                                 </ul>
                                             </div>
-                                            {/* single item areas end */}
-                                            {/* single item areas start */}
+
                                             <div className="single-megamenu-wrapper">
                                                 <p className="title">Shop Details</p>
                                                 <ul>
@@ -115,8 +116,7 @@ function NavItem() {
                                                     </li>
                                                 </ul>
                                             </div>
-                                            {/* single item areas end */}
-                                            {/* single item areas start */}
+
                                             <div className="single-megamenu-wrapper">
                                                 <p className="title">Product Feature</p>
                                                 <ul>
@@ -146,8 +146,7 @@ function NavItem() {
                                                     </li>
                                                 </ul>
                                             </div>
-                                            {/* single item areas end */}
-                                            {/* single item areas start */}
+
                                             <div className="single-megamenu-wrapper">
                                                 <p className="title">Shop Others</p>
                                                 <ul>
@@ -171,7 +170,7 @@ function NavItem() {
                                                     </li>
                                                 </ul>
                                             </div>
-                                            {/* single item areas end */}
+    
                                         </div>
                                     </div>
                                     <div className="col-lg-4">
@@ -190,9 +189,9 @@ function NavItem() {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
                     </li>
-                    <li className="parent has-dropdown">
+                    {/* <li className="parent has-dropdown">
                         <Link className="nav-link" href="#">
                             Vendors
                         </Link>
@@ -311,7 +310,7 @@ function NavItem() {
                     </li>
                     <li className="parent">
                         <Link href="/contact">Contact</Link>
-                    </li>
+                    </li> */}
                 </ul>
             </nav>
         </div>

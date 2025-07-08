@@ -2,6 +2,8 @@ import http from "../axios/index"
 
 export interface Product {
     id: string
+    mainCategoryId?: string
+    subCategoryId?: string
     name: string
     slug: string
     thumbnailUrl: string
@@ -55,15 +57,6 @@ const getProductById = (id: string) =>
 const getProductsByStore = (storeId: string) =>
     http.get<Product[]>(`/api/Product/store/${storeId}`)
 
-const createProduct = (product: Product) =>
-    http.post<Product>("/api/Product", product)
-
-const updateProduct = (id: string, product: Product) =>
-    http.put<Product>(`/api/Product/${id}`, product)
-
-const deleteProduct = (id: string) =>
-    http.delete(`/api/Product/${id}`)
-
 const searchProducts = (keyword: string) =>
     http.get<Product[]>(`/api/Product/search`, { params: { keyword } })
 
@@ -75,9 +68,6 @@ const ProductService = {
     getFilteredProducts,
     getProductById,
     getProductsByStore,
-    createProduct,
-    updateProduct,
-    deleteProduct,
     searchProducts,
     getFeaturedProducts,
 }

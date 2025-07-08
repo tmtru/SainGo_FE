@@ -74,8 +74,7 @@ instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
     if (config.method?.toLowerCase() === "get") {
       config.params = {
-        ...config.params,
-        IsDomain: 1, // Only add if required by your API
+        ...config.params
       };
     }
 
@@ -107,7 +106,7 @@ instance.interceptors.response.use(
         deleteStorage(STORAGE.USER_INFO);
         deleteStorage(STORAGE.REFRESH_TOKEN);
         if (typeof window !== "undefined") {
-          window.location.replace("/login");
+          // window.location.replace("/login");
         }
         throw new Error("Không thể làm mới token");
       }
@@ -120,7 +119,7 @@ instance.interceptors.response.use(
         deleteStorage(STORAGE.USER_INFO);
         deleteStorage(STORAGE.REFRESH_TOKEN);
         if (typeof window !== "undefined") {
-          window.location.replace("/login");
+          // window.location.replace("/login");
         }
         throw new Error("Không có refresh token");
       }
@@ -145,7 +144,9 @@ instance.interceptors.response.use(
       try {
         const res = await AuthService.refreshToken(refreshToken);
         const accessToken = res.data.accessToken; // Use parseBody to handle response
+        const newrefreshToken = res.data.refreshToken;
         setStorage(STORAGE.TOKEN, accessToken);
+        setStorage(STORAGE.REFRESH_TOKEN, newrefreshToken);
 
         processQueue(null, accessToken);
         isRefreshing = false;
@@ -162,7 +163,7 @@ instance.interceptors.response.use(
         deleteStorage(STORAGE.USER_INFO);
         deleteStorage(STORAGE.REFRESH_TOKEN);
         if (typeof window !== "undefined") {
-          window.location.replace("/login");
+          // window.location.replace("/login");
         }
         throw refreshError;
       }
