@@ -65,7 +65,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
       <div className="header-right">
         <div className="action-interactive-area__header" ref={popupRef}>
           {/* Search */}
-          <div
+          {/* <div
             className={`single_action__haeader search-action ${activePopup === 'search' ? 'active' : ''}`}
             onClick={() => togglePopup('search')}
           >
@@ -88,10 +88,10 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
               />
               <i className="fa-solid fa-magnifying-glass" />
             </div>
-          </div>
+          </div> */}
 
           {/* Notification */}
-          <div
+          {/* <div
             className={`single_action__haeader notification ${activePopup === 'notification' ? 'active' : ''}`}
             onClick={() => togglePopup('notification')}
           >
@@ -225,10 +225,10 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
                 </ul>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Language Selector */}
-          <div
+          {/* <div
             className={`single_action__haeader language user_avatar__information ${activePopup === 'language' ? 'active' : ''}`}
             onClick={() => togglePopup('language')}
           >
@@ -252,10 +252,10 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
                 ))}
               </ul>
             </div>
-          </div>
+          </div> */}
 
           {/* User Profile */}
-          <div
+          {/* <div
             className={`single_action__haeader user_avatar__information ${activePopup === 'profile' ? 'active' : ''}`}
             onClick={() => togglePopup('profile')}
           >
@@ -304,7 +304,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
                 </a>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </header>

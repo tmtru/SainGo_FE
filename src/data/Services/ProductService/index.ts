@@ -63,6 +63,9 @@ const searchProducts = (keyword: string) =>
 const getFeaturedProducts = (count = 10) =>
     http.get<Product[]>(`/api/Product/featured`, { params: { count } })
 
+const getSaledProducts = (count = 10) =>
+    http.get<Product[]>(`/api/Product/best-sales`, { params: { count } })
+
 const ProductService = {
     getAllProducts,
     getFilteredProducts,
@@ -70,6 +73,7 @@ const ProductService = {
     getProductsByStore,
     searchProducts,
     getFeaturedProducts,
+    getSaledProducts
 }
 
 export default ProductService

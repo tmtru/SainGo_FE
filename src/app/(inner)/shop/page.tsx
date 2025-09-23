@@ -12,7 +12,23 @@ import { Pagination } from "@mui/material";
 import CategoryService, { Category } from "@/data/Services/CategoryService";
 import CustomLoader from "@/components/common/CustomLoader";
 
+// Sort options interface
+interface SortOption {
+  value: string;
+  label: string;
+  sortBy: string;
+  sortDesc: boolean;
+}
 
+// Available sort options
+const sortOptions: SortOption[] = [
+  { value: 'latest', label: 'Mới nhất', sortBy: 'createdAt', sortDesc: true },
+  { value: 'oldest', label: 'Cũ nhất', sortBy: 'createdAt', sortDesc: false },
+  { value: 'name-asc', label: 'Tên (A-Z)', sortBy: 'name', sortDesc: false },
+  { value: 'name-desc', label: 'Tên (Z-A)', sortBy: 'name', sortDesc: true },
+  { value: 'price-low', label: 'Giá: Thấp đến Cao', sortBy: 'price', sortDesc: false },
+  { value: 'price-high', label: 'Giá: Cao đến Thấp', sortBy: 'price', sortDesc: true },
+];
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<string>('tab1');
@@ -37,10 +53,21 @@ export default function Home() {
   const [maxPrice, setMaxPrice] = useState<number>(
     parseFloat(searchParams.get('maxPrice') || '150')
   );
+
+  // Sort states
+  const [sortBy, setSortBy] = useState<string>(
+    searchParams.get('sortBy') || 'createdAt'
+  );
+  const [sortDesc, setSortDesc] = useState<boolean>(
+    searchParams.get('sortDesc') === 'true' || true
+  );
+  const [selectedSortValue, setSelectedSortValue] = useState<string>(
+    searchParams.get('sort') || 'latest'
+  );
+
   // Add states for PageNumber, PageSize if you want client control
   const [pageNumber, setPageNumber] = useState<number>(parseInt(searchParams.get('pageNumber') || '1', 10));
   const [pageSize, setPageSize] = useState<number>(parseInt(searchParams.get('pageSize') || '15', 10));
-
 
   // API response states
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -79,6 +106,13 @@ export default function Home() {
         params.append('maxPrice', maxPrice.toString());
       }
 
+      // Add sort parameters
+      filterDto.sortBy = sortBy;
+      filterDto.sortDesc = sortDesc;
+      params.append('sortBy', sortBy);
+      params.append('sortDesc', sortDesc.toString());
+      params.append('sort', selectedSortValue);
+
       filterDto.PageNumber = pageNumber;
       params.append('pageNumber', pageNumber.toString());
 
@@ -103,6 +137,7 @@ export default function Home() {
         setLoading(false);
       }
     };
+
     const fetchCategories = async () => {
       try {
         const response = await CategoryService.getAllCategory();
@@ -122,22 +157,27 @@ export default function Home() {
     selectedBrands,
     minPrice,
     maxPrice,
+    sortBy,
+    sortDesc,
     pageNumber,
     pageSize,
     router
   ]);
+
   useEffect(() => {
     setPageNumber(1);
-  }, [debouncedSearchQuery, selectedCategories, selectedBrands, minPrice, maxPrice]);
-
+  }, [debouncedSearchQuery, selectedCategories, selectedBrands, minPrice, maxPrice, sortBy, sortDesc]);
 
   const handleCategoryChange = (category: string): void => {
     setSelectedCategories(prev => {
-      const newState = prev.includes(category)
-        ? prev.filter((cat: string) => cat !== category)
-        : [...prev, category];
-      setPageNumber(1);
-      return newState;
+      if (prev.includes(category)) {
+        const newState = prev.filter((cat: string) => cat !== category);
+        setPageNumber(1);
+        return newState;
+      } else {
+        setPageNumber(1);
+        return [category];
+      }
     });
   };
 
@@ -162,6 +202,7 @@ export default function Home() {
     if (!isNaN(val)) setMaxPrice(val);
     setPageNumber(1);
   };
+
   const handlePriceRangeCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
 
@@ -185,6 +226,7 @@ export default function Home() {
       return updated;
     });
   };
+
   const handlePriceFilterSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
   };
@@ -206,7 +248,6 @@ export default function Home() {
       params.delete('keyword');
     }
 
-
     params.set('pageNumber', '1');
 
     router.push(`?${params.toString()}`, { scroll: false });
@@ -214,11 +255,28 @@ export default function Home() {
     setPageNumber(1);
   };
 
+  // Handle sort change
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+    const selectedValue = e.target.value;
+    const selectedOption = sortOptions.find(option => option.value === selectedValue);
+
+    if (selectedOption) {
+      setSelectedSortValue(selectedValue);
+      setSortBy(selectedOption.sortBy);
+      setSortDesc(selectedOption.sortDesc);
+      setPageNumber(1);
+    }
+  };
 
   const handlePageChange = (page: number) => {
     setPageNumber(page);
   };
 
+  // Get current sort option label
+  const getCurrentSortLabel = (): string => {
+    const currentOption = sortOptions.find(option => option.value === selectedSortValue);
+    return currentOption?.label || 'Latest';
+  };
 
   return (
     <div className="shop-page">
@@ -239,13 +297,11 @@ export default function Home() {
         </div>
       </div>
 
-
       <div className="section-seperator bg_light-1">
         <div className="container">
           <hr className="section-seperator" />
         </div>
       </div>
-
 
       <div className="shop-grid-sidebar-area rts-section-gap">
         <div className="container">
@@ -300,7 +356,6 @@ export default function Home() {
                   </div>
                 </div>
 
-
                 {/* Categories (Interactive) */}
                 <div className="single-filter-box">
                   <h5 className="title">Danh mục sản phẩm</h5>
@@ -348,11 +403,30 @@ export default function Home() {
               <div className="filter-select-area">
                 <div className="top-filter">
                   <span>
-                    {loading ? "Loading..." : `Showing ${filteredProducts.length} results`}
+                    {loading ? "Loading..." : `Hiện ${filteredProducts.length} kết quả`}
                   </span>
                   {error && <p className="text-danger">{error}</p>}
                   <div className="right-end">
-                    <span>Sort: Short By Latest</span> {/* You can make this dynamic with SortBy/SortDesc states */}
+                    <div className="sort-dropdown-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span>Sắp xếp theo:</span>
+                      <select
+                        value={selectedSortValue}
+                        onChange={handleSortChange}
+                        style={{
+                          padding: '5px 10px',
+                          border: '1px solid #ddd',
+                          borderRadius: '4px',
+                          background: 'white',
+                          minWidth: '150px'
+                        }}
+                      >
+                        {sortOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                     <div className="button-tab-area">
                       <ul className="nav nav-tabs" id="myTab" role="tablist">
                         <li className="nav-item" role="presentation">
@@ -408,7 +482,7 @@ export default function Home() {
                         <div key={post.id} className="col-lg-20 col-lg-4 col-md-6 col-sm-6 col-12">
                           <div className="single-shopping-card-one">
                             <ShopMain
-                              Id ={post.id}
+                              Id={post.id}
                               Slug={post.slug}
                               ProductImage={post.thumbnailUrl}
                               ProductTitle={post.name}

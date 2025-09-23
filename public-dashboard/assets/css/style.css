@@ -19751,3 +19751,7 @@ li.has-dropdown .submenu li>a .badge {
 .dashboard-input input[type=checkbox] {
   display: none;
 }
+.single-menu-item a.active {
+  background: var(--color-primary);
+  color: #fff !important;
+}

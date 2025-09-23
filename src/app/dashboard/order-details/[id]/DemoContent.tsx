@@ -4,6 +4,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import OrderService, { Order, OrderItem } from '@/data/Services/OrderService';
 import UserService, { UserProfile } from '@/data/Services/UserService';
+import { toast } from 'react-toastify';
+import CustomLoader from '@/components/common/CustomLoader';
 
 const OrderDetailPage: React.FC = () => {
   const { id } = useParams();
@@ -12,20 +14,30 @@ const OrderDetailPage: React.FC = () => {
   const printRef = useRef<HTMLDivElement>(null);
   const [order, setOrder] = useState<Order | null>(null);
   const [customer, setCustomer] = useState<UserProfile | null>(null);
+  const [orderStatuses, setOrderStatuses] = useState<{ id: string; name: string }[]>([]);
+  const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       if (!orderId) return;
 
       try {
+        // Fetch order details
         const orderRes = await OrderService.getOrderById(orderId);
         const orderData = orderRes.data;
         setOrder(orderData);
+        setSelectedStatus(orderData.statusId || '');
 
+        // Fetch customer details
         if (orderData.customerId) {
           const userRes = await UserService.getUserById(orderData.customerId);
           setCustomer(userRes.data);
         }
+
+        // Fetch order statuses
+        const statusesRes = await OrderService.getOrderStatuses();
+        setOrderStatuses(statusesRes.data);
       } catch (error) {
         console.error('Không thể tải chi tiết đơn hàng:', error);
       }
@@ -33,6 +45,31 @@ const OrderDetailPage: React.FC = () => {
 
     fetchData();
   }, [orderId]);
+
+  const handleStatusUpdate = async () => {
+    if (!orderId || !selectedStatus || selectedStatus === order?.statusId) return;
+
+    setIsUpdating(true);
+    try {
+      await OrderService.updateOrderStatus({
+        orderId: orderId,
+        statusId: selectedStatus
+      });
+
+      if (order) {
+        setOrder({ ...order, statusId: selectedStatus });
+      }
+
+      toast.success('Cập nhật trạng thái đơn hàng thành công!');
+    } catch (error) {
+      console.error('Lỗi cập nhật trạng thái:', error);
+      toast.error('Không thể cập nhật trạng thái đơn hàng.');
+      // Reset selected status to current order status
+      setSelectedStatus(order?.statusId || '');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const handlePrint = () => {
     if (!printRef.current) return;
@@ -47,7 +84,12 @@ const OrderDetailPage: React.FC = () => {
     }
   };
 
-  if (!order) return <div>Đang tải đơn hàng...</div>;
+  const getCurrentStatusName = () => {
+    const currentStatus = orderStatuses.find(status => status.id === order?.statusId);
+    return currentStatus ? currentStatus.name : order?.statusId || 'Không xác định';
+  };
+
+  if (!order) return <CustomLoader  />;
 
   return (
     <div ref={printRef} className="body-root-inner">
@@ -59,6 +101,45 @@ const OrderDetailPage: React.FC = () => {
         <div className="product-top-filter-area-l">
           <div className="left-area-button-fiulter">
             <p>Bảng điều khiển / Đơn hàng / #{order.id}</p>
+          </div>
+        </div>
+
+        {/* Cập nhật trạng thái đơn hàng */}
+        <div className="billing-address-area-4 mb-4">
+          <h4 className="title">Cập nhật trạng thái đơn hàng</h4>
+          <div className="status-update-section">
+            <div className="row align-items-end">
+              <div className="col-md-4">
+                <label className="form-label">Trạng thái hiện tại:</label>
+                <p className="current-status"><strong>{getCurrentStatusName()}</strong></p>
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="statusSelect" className="form-label">Chọn trạng thái mới:</label>
+                <select
+                  id="statusSelect"
+                  className="form-control"
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  disabled={isUpdating}
+                >
+                  <option value="">-- Chọn trạng thái --</option>
+                  {orderStatuses.map((status) => (
+                    <option key={status.id} value={status.id}>
+                      {status.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-md-4">
+                <button
+                  className="rts-btn btn-primary radious-sm"
+                  onClick={handleStatusUpdate}
+                  disabled={isUpdating || !selectedStatus || selectedStatus === order?.statusId}
+                >
+                  {isUpdating ? 'Đang cập nhật...' : 'Cập nhật trạng thái'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -99,16 +180,13 @@ const OrderDetailPage: React.FC = () => {
               </div>
               <div><strong>Thời gian đặt hàng:</strong> {order.createdAt ? new Date(order.createdAt).toLocaleString('vi-VN') : 'Không xác định'}</div>
               <div><strong>Phương thức thanh toán:</strong> {order.paymentMethod}</div>
-              <div><strong>Trạng thái đơn hàng:</strong> {order.statusId ?? 'Không xác định'}</div>
-                {order.deliveryNote && (
+              <div><strong>Trạng thái đơn hàng:</strong> {getCurrentStatusName()}</div>
+              {order.deliveryNote && (
                 <div><strong>Ghi chú:</strong> {order.deliveryNote}</div>
-                )}
+              )}
             </div>
           </div>
         </div>
-
-        {/* Thông tin thêm về đơn hàng */}
-
 
         {/* Bảng sản phẩm */}
         <div className="order-details-table-1-table table-responsive">
@@ -133,11 +211,6 @@ const OrderDetailPage: React.FC = () => {
                   </td>
                 </tr>
               ))}
-              {/* Tổng phụ */}
-              {/* <tr>
-                <td colSpan={3} className="text-end f-w-600">Tạm tính</td>
-                <td className="text-right">{order.subtotal.toLocaleString('vi-VN')}₫</td>
-              </tr> */}
               {/* Giảm giá */}
               {order.discountAmount && (
                 <tr>

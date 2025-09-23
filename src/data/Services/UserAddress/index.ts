@@ -1,9 +1,9 @@
 import http from "../axios/index"
 
 export interface UserAddress {
-    id: string
-    userId: string
-    name: string
+    id?: string
+    userId?: string
+    name?: string
     fullAddress: string
     ward?: string
     district?: string
@@ -30,12 +30,15 @@ const updateAddress = (id: string, address: UserAddress) =>
 const deleteAddress = (id: string) =>
     http.delete(`/api/UserAddress/${id}`)
 
+const setDefaultAddress = (addressId: string) =>
+    http.post(`/api/UserAddress/me/set-default/${addressId}`)
+
 const UserAddressService = {
     getMyAddresses,
     getMyDefaultAddress,
     addAddress,
     updateAddress,
     deleteAddress,
+    setDefaultAddress, 
 }
-
 export default UserAddressService

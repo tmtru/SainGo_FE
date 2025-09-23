@@ -1,13 +1,13 @@
-"use client"
-import React, { useEffect } from 'react';
+"use client";
+import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import CategoryBb from './CategoryBb';
-const BannerOne = () => {
 
+const BannerOne = () => {
     return (
         <div className="background-light-gray-color rts-section-gap bg_light-1 pt_sm--20">
-            {/* rts banner area start */}
+            {/* Khu vực banner bắt đầu */}
             <div className="rts-banner-area-one mb--30">
                 <div className="container">
                     <div className="row">
@@ -39,17 +39,17 @@ const BannerOne = () => {
                                         <div className="banner-bg-image bg_image bg_one-banner ptb--120 ptb_md--80 ptb_sm--60">
                                             <div className="banner-one-inner-content">
                                                 <span className="pre">
-                                                    Get up to 30% off on your first $150 purchase
+                                                    Giảm đến 30% cho đơn hàng đầu tiên từ 150.000đ
                                                 </span>
                                                 <h1 className="title">
-                                                    Do not miss our amazing <br />
-                                                    grocery deals
+                                                    Đừng bỏ lỡ những ưu đãi <br />
+                                                    thực phẩm tuyệt vời của chúng tôi
                                                 </h1>
                                                 <a
                                                     href="/shop"
                                                     className="rts-btn btn-primary radious-sm with-icon"
                                                 >
-                                                    <div className="btn-text">Shop Now</div>
+                                                    <div className="btn-text">Mua ngay</div>
                                                     <div className="arrow-icon">
                                                         <i className="fa-light fa-arrow-right"></i>
                                                     </div>
@@ -65,17 +65,17 @@ const BannerOne = () => {
                                         <div className="banner-bg-image bg_image bg_one-banner two ptb--120 ptb_md--80 ptb_sm--60">
                                             <div className="banner-one-inner-content">
                                                 <span className="pre">
-                                                    Get up to 30% off on your first $150 purchase
+                                                    Giảm đến 30% cho đơn hàng đầu tiên từ 150.000đ
                                                 </span>
                                                 <h1 className="title">
-                                                    Do not miss our amazing <br />
-                                                    grocery deals
+                                                    Đừng bỏ lỡ những ưu đãi <br />
+                                                    thực phẩm tuyệt vời của chúng tôi
                                                 </h1>
                                                 <a
                                                     href="/shop"
                                                     className="rts-btn btn-primary radious-sm with-icon"
                                                 >
-                                                    <div className="btn-text">Shop Now</div>
+                                                    <div className="btn-text">Mua ngay</div>
                                                     <div className="arrow-icon">
                                                         <i className="fa-light fa-arrow-right"></i>
                                                     </div>
@@ -99,7 +99,7 @@ const BannerOne = () => {
                     </div>
                 </div>
             </div>
-            {/* rts banner area end */}
+            {/* Khu vực banner kết thúc */}
 
             <CategoryBb />
         </div>

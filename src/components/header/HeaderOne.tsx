@@ -41,7 +41,7 @@ function HeaderOne() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (searchTerm.trim()) {
-            router.push(`/shop?search=${encodeURIComponent(searchTerm.trim())}`);
+            router.push(`/shop?keyword=${encodeURIComponent(searchTerm.trim())}`);
             setShowSuggestions(false);
         } else {
             router.push('/shop');
@@ -92,7 +92,7 @@ function HeaderOne() {
                                             <input
                                                 ref={inputRef}
                                                 type="text"
-                                                placeholder="Tìm sản phẩm, danh mục, thương hiệu..."
+                                                placeholder="Tìm theo sản phẩm"
                                                 required
                                                 value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}

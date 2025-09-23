@@ -1,14 +1,20 @@
-import { forEach, isArray } from "lodash"
+export const trimData = (data: any): any => {
+  if (!data || typeof data === "string") return data;
 
-export const trimData = (data: any) => {
-  if (!data || typeof data === "string") return data // ✅ Chặn chuỗi JSON
+  if (Array.isArray(data)) {
+    return data.map(item => trimData(item));
+  }
 
-  const tempData: any = isArray(data) ? [] : {}
-  forEach(data, (val: any, keyName: string) => {
-    if (typeof val === "string") tempData[keyName] = val.trim()
-    else if (typeof val === "object") tempData[keyName] = trimData(val)
-    else tempData[keyName] = val
-  })
-  return tempData
-}
+  if (typeof data === "object") {
+    const trimmedObj: Record<string, any> = {};
+    Object.keys(data).forEach(key => {
+      const val = data[key];
+      if (typeof val === "string") trimmedObj[key] = val.trim();
+      else if (typeof val === "object") trimmedObj[key] = trimData(val);
+      else trimmedObj[key] = val;
+    });
+    return trimmedObj;
+  }
 
+  return data;
+};

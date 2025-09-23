@@ -22,12 +22,12 @@ const WishList: React.FC = () => {
     return (
         <div className="btn-border-only cart category-hover-header">
             <i className="fa-regular fa-heart" />
-            <span className="text">Wishlist</span>
+            <span className="text">Yêu thích</span>
             <span className="number">{wishlistItems.length}</span>
 
             <div className="category-sub-menu card-number-show">
                 <h5 className="shopping-cart-number">
-                    Wishlist ({wishlistItems.length.toString().padStart(2, '0')})
+                    Sản phẩm đang theo dõi ({wishlistItems.length.toString().padStart(2, '0')})
                 </h5>
 
                 {wishlistItems.map((item) => (
@@ -45,7 +45,7 @@ const WishList: React.FC = () => {
                                 </Link>
                                 <div className="number">
                                     {item.quantity} <i className="fa-regular fa-x" />
-                                    <span>${(item.price * item.quantity).toFixed(2)}</span>
+                                    <span>{(item.price * item.quantity).toFixed(2)} đ</span>
                                 </div>
                             </div>
                         </div>
@@ -55,8 +55,8 @@ const WishList: React.FC = () => {
                 <div className="sub-total-cart-balance">
                     <div className="bottom-content-deals mt--10">
                         <div className="top">
-                            <span>Sub Total:</span>
-                            <span className="number-c">${total.toFixed(2)}</span>
+                            <span>Tổng tiền:</span>
+                            <span className="number-c">{total.toFixed(2)} đ</span>
                         </div>
                         <div className="single-progress-area-incard">
                             <div className="progress">
@@ -69,17 +69,11 @@ const WishList: React.FC = () => {
                                 />
                             </div>
                         </div>
-                        {total < freeShippingThreshold && (
-                            <p>
-                                Spend More <span>${remaining.toFixed(2)}</span> to reach{' '}
-                                <span>Free Shipping</span>
-                            </p>
-                        )}
                     </div>
 
                     <div className="button-wrapper d-flex align-items-center justify-content-between">
                         <a href="/wishlist" className="rts-btn btn-primary">
-                            View Wishlist
+                            Xem chi tiết
                         </a>
                     </div>
                 </div>

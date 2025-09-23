@@ -3,7 +3,7 @@ import http from "../axios/index"
 // Trả về một string URL thay vì object
 export type UploadResponse = string
 
-// Upload single file (trả về URL string)
+
 const uploadSingle = (file: File) => {
     const formData = new FormData()
     formData.append("file", file)
@@ -15,7 +15,7 @@ const uploadSingle = (file: File) => {
     })
 }
 
-// Upload multiple files (trả về mảng URL string)
+
 const uploadMultiple = (files: File[]) => {
     const formData = new FormData()
     files.forEach(file => {

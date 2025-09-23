@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import HeaderOne from "@/components/header/HeaderOne";
 import ShortService from "@/components/service/ShortService";
 import RelatedProduct from "@/components/product/RelatedProduct";
@@ -25,7 +25,6 @@ const CompareElements: React.FC = () => {
   const params = useParams();
   const productId = params.id as string;
 
-  // --- HOOKS PHẢI ĐƯỢC KHAI BÁO UNCONDITIONALLY Ở ĐẦU COMPONENT ---
   const [blogPost, setBlogPost] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,12 +37,9 @@ const CompareElements: React.FC = () => {
   const [wishlisted, setWishlisted] = useState(false);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [activeTab, setActiveTab] = useState<string>('tab1');
-  // Initialize activeImage to an empty string or a placeholder initially.
-  // It will be updated by useEffect once blogPost is fetched.
-  const [activeImage, setActiveImage] = useState<string>('');
-  const [quantity, setQuantity] = useState(1); // Giữ nguyên state quantity
 
-  // --- END OF HOOKS ---
+  const [activeImage, setActiveImage] = useState<string>('');
+  const [quantity, setQuantity] = useState(1); 
 
   useEffect(() => {
     if (!productId) return;
@@ -54,9 +50,8 @@ const CompareElements: React.FC = () => {
       try {
         const response = await ProductService.getProductById(productId);
         setBlogPost(response.data);
-        // Sau khi blogPost được tải, đặt activeImage thành thumbnailUrl
         setActiveImage(response.data.thumbnailUrl);
-        setQuantity(1); // Reset quantity về 1 mỗi khi tải sản phẩm mới
+        setQuantity(1);
       } catch (err: any) {
         if (err.response && err.response.data && err.response.data.message) {
           setError(err.response.data.message);
@@ -70,9 +65,9 @@ const CompareElements: React.FC = () => {
     };
 
     fetchProduct();
-  }, [productId]); // Chạy lại khi productId thay đổi
+  }, [productId]); 
 
-  // Hàm tính phần trăm giảm giá
+
   const handleSalePercentage = (basePrice: number, currentPrice: number) => {
     if (basePrice > 0 && currentPrice > 0 && basePrice > currentPrice) {
       const sale = ((basePrice - currentPrice) / basePrice) * 100;
@@ -87,13 +82,12 @@ const CompareElements: React.FC = () => {
 
   const handleCloseModal = () => setActiveModal(null);
 
-  // --- LOGIC CHO QUANTITY ---
   const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value, 10);
     if (isNaN(value) || value < 1) {
-      setQuantity(1); // Đặt về 1 nếu không phải số hoặc nhỏ hơn 1
+      setQuantity(1); 
     } else if (blogPost && value > blogPost.stockQuantity) {
-      setQuantity(blogPost.stockQuantity); // Giới hạn bằng số lượng tồn kho
+      setQuantity(blogPost.stockQuantity);
     } else {
       setQuantity(value);
     }
@@ -103,14 +97,13 @@ const CompareElements: React.FC = () => {
     if (blogPost && quantity < blogPost.stockQuantity) {
       setQuantity((prevQuantity) => prevQuantity + 1);
     } else if (!blogPost) {
-      setQuantity((prevQuantity) => prevQuantity + 1); // Cho phép tăng nếu blogPost chưa load (ví dụ: mặc định 1)
+      setQuantity((prevQuantity) => prevQuantity + 1);
     }
   };
 
   const decrementQuantity = () => {
     setQuantity((prevQuantity) => Math.max(1, prevQuantity - 1));
   };
-  // --- END LOGIC CHO QUANTITY ---
 
   const handleAdd = async () => {
     if (!blogPost) {
@@ -118,7 +111,6 @@ const CompareElements: React.FC = () => {
       return;
     }
 
-    // Đảm bảo số lượng không vượt quá tồn kho trước khi thêm
     const finalQuantity = Math.min(quantity, blogPost.stockQuantity);
     if (finalQuantity <= 0) {
       toast.error("Số lượng sản phẩm phải lớn hơn 0.");
@@ -126,14 +118,14 @@ const CompareElements: React.FC = () => {
     }
 
 
-    const storeId = blogPost.brandId; // Hoặc ID cửa hàng thật sự
+    const storeId = blogPost.brandId; 
     const itemToAdd = {
       productId: blogPost.id,
-      productVariantId: null, // Giả định không có biến thể
+      productVariantId: null, 
       unitPrice: currentPrice,
       quantity: finalQuantity,
       storeId: storeId,
-      cartId: "" // cartId có thể được quản lý bởi context/service
+      cartId: "" 
     };
 
     try {
@@ -142,7 +134,7 @@ const CompareElements: React.FC = () => {
       setTimeout(() => setAdded(false), 3000);
     } catch (err) {
       console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", err);
-      // Toast message đã được xử lý trong CartContext, nhưng có thể thêm ở đây nếu cần cho các lỗi cụ thể khác
+   
     }
   };
 
@@ -157,7 +149,7 @@ const CompareElements: React.FC = () => {
       title: blogPost.name,
       image: blogPost.thumbnailUrl,
       price: currentPrice,
-      quantity: 1 // Trong wishlist thường là 1, không cần số lượng
+      quantity: 1
     });
     setWishlisted(true);
     toast.success('Đã thêm vào danh sách yêu thích!');
@@ -184,7 +176,6 @@ const CompareElements: React.FC = () => {
     toast.success('Đã thêm vào danh sách so sánh!');
   };
 
-  // --- CONDITIONAL RENDERING (SAU KHI TẤT CẢ CÁC HOOKS ĐƯỢC GỌI) ---
   if (loading) {
     return <CustomLoader />;
   }
@@ -274,7 +265,7 @@ const CompareElements: React.FC = () => {
 
                         <div className="contents">
                           <div className="product-status">
-                            <span className="product-catagory">Category Placeholder</span>
+                            {/* <span className="product-catagory">Category Placeholder</span> */}
                             <div className="rating-stars-group">
                               <div className="rating-star"><i className="fas fa-star" /></div>
                               <div className="rating-star"><i className="fas fa-star" /></div>
@@ -291,7 +282,7 @@ const CompareElements: React.FC = () => {
                             )}
                           </span>
 
-                          {/* --- QUANTITY INPUT AND BUTTONS --- */}
+
                           <div className="quantity-area-shop-details">
                             <label htmlFor="quantity">Số lượng:</label>
                             <div className="product-quantity-input">
@@ -299,7 +290,7 @@ const CompareElements: React.FC = () => {
                                 type="button"
                                 className="qty-decrease"
                                 onClick={decrementQuantity}
-                                disabled={quantity <= 1} // Disable nếu số lượng là 1
+                                disabled={quantity <= 1} 
                               >
                                 <i className="far fa-minus" />
                               </button>
@@ -310,28 +301,26 @@ const CompareElements: React.FC = () => {
                                 value={quantity}
                                 onChange={handleQuantityChange}
                                 min="1"
-                                max={blogPost.stockQuantity} // Giới hạn tối đa là tồn kho
-                                className="qty-input"
-                                readOnly // Tùy chọn: nếu bạn muốn người dùng chỉ dùng nút
-                              />
+                                max={blogPost.stockQuantity}
+                                className="qty-input"                              />
                               <button
                                 type="button"
                                 className="qty-increase"
                                 onClick={incrementQuantity}
-                                disabled={quantity >= blogPost.stockQuantity} // Disable nếu đạt tồn kho
+                                disabled={quantity >= blogPost.stockQuantity} 
                               >
                                 <i className="far fa-plus" />
                               </button>
                             </div>
                           </div>
-                          {/* --- END QUANTITY INPUT AND BUTTONS --- */}
+                         
 
                           <div className="product-bottom-action">
                             <button
                               className="rts-btn btn-primary radious-sm with-icon"
                               onClick={handleAdd}
                               type="button"
-                              disabled={blogPost.stockQuantity === 0} // Disable nếu hết hàng
+                              disabled={blogPost.stockQuantity === 0} 
                             >
                               <div className="btn-text">
                                 {blogPost.stockQuantity === 0 ? "Hết hàng" : "Thêm vào giỏ hàng"}
@@ -358,10 +347,6 @@ const CompareElements: React.FC = () => {
                               <span>Thêm vào danh sách yêu thích</span>
                             </div>
                             <div className="single-share-option"><div className="icon"><i className="fa-solid fa-share" /></div><span>Chia sẻ</span></div>
-                            <div className="single-share-option" onClick={handleCompare} style={{ cursor: 'pointer' }}>
-                              <div className="icon"><i className="fa-light fa-code-compare" /></div>
-                              <span>So sánh</span>
-                            </div>
                           </div>
                         </div>
                       </div>
@@ -396,24 +381,20 @@ const CompareElements: React.FC = () => {
                     {activeTab === 'tab1' &&
                       <div>
                         <div className="single-tab-content-shop-details">
-                          <p className="disc" dangerouslySetInnerHTML={{ __html: blogPost.description }} />
-                          <div className="details-row-2">
-                            <div className="left-area">
-                              <img src="/assets/images/shop/06.jpg" alt="shop" />
-                            </div>
-                          </div>
+                          <p className="disc">
+                            {blogPost.description.split('\n').map((line, index) => (
+                              <React.Fragment key={index}>
+                                {line}
+                                <br />
+                              </React.Fragment>
+                            ))}
+                          </p>
+
                         </div>
                       </div>}
                     {activeTab === 'tab2' &&
                       <div>
                         <div className="single-tab-content-shop-details">
-                          <p className="disc">
-                            Uninhibited carnally hired played in whimpered dear gorilla
-                            koala depending and much yikes off far quetzal goodness and
-                            from for grimaced goodness unaccountably and meadowlark near
-                            unblushingly crucial scallop tightly neurotic hungrily some
-                            and dear furiously this apart.
-                          </p>
                           <div className="table-responsive table-shop-details-pd">
                             <table className="table">
                               <thead>
@@ -425,7 +406,7 @@ const CompareElements: React.FC = () => {
                               <tbody>
                                 <tr>
                                   <td>Khối lượng</td>
-                                  <td>{blogPost.weight} {blogPost.unit}</td> {/* Giả định `unit` là đơn vị khối lượng */}
+                                  <td>{blogPost.weight} {blogPost.unit}</td> 
                                 </tr>
                                 <tr>
                                   <td>Kích thước</td>
@@ -551,8 +532,8 @@ const CompareElements: React.FC = () => {
         </div>
       </div>
 
-      <RelatedProduct />
-      <ShortService />
+      {/* <RelatedProduct />
+      <ShortService /> */}
       <FooterOne />
       <ToastContainer />
 

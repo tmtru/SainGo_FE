@@ -6,7 +6,11 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import UserAddressService from '@/data/Services/UserAddress';
 import OrderService from '@/data/Services/OrderService';
+import ShippingService from '@/data/Services/ShippingService';
+import UserCouponService from '@/data/Services/UserCouponService';
 import 'react-toastify/dist/ReactToastify.css';
+import { useAuth } from '@/components/Context/AuthContext';
+import { set } from 'lodash';
 
 function formatCurrency(value: number) {
     return value.toLocaleString('vi-VN', {
@@ -18,10 +22,12 @@ function formatCurrency(value: number) {
 export default function CheckOutMain() {
     const { cartItems, clearCart } = useCart();
     const router = useRouter();
+    const [leadTime, setLeadTime] = useState<string | null>(null);
 
-    const [useManualAddress, setUseManualAddress] = useState(false);
     const [defaultAddress, setDefaultAddress] = useState<any>(null);
     const [loadingAddress, setLoadingAddress] = useState(true);
+    const [shippingFee, setShippingFee] = useState<number>(0);
+    const [loadingShipping, setLoadingShipping] = useState(false);
 
     const [billingInfo, setBillingInfo] = useState({
         name: '',
@@ -30,30 +36,166 @@ export default function CheckOutMain() {
     });
 
     const [paymentMethod, setPaymentMethod] = useState('cash');
+    const [error, setError] = useState<string | null>(null);
+    const subtotal = cartItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+
+    // Coupon states
+    const [coupon, setCoupon] = useState('');
+    const [discount, setDiscount] = useState(0);
+    const [couponMessage, setCouponMessage] = useState('');
+    const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+    const [couponApplied, setCouponApplied] = useState(false);
+
+    const { user } = useAuth();
+
+    // Load saved coupon and discount from localStorage
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const storedDiscount = parseFloat(localStorage.getItem('discount') || '0');
+            const storedCouponCode = localStorage.getItem('coupon') || '';
+
+            setDiscount(storedDiscount);
+            setCoupon(storedCouponCode);
+
+            if (storedCouponCode && storedDiscount > 0) {
+                setCouponApplied(true);
+                setCouponMessage(`Mã giảm giá "${storedCouponCode}" đã được áp dụng`);
+            }
+        }
+    }, []);
+
+    const finalTotal = subtotal - discount + shippingFee;
+
+    // Apply coupon function
+    const applyCoupon = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!coupon || !subtotal) {
+            setCouponMessage('Vui lòng nhập mã giảm giá hợp lệ');
+            setDiscount(0);
+            setCouponApplied(false);
+            return;
+        }
+
+        setIsApplyingCoupon(true);
+
+        try {
+            const res = await UserCouponService.applyCoupon({
+                code: coupon,
+                orderAmount: subtotal
+            });
+            console.log('Coupon response:', res);
+
+            if (res?.data) {
+                const discountAmount = res.data;
+                setDiscount(discountAmount);
+                const discountPercentage = ((discountAmount / subtotal) * 100).toFixed(0);
+                setCouponMessage(`Tuyệt vời! Bạn đã tiết kiệm được ${formatCurrency(discountAmount)} (${discountPercentage}%)`);
+                setCouponApplied(true);
+                localStorage.setItem('coupon', coupon);
+                localStorage.setItem('discount', discountAmount.toString());
+                toast.success(`🎉 Áp dụng mã giảm giá thành công! Tiết kiệm ${formatCurrency(discountAmount)}`);
+            } else {
+                setDiscount(0);
+                setCouponMessage('Mã giảm giá không hợp lệ hoặc đã hết hạn sử dụng');
+                setCouponApplied(false);
+                localStorage.removeItem('coupon');
+                localStorage.removeItem('discount');
+            }
+        } catch (err) {
+            console.error(err);
+            setDiscount(0);
+            setCouponMessage('Có lỗi xảy ra khi xác minh mã giảm giá. Vui lòng thử lại');
+            setCouponApplied(false);
+        } finally {
+            setIsApplyingCoupon(false);
+        }
+    };
+
+    // Remove coupon function
+    const removeCoupon = () => {
+        setCoupon('');
+        setDiscount(0);
+        setCouponMessage('');
+        setCouponApplied(false);
+        localStorage.removeItem('coupon');
+        localStorage.removeItem('discount');
+        toast.info('🗑️ Đã xóa mã giảm giá');
+    };
 
     useEffect(() => {
+        if (!user) return;
+
         const fetchDefaultAddress = async () => {
             try {
                 const res = await UserAddressService.getMyDefaultAddress();
-                setDefaultAddress(res.data);
+                const mergedAddress = {
+                    ...res.data,
+                    phone: user.phone,
+                    name: user.fullName,
+                };
+                setDefaultAddress(mergedAddress);
             } catch (err) {
                 console.warn('Không có địa chỉ mặc định');
             } finally {
                 setLoadingAddress(false);
             }
         };
+
         fetchDefaultAddress();
-    }, []);
+    }, [user]);
+
+    useEffect(() => {
+        const calculateShipping = async () => {
+            if (defaultAddress) {
+                setLoadingShipping(true);
+                try {
+                    const request = {
+                        toDistrictId: defaultAddress.district,
+                        toWardCode: defaultAddress.ward,
+                        serviceId: 53320,
+                        length: 20,
+                        width: 20,
+                        height: 10,
+                        weight: 500,
+                        insuranceValue: 100000,
+                    };
+
+                    const res = await ShippingService.calculateShippingFee(request);
+                    setShippingFee(res.data);
+
+                    // Gọi thêm leadtime
+                    const leadTimeRes = await ShippingService.calculateDeliveryTime(request);
+
+                    const date = new Date(leadTimeRes.data);
+
+                    const formattedDate = date.toLocaleDateString("vi-VN", {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+
+                    console.log("Ngày giao hàng dự kiến:", formattedDate);
+
+                    setLeadTime(formattedDate);
+                } catch (err) {
+                    toast.warn('Khu vực bạn không hỗ trợ giao hàng. Vui lòng chọn khu vực khác.');
+                    setShippingFee(0);
+                    setLeadTime(null);
+                } finally {
+                    setLoadingShipping(false);
+                }
+            }
+        };
+
+        calculateShipping();
+    }, [defaultAddress]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { id, value } = e.target;
         setBillingInfo(prev => ({ ...prev, [id]: value }));
     };
-
-    const subtotal = cartItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
-    const discount = parseFloat(localStorage.getItem('discount') || '0');
-    const couponCode = localStorage.getItem('coupon') || '';
-    const finalTotal = subtotal - subtotal * discount;
 
     const handlePlaceOrder = async () => {
         try {
@@ -64,20 +206,24 @@ export default function CheckOutMain() {
                 unitPrice: item.unitPrice,
                 productName: item.productName,
             }));
-
+            let couponCode = couponApplied ? coupon : undefined;
             const order: any = {
                 orderitems: orderItems,
                 paymentMethod,
                 subtotal,
-                discountAmount: subtotal * discount,
+                couponCode: couponCode || undefined,
+                discountAmount: discount,
+                shippingFee,
                 totalAmount: finalTotal,
             };
 
-            if (!useManualAddress && defaultAddress) {
+            // Địa chỉ
+            if (defaultAddress) {
                 order.deliveryAddressId = defaultAddress.id;
             } else {
                 if (!billingInfo.fullAddress || !billingInfo.name || !billingInfo.phone) {
-                    toast.error('Vui lòng điền đầy đủ thông tin địa chỉ mới.');
+                    toast.error('Vui lòng tạo địa chỉ trước khi thanh toán.');
+                    setError('Vui lòng tạo địa chỉ mặc định trước khi thanh toán.');
                     return;
                 }
                 order.deliveryAddressText = billingInfo.fullAddress;
@@ -85,10 +231,36 @@ export default function CheckOutMain() {
                 order.specialInstructions = billingInfo.name;
             }
 
+            // Tạo đơn hàng
             const res = await OrderService.createOrder(order);
-            clearCart();
-            toast.success('🎉 Đặt hàng thành công!');
+            const createdOrder = res.data;
+            const orderId = createdOrder.id;
+            console.log("Đơn hàng đã tạo:", createdOrder);
+            if (!orderId) {
+                toast.error('❌ Không thể tạo đơn hàng. Vui lòng thử lại sau.');
+                return;
+            }
+
+            if (paymentMethod === 'momo') {
+                const momoRes = await OrderService.createMomoPayment(orderId);
+                const payUrl = momoRes.data;
+                console.log("Link thanh toán Momo:", payUrl);
+
+                if (payUrl) {
+                    toast.success('✅ Chuyển sang Momo để thanh toán...');
+                    window.location.href = payUrl;
+                } else {
+                    toast.error('❌ Không lấy được link thanh toán Momo.');
+                }
+            } else {
+                clearCart();
+                toast.success('🎉 Đặt hàng thành công!');
+                localStorage.removeItem('coupon');
+                localStorage.removeItem('discount');
+                router.push('/');
+            }
         } catch (err: any) {
+            console.error(err);
             toast.error(`❌ Lỗi khi đặt hàng: ${err.message}`);
         }
     };
@@ -98,46 +270,108 @@ export default function CheckOutMain() {
             <div className="container">
                 <div className="row">
                     <div className="col-lg-8 p--20 order-2 order-xl-1 cart-total-area-start-right" style={{ padding: '40px', border: "none" }}>
-                        <h3 >Địa chỉ giao hàng</h3>
+                        <h3>Địa chỉ giao hàng</h3>
 
                         {loadingAddress ? (
                             <p>Đang tải địa chỉ mặc định...</p>
-                        ) : !useManualAddress && defaultAddress ? (
+                        ) : (defaultAddress ? (
                             <div className="border rounded bg-light mb-4" style={{ padding: '20px' }}>
                                 <p><strong>{defaultAddress.name}</strong></p>
                                 <p>{defaultAddress.fullAddress}</p>
                                 <p>📞 {defaultAddress.phone}</p>
                             </div>
                         ) : (
-                            <div className="rts-billing-details-area">
-                                <div className="single-input">
-                                    <label htmlFor="name">Tên người nhận *</label>
-                                    <input id="name" value={billingInfo.name} onChange={handleInputChange} required />
-                                </div>
-                                <div className="single-input">
-                                    <label htmlFor="phone">Số điện thoại *</label>
-                                    <input id="phone" value={billingInfo.phone} onChange={handleInputChange} required />
-                                </div>
-                                <div className="single-input">
-                                    <label htmlFor="fullAddress">Địa chỉ chi tiết *</label>
-                                    <input id="fullAddress" value={billingInfo.fullAddress} onChange={handleInputChange} required />
-                                </div>
-                            </div>
+                                    <div className="border rounded bg-light mb-4" style={{ padding: '20px' }}>
+                                        <p><strong style={{ color: "red"}}>Không có địa chỉ mặc định.Vui lòng tạo địa chỉ mới.</strong></p>
+                                        
+                                <button
+                                    className="rts-btn btn-primary"
+                                    onClick={() => router.push('/account')}
+                                > Tạo địa chỉ mới</button>
+                            </div>)
                         )}
 
-                        <div className="form-check mt-2 mb-4">
-                            <input
-                                type="checkbox"
-                                className="form-check-input"
-                                id="manualAddressCheck"
-                                checked={useManualAddress}
-                                onChange={() => setUseManualAddress(prev => !prev)}
-                            />
-                            <label className="form-check-label" htmlFor="manualAddressCheck">
-                                Nhập địa chỉ mới
-                            </label>
+                        {/* Coupon Section */}
+                        <div className="coupon-section mb-4 p-4 border rounded-3 bg-light">
+                            <div className="d-flex align-items-center mb-3">
+                                <i className="fa-solid fa-ticket text-primary me-2" style={{ fontSize: '1.2rem' }}></i>
+                                <h6 className="mb-0 fw-bold">Mã giảm giá</h6>
+                            </div>
+
+                            {!couponApplied ? (
+                                <form onSubmit={applyCoupon}>
+                                    <div className="d-flex gap-3 flex-wrap">
+                                        <div className="flex-grow-1">
+                                            <input
+                                                type="text"
+                                                placeholder="Nhập mã giảm giá của bạn"
+                                                className="form-control form-control-lg"
+                                                value={coupon}
+                                                onChange={e => {
+                                                    setCoupon(e.target.value.toUpperCase());
+                                                    setCouponMessage('');
+                                                }}
+                                                disabled={isApplyingCoupon}
+                                            />
+                                        </div>
+                                        <button
+                                            type="submit"
+                                            className="rts-btn btn-primary px-4"
+                                            disabled={isApplyingCoupon || !coupon.trim()}
+                                        >
+                                            {isApplyingCoupon ? (
+                                                <>
+                                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                    Đang xử lý...
+                                                </>
+                                            ) : (
+                                                'Áp dụng'
+                                            )}
+                                        </button>
+                                    </div>
+                                </form>
+                            ) : (
+                                <div className="coupon-applied-state">
+                                    <div className="d-flex align-items-center justify-content-between p-3 bg-opacity-10 border border-success border-opacity-25 rounded-3">
+                                        <div className="d-flex align-items-center">
+                                            <i className="fa-solid fa-check-circle text-success me-2"></i>
+                                            <div>
+                                                <strong className="text-success">Mã "{coupon}" đã được áp dụng</strong>
+                                                <div className="small text-muted">
+                                                    Tiết kiệm {formatCurrency(discount)} ({((discount / subtotal) * 100).toFixed(0)}%)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button
+                                            className="btn btn-sm btn-outline-danger"
+                                            onClick={removeCoupon}
+                                            title="Xóa mã giảm giá"
+                                            style={{ width: '40px', height: '40px' }}
+                                        >
+                                            <i className="fa-solid fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {couponMessage && !couponApplied && (
+                                <div className="mt-3">
+                                    <div className="alert alert-danger alert-dismissible fade show mb-0" role="alert">
+                                        <i className="fa-solid fa-exclamation-triangle me-2"></i>
+                                        {couponMessage}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Coupon suggestions */}
+                            <div className="coupon-suggestions mt-3">
+                                <small className="text-muted">
+                                    <i className="fa-solid fa-lightbulb me-1"></i>
+                                    Mẹo: Kiểm tra email hoặc tin nhắn để tìm mã giảm giá mới nhất
+                                </small>
+                            </div>
                         </div>
-                        
+
                         <div className="shipping">
                             <span>Phương thức thanh toán *</span>
                             <ul>
@@ -153,15 +387,27 @@ export default function CheckOutMain() {
                                     <input type="radio" id="t-option" name="selector" value="momo" checked={paymentMethod === 'momo'} onChange={(e) => setPaymentMethod(e.target.value)} />
                                     <label htmlFor="t-option">Momo</label>
                                 </li>
-                                <li>
-                                    <p>Phí giao hàng sẽ được tính ở bước tiếp theo</p>
-                                </li>
                             </ul>
                         </div>
+
+                        {loadingShipping ? (
+                            <p>Đang tính phí và thời gian giao hàng...</p>
+                        ) : (
+                            <>
+                                <div className="shipping">
+                                    <span className='col-6'>Phí vận chuyển</span>
+                                    <p><strong>{formatCurrency(shippingFee)}</strong></p>
+                                </div>
+                                <div className="shipping">
+                                    <span className='col-6'>Thời gian giao hàng dự kiến</span>
+                                    <p><strong>{leadTime || 'Chưa có thông tin'}</strong></p>
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     <div className="col-lg-4 order-1 order-xl-2">
-                        <div className="right-card-sidebar-checkout" style={{ padding: '28px'    }}>
+                        <div className="right-card-sidebar-checkout" style={{ padding: '28px' }}>
                             <h3 className="title-checkout">Tóm tắt đơn hàng</h3>
 
                             {cartItems.map(item => (
@@ -173,231 +419,53 @@ export default function CheckOutMain() {
                                 </div>
                             ))}
 
-                            <div className="single-shop-list"><span>Tạm tính</span><span className="price">{formatCurrency(subtotal)}</span></div>
-                            {discount > 0 && <div className="single-shop-list"><span>Giảm giá</span><span className="price">- {formatCurrency(subtotal * discount)}</span></div>}
-                            <div className="single-shop-list"><strong>Tổng cộng</strong><strong className="">{formatCurrency(finalTotal)}</strong></div>
+                            <div className="single-shop-list">
+                                <span>Tạm tính</span>
+                                <span className="price">{formatCurrency(subtotal)}</span>
+                            </div>
 
-                            <button className="rts-btn btn-primary w-100 mt-3" onClick={handlePlaceOrder}>
+                            {discount > 0 && (
+                                <div className="single-shop-list">
+                                    <span className="text-success">
+                                        <i className="fa-solid fa-tag me-1"></i>
+                                        Giảm giá ({((discount / subtotal) * 100).toFixed(0)}%)
+                                    </span>
+                                    <span className="price text-success">-{formatCurrency(discount)}</span>
+                                </div>
+                            )}
+
+                            <div className="single-shop-list">
+                                <span>Phí vận chuyển</span>
+                                <span className="price">{formatCurrency(shippingFee)}</span>
+                            </div>
+
+                            <div className="single-shop-list">
+                                <strong>Tổng cộng</strong>
+                                <strong className="price">{formatCurrency(finalTotal)}</strong>
+                            </div>
+
+                            {discount > 0 && (
+                                <div className="savings-highlight text-center mt-2">
+                                    <small className="text-success fw-bold">
+                                        🎉 Bạn đã tiết kiệm được {formatCurrency(discount)}!
+                                    </small>
+                                </div>
+                            )}
+
+                            <button className="rts-btn btn-primary w-100 mt-3" onClick={handlePlaceOrder} disabled={cartItems.length === 0 || loadingShipping || defaultAddress === null}>
                                 Đặt hàng
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
+            <style jsx>{`
+        button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+      `}</style>
         </div>
     );
 }
-// src/components/service/CheckOutMain.tsx
-// 'use client';
-// import React, { useState } from 'react';
-// import { useCart } from '@/components/header/CartContext';
-
-// const DEFAULT_SHIPPING_COST = 50;
-
-// export default function CheckOutMain() {
-//     const { cartItems } = useCart();
-//     const [coupon, setCoupon] = useState('');
-//     const [discount, setDiscount] = useState(0);
-//     const [billingInfo, setBillingInfo] = useState({
-//         email: '',
-//         firstName: '',
-//         lastName: '',
-//         company: '',
-//         country: '',
-//         street: '',
-//         city: '',
-//         state: '',
-//         zip: '',
-//         phone: '',
-//         orderNotes: '',
-//     });
-
-//     const [couponMessage, setCouponMessage] = useState('');
-//     const handleCouponApply = () => {
-//         if (coupon === '12345') {
-//             setDiscount(0.25);
-//             setCouponMessage('Coupon applied -25% Discount');
-//         } else {
-//             setDiscount(0);
-//             setCouponMessage('Coupon code is incorrect');
-//         }
-//     };
-
-//     const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-//     const discountAmount = subtotal * discount;
-//     const shippingCost = discount > 0 ? 0 : DEFAULT_SHIPPING_COST;
-//     const total = subtotal - discountAmount + shippingCost;
-
-//     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-//         const { id, value } = e.target;
-//         setBillingInfo({ ...billingInfo, [id]: value });
-//     };
-
-//     const [showCoupon, setShowCoupon] = useState(false);
-//     const toggleCouponInput = () => {
-//         setShowCoupon((prev) => !prev);
-//     };
-
-//     return (
-//         <div className="checkout-area rts-section-gap">
-//             <div className="container">
-//                 <div className="row">
-//                     {/* Left: Billing Details */}
-//                     <div className="col-lg-8 pr--40 order-2 order-xl-1">
-//                         <div className="coupon-input-area-1">
-//                             <div className="coupon-area">
-//                                 <div className="coupon-ask cupon-wrapper-1" onClick={toggleCouponInput}>
-//                                     <button className="coupon-click" onClick={handleCouponApply}>
-//                                         Have a coupon? Click here to enter your code
-//                                     </button>
-//                                 </div>
-//                                 <div className={`coupon-input-area cupon1 ${showCoupon ? 'show' : ''}`}>
-//                                     <div className="inner">
-//                                         <p>If you have a coupon code, please apply it below.</p>
-//                                         <div className="form-area">
-//                                             <input
-//                                                 type="text"
-//                                                 placeholder="Enter Coupon Code..."
-//                                                 value={coupon}
-//                                                 onChange={e => {
-//                                                     setCoupon(e.target.value);
-//                                                     setCouponMessage('');
-//                                                 }}
-//                                             />
-//                                             <button type="button" className="btn-primary rts-btn" onClick={handleCouponApply}>
-//                                                 Apply Coupon
-//                                             </button>
-//                                         </div>
-//                                         {couponMessage && (
-//                                             <p
-//                                                 style={{
-//                                                     color: coupon === '12345' ? 'green' : 'red',
-//                                                     marginTop: '8px',
-//                                                 }}
-//                                             >
-//                                                 {couponMessage}
-//                                             </p>
-//                                         )}
-//                                     </div>
-//                                 </div>
-//                             </div>
-//                         </div>
-
-//                         {/* Billing Form */}
-//                         <div className="rts-billing-details-area">
-//                             <h3 className="title">Billing Details</h3>
-//                             <form>
-//                                 {[
-//                                     { id: 'email', label: 'Email Address*' },
-//                                     { id: 'firstName', label: 'First Name*' },
-//                                     { id: 'lastName', label: 'Last Name*' },
-//                                     { id: 'company', label: 'Company Name (Optional)*' },
-//                                     { id: 'country', label: 'Country / Region*' },
-//                                     { id: 'street', label: 'Street Address*' },
-//                                     { id: 'city', label: 'Town / City*' },
-//                                     { id: 'state', label: 'State*' },
-//                                     { id: 'zip', label: 'Zip Code*' },
-//                                     { id: 'phone', label: 'Phone*' },
-//                                 ].map(({ id, label }) => (
-//                                     <div className="single-input" key={id}>
-//                                         <label htmlFor={id}>{label}</label>
-//                                         <input id={id} value={(billingInfo as any)[id]} onChange={handleInputChange} required />
-//                                     </div>
-//                                 ))}
-//                                 <div className="single-input">
-//                                     <label htmlFor="orderNotes">Order Notes*</label>
-//                                     <textarea id="orderNotes" value={billingInfo.orderNotes} onChange={handleInputChange}></textarea>
-//                                 </div>
-//                                 <button type="submit" className="rts-btn btn-primary">
-//                                     Update Cart
-//                                 </button>
-//                             </form>
-//                         </div>
-//                     </div>
-
-//                     {/* Right: Order Summary */}
-//                     <div className="col-lg-4 order-1 order-xl-2">
-//                         <h3 className="title-checkout">Your Order</h3>
-//                         <div className="right-card-sidebar-checkout">
-//                             <div className="top-wrapper">
-//                                 <div className="product">Products</div>
-//                                 <div className="price">Price</div>
-//                             </div>
-
-//                             {cartItems.length === 0 ? (
-//                                 <p>Your cart is empty.</p>
-//                             ) : (
-//                                 cartItems.map((item) => (
-//                                     <div className="single-shop-list" key={item.id}>
-//                                         <div className="left-area">
-//                                             <img src={item.image} alt={item.title} />
-//                                             <span className="title">{item.title} × {item.quantity}</span>
-//                                         </div>
-//                                         <span className="price">${(item.price * item.quantity).toFixed(2)}</span>
-//                                     </div>
-//                                 ))
-//                             )}
-
-//                             <div className="single-shop-list">
-//                                 <div className="left-area">
-//                                     <span>Subtotal</span>
-//                                 </div>
-//                                 <span className="price">${subtotal.toFixed(2)}</span>
-//                             </div>
-
-//                             {discount > 0 && (
-//                                 <div className="single-shop-list">
-//                                     <div className="left-area">
-//                                         <span>Discount (25%)</span>
-//                                     </div>
-//                                     <span className="price">-${discountAmount.toFixed(2)}</span>
-//                                 </div>
-//                             )}
-
-//                             <div className="single-shop-list">
-//                                 <div className="left-area">
-//                                     <span>Shipping</span>
-//                                 </div>
-//                                 <span className="price">${shippingCost.toFixed(2)}</span>
-//                             </div>
-
-//                             <div className="single-shop-list">
-//                                 <div className="left-area">
-//                                     <span style={{ fontWeight: 600, color: '#2C3C28' }}>Total Price:</span>
-//                                 </div>
-//                                 <span className="price" style={{ color: '#629D23' }}>${total.toFixed(2)}</span>
-//                             </div>
-
-//                             {/* Payment methods */}
-//                             <div className="cottom-cart-right-area">
-//                                 <ul>
-//                                     <li>
-//                                         <input type="radio" id="bank" name="payment" />
-//                                         <label htmlFor="bank">Direct Bank Transfer</label>
-//                                     </li>
-//                                     <li>
-//                                         <input type="radio" id="check" name="payment" />
-//                                         <label htmlFor="check">Check Payments</label>
-//                                     </li>
-//                                     <li>
-//                                         <input type="radio" id="cod" name="payment" />
-//                                         <label htmlFor="cod">Cash On Delivery</label>
-//                                     </li>
-//                                     <li>
-//                                         <input type="radio" id="paypal" name="payment" />
-//                                         <label htmlFor="paypal">Paypal</label>
-//                                     </li>
-//                                 </ul>
-//                                 <div className="single-category mb--30">
-//                                     <input id="terms" type="checkbox" required />
-//                                     <label htmlFor="terms"> I have read and agree to terms and conditions *</label>
-//                                 </div>
-//                                 <a href="#" className="rts-btn btn-primary">Place Order</a>
-//                             </div>
-//                         </div>
-//                     </div>
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// }

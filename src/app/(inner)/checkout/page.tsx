@@ -10,7 +10,6 @@ export default function Home() {
 
 
             <CheckOutMain />
-            <ShortService />
             <FooterOne />
         </div>
     );
