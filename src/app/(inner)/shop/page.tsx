@@ -232,7 +232,7 @@ export default function Home() {
               <div className="navigator-breadcrumb-wrapper">
                 <Link href="/">Home</Link>
                 <i className="fa-regular fa-chevron-right" />
-                <Link className="current" href="#">Shop</Link>
+                <Link className="current" href="#">Các món ăn</Link>
               </div>
             </div>
           </div>

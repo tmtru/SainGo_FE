@@ -16,10 +16,10 @@ export default function Home() {
             <div className="row">
               <div className="col-lg-12">
                 <div className="navigator-breadcrumb-wrapper">
-                  <a href="index.html">Home</a>
+                  <a href="index.html">Trang chủ</a>
                   <i className="fa-regular fa-chevron-right" />
                   <a className="current" href="register.html">
-                    Register
+                    Đăng ký
                   </a>
                 </div>
               </div>
@@ -44,7 +44,7 @@ export default function Home() {
                       alt="logo"
                     />
                   </div>
-                  <h3 className="title">Register Into Your Account</h3>
+                  <h3 className="title">Đăng ký tài khoản</h3>
                   <form action="#" className="registration-form">
                     <div className="input-wrapper">
                       <label htmlFor="name">Username*</label>
@@ -55,24 +55,18 @@ export default function Home() {
                       <input type="email" id="email" />
                     </div>
                     <div className="input-wrapper">
-                      <label htmlFor="password">Password*</label>
+                      <label htmlFor="password">Mật khẩu*</label>
                       <input type="password" id="password" />
                     </div>
-                    <button className="rts-btn btn-primary">Register Account</button>
+                     <div className="input-wrapper">
+                      <label htmlFor="password">Nhập lại mật khẩu*</label>
+                      <input type="password" id="password" />
+                    </div>
+                    <button className="rts-btn btn-primary">Đăng ký tài khoản</button>
                     <div className="another-way-to-registration">
-                      <div className="registradion-top-text">
-                        <span>Or Register With</span>
-                      </div>
-                      <div className="login-with-brand">
-                        <a href="#" className="single">
-                          <img src="assets/images/form/google.svg" alt="login" />
-                        </a>
-                        <a href="#" className="single">
-                          <img src="assets/images/form/facebook.svg" alt="login" />
-                        </a>
-                      </div>
+                      
                       <p>
-                        Already Have Account? <a href="#">Login</a>
+                        Đã có tài khoản? <a href="/login">Đăng nhập ngay</a>
                       </p>
                     </div>
                   </form>

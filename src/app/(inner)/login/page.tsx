@@ -52,10 +52,10 @@ export default function LoginPage() {
           <div className="row">
             <div className="col-lg-12">
               <div className="navigator-breadcrumb-wrapper">
-                <a href="/">Home</a>
+                <a href="/">Trang chủ</a>
                 <i className="fa-regular fa-chevron-right" />
                 <a className="current" href="/login">
-                  Log In
+                  Đăng nhập
                 </a>
               </div>
             </div>
@@ -77,7 +77,7 @@ export default function LoginPage() {
                 <div className="logo-area mb--0">
                   <img className="mb--10" src="/assets/images/logo/fav.png" alt="logo" />
                 </div>
-                <h3 className="title">Login Into Your Account</h3>
+                <h3 className="title">Đăng nhập tài khoản của bạn</h3>
                 <form onSubmit={handleLogin} className="registration-form">
                   <div className="input-wrapper">
                     <label htmlFor="email">Email*</label>
@@ -90,7 +90,7 @@ export default function LoginPage() {
                     />
                   </div>
                   <div className="input-wrapper">
-                    <label htmlFor="password">Password*</label>
+                    <label htmlFor="password">Mật khẩu*</label>
                     <input
                       type="password"
                       id="password"
@@ -108,7 +108,7 @@ export default function LoginPage() {
                   </button>
                   <div className="another-way-to-registration">
                     <div className="registradion-top-text">
-                      <span>Or Register With</span>
+                      <span>Hoặc đăng nhập với</span>
                     </div>
                     <div className="login-with-brand">
                       {/* Placeholder for social login - implement or remove */}
@@ -120,7 +120,7 @@ export default function LoginPage() {
                       </a>
                     </div>
                     <p>
-                      Don't have an account? <a href="/register">Register</a>
+                      Không có tài khoản? <a href="/register">Đăng ký ngay</a>
                     </p>
                   </div>
                 </form>

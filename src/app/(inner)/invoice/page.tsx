@@ -10,7 +10,7 @@ function ComponentName() {
                             <div className="invoice-main-wrapper-1">
                                 <div className="logo-top-area">
                                     <div className="logo">
-                                        <img src="assets/images/logo/logo-01.svg" alt="logo" />
+                                        <img src="assets/images/logo/logo-01.png" alt="logo" />
                                     </div>
                                     <div className="invoice-location">
                                         <h6 className="title">Invoice</h6>

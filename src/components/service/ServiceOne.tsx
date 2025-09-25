@@ -10,9 +10,9 @@ function LyDoChonEkomart() {
             <div className="row">
               <div className="col-lg-12">
                 <div className="title-center-area-main">
-                  <h2 className="title">Tại Sao Bạn Nên Chọn Ekomart?</h2>
+                  <h2 className="title">Tại Sao Bạn Nên Chọn SainGo?</h2>
                   <p className="disc">
-                    Ekomart mang đến cho bạn trải nghiệm mua sắm tiện lợi, sản phẩm chất lượng, giá cả hợp lý và dịch vụ tận tâm – tất cả trong một nền tảng mua sắm trực tuyến đáng tin cậy.
+                    SainGo mang đến cho bạn trải nghiệm mua sắm tiện lợi, sản phẩm chất lượng, giá cả hợp lý và dịch vụ tận tâm – tất cả trong một nền tảng mua sắm trực tuyến đáng tin cậy.
                   </p>
                 </div>
               </div>

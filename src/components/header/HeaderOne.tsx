@@ -51,25 +51,6 @@ function HeaderOne() {
     return (
         <>
             <div className="rts-header-one-area-one">
-                {/* Thanh thông tin */}
-                <div className="header-mid-one-wrapper">
-                    <div className="container">
-                        <div className="row">
-                            <div className="col-lg-12">
-                                <div className="header-mid-wrapper-between">
-                                    <div className="nav-sm-left">
-                                        <ul className="nav-h_top">
-                                            <li><a href="/about">Giới thiệu</a></li>
-                                        </ul>
-                                    </div>
-                                    <div className="nav-sm-left">
-                                        <p className="para">Chúng tôi giao hàng mỗi ngày từ 7:00 đến 22:00</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 {/* Logo + Tìm kiếm */}
                 <div className="search-header-area-main">
@@ -78,21 +59,16 @@ function HeaderOne() {
                             <div className="col-lg-12">
                                 <div className="logo-search-category-wrapper">
                                     <Link href="/" className="logo-area">
-                                        <img src="/assets/images/logo/logo-01.svg" alt="Trang chủ" className="logo" />
+                                        <img src="/assets/images/logo/logo-01.png" alt="Trang chủ" className="logo" />
                                     </Link>
 
                                     <div className="category-search-wrapper">
-                                        {/* <div className="category-btn category-hover-header">
-                                            <img className="parent" src="/assets/images/icons/bar-1.svg" alt="Danh mục" />
-                                            <span>Danh mục</span>
-                                            <CategoryMenu />
-                                        </div> */}
 
                                         <form onSubmit={handleSubmit} className="search-header" autoComplete="off">
                                             <input
                                                 ref={inputRef}
                                                 type="text"
-                                                placeholder="Tìm sản phẩm, danh mục, thương hiệu..."
+                                                placeholder="Tìm kiếm món ăn..."
                                                 required
                                                 value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -117,10 +93,7 @@ function HeaderOne() {
                                     </div>
 
                                     <div className="accont-wishlist-cart-area-header">
-                                        {/* <Link href="/shop-compare" className="btn-border-only account compare-number">
-                                            <i className="fa-regular fa-code-compare" />
-                                            <span className="number">{compareItems.length}</span>
-                                        </Link> */}
+                                
 
                                         <WishList />
 

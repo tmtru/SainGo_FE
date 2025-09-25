@@ -19,7 +19,7 @@ function GioiThieuChiTietEkomart() {
                     Điểm đến của bạn cho thực phẩm tươi <br /> và hàng hóa thiết yếu chất lượng
                   </h2>
                   <p className="disc">
-                    Ekomart là nơi bạn có thể tìm thấy mọi thứ cần thiết cho căn bếp và gia đình của mình – từ rau củ quả tươi ngon, thịt cá, đồ khô, đồ uống cho đến các sản phẩm đóng hộp tiện lợi. Chúng tôi cam kết cung cấp thực phẩm chất lượng, giá cả hợp lý và dịch vụ thân thiện, giúp bạn tiết kiệm thời gian và công sức mỗi ngày.
+                    SainGo là nơi bạn có thể tìm thấy mọi thứ cần thiết cho căn bếp và gia đình của mình – từ rau củ quả tươi ngon, thịt cá, đồ khô, đồ uống cho đến các sản phẩm đóng hộp tiện lợi. Chúng tôi cam kết cung cấp thực phẩm chất lượng, giá cả hợp lý và dịch vụ thân thiện, giúp bạn tiết kiệm thời gian và công sức mỗi ngày.
                   </p>
                   <div className="check-main-wrapper">
                     <div className="single-check-area">

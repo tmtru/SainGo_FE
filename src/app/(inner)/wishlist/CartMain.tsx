@@ -58,26 +58,15 @@ const CartMain = () => {
       <div className="container">
         <div className="row g-5">
           <div className="col-xl-12 col-12 order-2 order-xl-1">
-            <div className="cart-area-main-wrapper">
-              <div className="cart-top-area-note">
-                <p>Add <span>$59.69</span> to cart and get free shipping</p>
-                <div className="bottom-content-deals mt--10">
-                  <div className="single-progress-area-incard">
-                    <div className="progress">
-                      <div className="progress-bar wow fadeInLeft" role="progressbar" style={{ width: '80%' }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          
 
             <div className="rts-cart-list-area">
               <div className="single-cart-area-list head">
-                <div className="product-main"><p>Products</p></div>
-                <div className="price"><p>Price</p></div>
-                <div className="quantity"><p>Quantity</p></div>
-                <div className="subtotal"><p>Subtotal</p></div>
-                <div className="subtotal"><p>Add to Cart</p></div>
+                <div className="product-main"><p>Sản phẩm</p></div>
+                <div className="price"><p>Giá</p></div>
+                <div className="quantity"><p>Số lượng</p></div>
+                <div className="subtotal"><p>Thành tiền</p></div>
+                <div className="subtotal"><p>Thêm vào giỏ hàng</p></div>
               </div>
 
               {wishlistItems.map(item => (
@@ -128,7 +117,7 @@ const CartMain = () => {
                       className="rts-btn btn-primary radious-sm with-icon"
                       onClick={() => handleAddToCart(item)}
                     >
-                      <div className="btn-text">Add to Cart</div>
+                      <div className="btn-text">Thêm vào giỏ hàng</div>
                       <div className="arrow-icon">
                         <i className="fa-regular fa-cart-shopping" />
                       </div>
@@ -141,7 +130,7 @@ const CartMain = () => {
                 <form onSubmit={applyCoupon}>
                   <input
                     type="text"
-                    placeholder="Enter Coupon"
+                    placeholder="Nhập mã giảm giá"
                     value={coupon}
                     onChange={(e) => setCoupon(e.target.value)}
                     className="form-control w-50 d-inline-block me-2"
@@ -152,11 +141,11 @@ const CartMain = () => {
               </div>
 
               <div className="cart-summary mt-4">
-                <p>Subtotal: ${subtotal.toFixed(2)}</p>
+                <p>Tổng tiền: ${subtotal.toFixed(2)}</p>
                 {discount > 0 && (
-                  <p>Discount: -{(discount * 100).toFixed(0)}%</p>
+                  <p>Giảm giá: -{(discount * 100).toFixed(0)}%</p>
                 )}
-                <p><strong>Total: ${finalTotal.toFixed(2)}</strong></p>
+                <p><strong>Số tiền cần thanh toán: ${finalTotal.toFixed(2)}</strong></p>
               </div>
             </div>
           </div>

@@ -22,12 +22,12 @@ const WishList: React.FC = () => {
     return (
         <div className="btn-border-only cart category-hover-header">
             <i className="fa-regular fa-heart" />
-            <span className="text">Wishlist</span>
+            <span className="text">Yêu thích</span>
             <span className="number">{wishlistItems.length}</span>
 
             <div className="category-sub-menu card-number-show">
                 <h5 className="shopping-cart-number">
-                    Wishlist ({wishlistItems.length.toString().padStart(2, '0')})
+                    Món ăn yêu thích ({wishlistItems.length.toString().padStart(2, '0')})
                 </h5>
 
                 {wishlistItems.map((item) => (
@@ -55,7 +55,7 @@ const WishList: React.FC = () => {
                 <div className="sub-total-cart-balance">
                     <div className="bottom-content-deals mt--10">
                         <div className="top">
-                            <span>Sub Total:</span>
+                            <span>Tổng tiền:</span>
                             <span className="number-c">${total.toFixed(2)}</span>
                         </div>
                         <div className="single-progress-area-incard">
@@ -71,15 +71,15 @@ const WishList: React.FC = () => {
                         </div>
                         {total < freeShippingThreshold && (
                             <p>
-                                Spend More <span>${remaining.toFixed(2)}</span> to reach{' '}
-                                <span>Free Shipping</span>
+                                Tích lũy thêm <span>${remaining.toFixed(2)}</span> {""}
+                                <span>để được ưu đãi</span>
                             </p>
                         )}
                     </div>
 
                     <div className="button-wrapper d-flex align-items-center justify-content-between">
                         <a href="/wishlist" className="rts-btn btn-primary">
-                            View Wishlist
+                            Xem mục yêu thích
                         </a>
                     </div>
                 </div>
