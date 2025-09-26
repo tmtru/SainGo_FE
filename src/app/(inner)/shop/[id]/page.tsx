@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import HeaderOne from "@/components/header/HeaderOne";
 import ShortService from "@/components/service/ShortService";
-import RelatedProduct from "@/components/product/RelatedProduct";
 import FooterOne from "@/components/footer/FooterOne";
 import { useParams } from 'next/navigation';
 
@@ -39,7 +38,7 @@ const CompareElements: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('tab1');
 
   const [activeImage, setActiveImage] = useState<string>('');
-  const [quantity, setQuantity] = useState(1); 
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     if (!productId) return;
@@ -65,7 +64,7 @@ const CompareElements: React.FC = () => {
     };
 
     fetchProduct();
-  }, [productId]); 
+  }, [productId]);
 
 
   const handleSalePercentage = (basePrice: number, currentPrice: number) => {
@@ -85,7 +84,7 @@ const CompareElements: React.FC = () => {
   const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value, 10);
     if (isNaN(value) || value < 1) {
-      setQuantity(1); 
+      setQuantity(1);
     } else if (blogPost && value > blogPost.stockQuantity) {
       setQuantity(blogPost.stockQuantity);
     } else {
@@ -118,14 +117,14 @@ const CompareElements: React.FC = () => {
     }
 
 
-    const storeId = blogPost.brandId; 
+    const storeId = blogPost.brandId;
     const itemToAdd = {
       productId: blogPost.id,
-      productVariantId: null, 
+      productVariantId: null,
       unitPrice: currentPrice,
       quantity: finalQuantity,
       storeId: storeId,
-      cartId: "" 
+      cartId: ""
     };
 
     try {
@@ -134,7 +133,7 @@ const CompareElements: React.FC = () => {
       setTimeout(() => setAdded(false), 3000);
     } catch (err) {
       console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", err);
-   
+
     }
   };
 
@@ -290,7 +289,7 @@ const CompareElements: React.FC = () => {
                                 type="button"
                                 className="qty-decrease"
                                 onClick={decrementQuantity}
-                                disabled={quantity <= 1} 
+                                disabled={quantity <= 1}
                               >
                                 <i className="far fa-minus" />
                               </button>
@@ -302,25 +301,25 @@ const CompareElements: React.FC = () => {
                                 onChange={handleQuantityChange}
                                 min="1"
                                 max={blogPost.stockQuantity}
-                                className="qty-input"                              />
+                                className="qty-input" />
                               <button
                                 type="button"
                                 className="qty-increase"
                                 onClick={incrementQuantity}
-                                disabled={quantity >= blogPost.stockQuantity} 
+                                disabled={quantity >= blogPost.stockQuantity}
                               >
                                 <i className="far fa-plus" />
                               </button>
                             </div>
                           </div>
-                         
+
 
                           <div className="product-bottom-action">
                             <button
                               className="rts-btn btn-primary radious-sm with-icon"
                               onClick={handleAdd}
                               type="button"
-                              disabled={blogPost.stockQuantity === 0} 
+                              disabled={blogPost.stockQuantity === 0}
                             >
                               <div className="btn-text">
                                 {blogPost.stockQuantity === 0 ? "Hết hàng" : "Thêm vào giỏ hàng"}
@@ -406,7 +405,7 @@ const CompareElements: React.FC = () => {
                               <tbody>
                                 <tr>
                                   <td>Khối lượng</td>
-                                  <td>{blogPost.weight} {blogPost.unit}</td> 
+                                  <td>{blogPost.weight} {blogPost.unit}</td>
                                 </tr>
                                 <tr>
                                   <td>Kích thước</td>
