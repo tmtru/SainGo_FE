@@ -37,7 +37,7 @@ export function parseBody<T>(response: AxiosResponse<ApiResponse<T>>): {
 
 // ================== Axios instance ==================
 const instance: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_REACT_APP_API_ROOT, // Use standard Next.js env variable
+  baseURL: "https://saingo-d9b9abexg5ghd4d3.japaneast-01.azurewebsites.net", // Use standard Next.js env variable
   timeout: Number(process.env.NEXT_PUBLIC_API_TIMEOUT) || 60000,
   headers: {
     "Content-Type": "application/json",
