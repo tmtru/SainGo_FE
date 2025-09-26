@@ -41,7 +41,7 @@ function HeaderOne() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (searchTerm.trim()) {
-            router.push(`/shop?search=${encodeURIComponent(searchTerm.trim())}`);
+            router.push(`/shop?keyword=${encodeURIComponent(searchTerm.trim())}`);
             setShowSuggestions(false);
         } else {
             router.push('/shop');

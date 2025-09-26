@@ -326,7 +326,7 @@ export default function ProductManagePage() {
 
   const handleToggleStatus = async (productId: string, isAvailable: boolean) => {
     try {
-      await AdminProductService.updateStatus(productId, isAvailable);
+      await AdminProductService.updateProductStatus(productId, isAvailable);
       toast.success(isAvailable ? 'Hiển thị sản phẩm thành công!' : 'Ẩn sản phẩm thành công!');
       setProducts(prev => prev.map(p =>
         p.id === productId ? { ...p, isAvailable } : p
@@ -339,7 +339,7 @@ export default function ProductManagePage() {
 
   const handleToggleFeatured = async (productId: string, isFeatured: boolean) => {
     try {
-      await AdminProductService.updateFeatured(productId, isFeatured);
+      await AdminProductService.updateFeaturedStatus(productId, isFeatured);
       toast.success(isFeatured ? 'Đánh dấu nổi bật thành công!' : 'Bỏ đánh dấu nổi bật thành công!');
       setProducts(prev => prev.map(p =>
         p.id === productId ? { ...p, isFeatured } : p

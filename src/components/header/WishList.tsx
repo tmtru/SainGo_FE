@@ -45,7 +45,7 @@ const WishList: React.FC = () => {
                                 </Link>
                                 <div className="number">
                                     {item.quantity} <i className="fa-regular fa-x" />
-                                    <span>${(item.price * item.quantity).toFixed(2)}</span>
+                                    <span>{(item.price * item.quantity).toFixed(2)} đ</span>
                                 </div>
                             </div>
                         </div>

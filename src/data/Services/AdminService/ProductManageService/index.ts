@@ -95,6 +95,7 @@ export interface AdminProduct {
     thumbnailUrl?: string
     imageUrls?: string
     stockQuantity: number
+    initialStock?: number
     lowStockThreshold?: number
     maxOrderQuantity?: number
     minOrderQuantity?: number
@@ -141,6 +142,16 @@ const getByStoreId = (storeId: string) =>
 const addInventory = (productId: string, dto: AddInventoryDto) =>
     http.post(`/api/admin/ManageProduct/${productId}/inventory`, dto)
 
+const updateFeaturedStatus = (productId: string, isFeatured: boolean) =>
+    http.post(`/api/admin/ManageProduct/featured`, productId, {
+        params: { isFeatured },
+    })
+
+const updateProductStatus = (productId: string, status: boolean) =>
+    http.post(`/api/admin/ManageProduct/status`, productId, {
+        params: { status },
+    })
+
 // Export service
 const AdminProductService = {
     getAll,
@@ -152,6 +163,8 @@ const AdminProductService = {
     getFiltered,
     getByStoreId,
     addInventory,
+    updateFeaturedStatus,
+    updateProductStatus,
 }
 
 export default AdminProductService

@@ -23,6 +23,7 @@ type AuthContextType = {
     loading: boolean;
     loginWithEmail: (email: string, password: string) => Promise<void>;
     logout: () => void;
+    loginWithToken: (accessToken: string, refreshToken: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,17 +39,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const init = async () => {
             try {
                 const storedToken = getStorage(STORAGE.TOKEN);
-                const storedUser = getStorage(STORAGE.USER_INFO);
-
                 if (storedToken) setToken(storedToken);
-
-                if (storedUser) {
-                    try {
-                        // setUser(decode_data<User>(storedUser));
-                    } catch {
-                        deleteStorage(STORAGE.USER_INFO);
-                    }
-                }
+                const userRes = await UserService.getProfile();
+                setUser(userRes.data);
             } catch (e) {
                 console.error("Init Auth failed:", e);
             } finally {
@@ -64,7 +57,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const payload = { email, password };
             const res = await AuthService.login(payload);
             const { accessToken, refreshToken } = res.data;
+            if (res.data == null) {
+                throw new Error("Đăng nhập thất bại");
+            }
 
+            setToken(accessToken);
+            setStorage(STORAGE.TOKEN, accessToken);
+            if (refreshToken) setStorage(STORAGE.REFRESH_TOKEN, refreshToken);
+
+            // ⬇ Sau khi có token → gọi getProfile để lấy thông tin người dùng (bao gồm role)
+            const userRes = await UserService.getProfile();
+            setUser(userRes.data);
+            console.log(userRes.data)
+        } catch (error: any) {
+            toast.error("Đăng nhập thất bại. Email hoặc mật khẩu không đúng!");
+            logout();
+            throw error;
+        }
+    };
+    const loginWithToken = async (accessToken: string, refreshToken: string) => {
+        try {
             setToken(accessToken);
             setStorage(STORAGE.TOKEN, accessToken);
             if (refreshToken) setStorage(STORAGE.REFRESH_TOKEN, refreshToken);
@@ -79,7 +91,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             throw error;
         }
     };
-
 
     const logout = () => {
         setToken(null);
@@ -99,6 +110,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             loading,
             loginWithEmail,
             logout,
+            loginWithToken
         }),
         [token, user, loading]
     );

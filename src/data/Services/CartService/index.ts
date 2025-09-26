@@ -1,6 +1,6 @@
 import http from "../axios/index";
 
-// Interface định nghĩa CartItem từ backend
+
 export interface CartItem {
     id: string;
     cartId: string;
@@ -21,7 +21,7 @@ export interface Cart {
     items: CartItem[];
 }
 
-// Payload gửi lên khi thêm item
+
 export type AddCartItemPayload = Omit<
     CartItem,
     "id" | "createdAt" | "updatedAt" | "deletedAt" | "productName" | "productImage"

@@ -8,18 +8,9 @@ export default function Home() {
     return (
         <div className="demo-one">
             <HeaderOne />
-
             <>
-                
-
-
             <Accordion/>
-
-                
-                
             </>
-
-            <ShortService />
             <FooterOne />
         </div>
     );

@@ -10,12 +10,13 @@ import React, {
 import { toast } from 'react-toastify';
 import CartService, { CartItem } from '@/data/Services/CartService';
 import STORAGE, { getStorage } from '@/lib/storage';
+import { useAuth } from '../Context/AuthContext';
 
 type CartInput = Omit<CartItem, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'productName' | 'productImage'>;
 
 interface CartContextProps {
   cartItems: CartItem[];
-  addToCart: (item: CartInput) => Promise<void>;
+  addToCart: (item: any) => Promise<void>;
   addToWishlist: (item: CartInput) => Promise<void>;
   removeFromCart: (id: string) => Promise<void>;
   updateItemQuantity: (productId: string, quantity: number) => Promise<void>;
@@ -34,12 +35,12 @@ export const useCart = () => {
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartLoaded, setIsCartLoaded] = useState(false);
-
+const {token} = useAuth ();
   useEffect(() => {
     const fetchCart = async () => {
-      const token = getStorage(STORAGE.REFRESH_TOKEN);
       if (!token) {
         setIsCartLoaded(true);
+        setCartItems([]);
         return;
       }
 
@@ -61,7 +62,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     fetchCart();
-  }, []);
+  }, [token]);
+
+
+
 
   const isEqual = (a: string | null, b: string | null) => {
     return a === b || (a === null && b === '') || (a === '' && b === null);
@@ -77,7 +81,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
       let payload = { ...item };
 
-      // Nếu sản phẩm đã có trong giỏ, cộng dồn số lượng
       if (existingItem) {
         payload.quantity += existingItem.quantity;
       }
@@ -89,7 +92,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error('Không thể thêm sản phẩm vào giỏ hàng.');
       }
 
-      // Cập nhật lại danh sách cartItems sau khi thêm hoặc cập nhật
       setCartItems((prev) => {
         const updated = prev.map((i) =>
           i.productId === payload.productId &&
@@ -98,7 +100,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
             : i
         );
 
-        // Nếu sản phẩm chưa tồn tại trong giỏ
         const isNew = !prev.some(
           (i) =>
             i.productId === payload.productId &&
@@ -156,7 +157,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         quantity,
       };
 
-      const res = await CartService.addItem(updatedItem); // dùng lại addItem để update
+      const res = await CartService.addItem(updatedItem); 
       setCartItems((prev) =>
         prev.map((item) =>
           item.productId === productId ? { ...item, quantity } : item

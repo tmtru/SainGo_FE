@@ -1,11 +1,13 @@
 'use client';
 
 import { useAuth } from '@/components/Context/AuthContext';
+import GhnService from '@/data/Services/GhnService';
 import OrderService, { Order } from '@/data/Services/OrderService';
 import UserAddressService, { UserAddress } from '@/data/Services/UserAddress';
 import UserService, { UserProfile } from '@/data/Services/UserService';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
 
 const AccountTabs = () => {
   const [activeTab, setActiveTab] = useState('account');
@@ -15,10 +17,93 @@ const AccountTabs = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const { user } = useAuth();
+
+  // State cho modal
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [newAddress, setNewAddress] = useState<UserAddress>({
+    userId: '',
+    name: '',
+    fullAddress: '',
+    city: '',
+    district: '',
+    ward: '',
+    isDefault: false,
+  });
+
+  type DropdownOption = {
+    id: string;
+    name: string;
+  };
+
+  const [provinces, setProvinces] = useState<any[]>([]);
+  const [districts, setDistricts] = useState<any[]>([]);
+  const [wards, setWards] = useState<any[]>([]);
+
+  const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(null);
+  const [selectedDistrictId, setSelectedDistrictId] = useState<number | null>(null);
+  const [selectedWardId, setSelectedWardId] = useState<any | null>(null);
+
   useEffect(() => {
-    // gọi orders từ server
     OrderService.getMyOrders().then(res => setOrders(res.data));
   }, []);
+
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        const res = await GhnService.getProvinces();
+        console.log('Provinces:', res);
+        setProvinces(res.data);
+      } catch (error) {
+        console.error("Lỗi khi tải tỉnh/thành:", error);
+      }
+    };
+    fetchProvinces();
+  }, []);
+
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      if (!selectedProvinceId) {
+        setDistricts([]);
+        setWards([]);
+        setSelectedDistrictId(null);
+        setSelectedWardId(null);
+        return;
+      }
+
+      try {
+        const res = await GhnService.getDistricts(selectedProvinceId);
+        setDistricts(res.data);
+        setWards([]);
+        setSelectedDistrictId(null);
+        setSelectedWardId(null);
+      } catch (error) {
+        console.error("Lỗi khi tải quận/huyện:", error);
+      }
+    };
+    fetchDistricts();
+  }, [selectedProvinceId]);
+
+  useEffect(() => {
+    const fetchWards = async () => {
+      if (!selectedDistrictId) {
+        setWards([]);
+        setSelectedWardId(null);
+        return;
+      }
+
+      try {
+        const res = await GhnService.getWards(selectedDistrictId);
+        setWards(res.data);
+        setSelectedWardId(null);
+      } catch (error) {
+        console.error("Lỗi khi tải phường/xã:", error);
+      }
+    };
+    fetchWards();
+  }, [selectedDistrictId]);
+
   useEffect(() => {
     UserService.getProfile().then(res => {
       setProfile({
@@ -27,8 +112,17 @@ const AccountTabs = () => {
       });
     });
     console.log(user?.roleName);
-    UserAddressService.getMyAddresses().then(res => setAddresses(res.data));
+    loadAddresses();
   }, []);
+
+  const loadAddresses = async () => {
+    try {
+      const res = await UserAddressService.getMyAddresses();
+      setAddresses(res.data);
+    } catch (error) {
+      console.error('Lỗi khi tải địa chỉ:', error);
+    }
+  };
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setProfile(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -47,7 +141,104 @@ const AccountTabs = () => {
 
   const handleSaveProfile = async () => {
     await UserService.updateProfile(profile);
-    alert('Thông tin đã được cập nhật!');
+    toast.success('Cập nhật thông tin thành công!');
+  };
+
+  const handleNewAddressChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setNewAddress((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
+
+  const resetAddressForm = () => {
+    setNewAddress({
+      userId: '',
+      name: '',
+      fullAddress: '',
+      city: '',
+      district: '',
+      ward: '',
+      isDefault: false,
+    });
+    setSelectedProvinceId(null);
+    setSelectedDistrictId(null);
+    setSelectedWardId(null);
+    setDistricts([]);
+    setWards([]);
+  };
+
+  const handleOpenAddressModal = () => {
+    resetAddressForm();
+    setShowAddressModal(true);
+  };
+
+  const handleCloseAddressModal = () => {
+    setShowAddressModal(false);
+    resetAddressForm();
+  };
+
+  const handleAddAddress = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      if (!newAddress.name || !newAddress.fullAddress || !newAddress.city || !newAddress.district) {
+        toast.error('Vui lòng điền đầy đủ thông tin địa chỉ');
+        return;
+      }
+
+      const selectedProvince = provinces.find(p => p.provinceID === selectedProvinceId);
+      const selectedDistrict = districts.find(d => d.districtID === selectedDistrictId);
+      const selectedWard = wards.find(w => w.wardCode === selectedWardId);
+      console.log("Selected Address:", selectedDistrict, selectedWard);
+      const stringifiedAddress: UserAddress = {
+        userId: '',
+        name: newAddress.name,
+        fullAddress: newAddress.fullAddress + ", " + (selectedWard.wardName) + ", " + (selectedDistrict?.districtName || '') + ", " + (selectedProvince?.provinceName || ''),
+        city: selectedProvince?.provinceName ?? '',
+        district: selectedDistrict?.districtID.toString() ?? '',
+        ward: selectedWardId ?? '',
+        isDefault: false,
+      };
+
+
+      await UserAddressService.addAddress(stringifiedAddress);
+      await loadAddresses();
+      handleCloseAddressModal();
+      toast.success('Đã thêm địa chỉ mới thành công!');
+    } catch (error) {
+      console.error('Lỗi khi thêm địa chỉ:', error);
+      toast.error('Không thể thêm địa chỉ. Vui lòng thử lại.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteAddress = async (addressId: string) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa địa chỉ này không?')) {
+      return;
+    }
+
+    try {
+      await UserAddressService.deleteAddress(addressId);
+      await loadAddresses();
+      toast.success('Đã xóa địa chỉ thành công!');
+    } catch (error) {
+      console.error('Lỗi khi xóa địa chỉ:', error);
+      toast.error('Không thể xóa địa chỉ. Vui lòng thử lại.');
+    }
+  };
+
+  const handleSetDefaultAddress = async (addressId: string) => {
+    try {
+      await UserAddressService.setDefaultAddress(addressId);
+      await loadAddresses();
+      toast.success('Đã đặt làm địa chỉ mặc định!');
+    } catch (error) {
+      console.error('Lỗi khi đặt địa chỉ mặc định:', error);
+      toast.error('Không thể đặt làm địa chỉ mặc định. Vui lòng thử lại.');
+    }
   };
 
   return (
@@ -65,15 +256,11 @@ const AccountTabs = () => {
               <button className={`nav-link ${activeTab === 'order' ? 'active' : ''}`} onClick={() => setActiveTab('order')}>
                 <i className="fa-regular fa-bag-shopping"></i> Đơn hàng
               </button>
-              <button className={`nav-link ${activeTab === 'track' ? 'active' : ''}`} onClick={() => setActiveTab('track')}>
-                <i className="fa-regular fa-tractor"></i> Tra cứu đơn
-              </button>
               {user?.roleName === 'Admin' && (
-                <Link href="/dashboard" className="nav-link">
+                <Link href="/dashboard/product-list" className="nav-link">
                   <i className="fa-regular fa-tachometer-alt"></i> Dashboard
                 </Link>
               )}
-
             </div>
           </div>
 
@@ -103,7 +290,6 @@ const AccountTabs = () => {
                                   <strong>Ngày:</strong>{' '}
                                   {order?.createdAt ? new Date(order.createdAt).toLocaleString('vi-VN') : 'Không xác định'}
                                 </span>
-
                                 <span><strong>Trạng thái:</strong> {order.statusId}</span>
                                 <span><strong>Tổng tiền:</strong> {order.totalAmount.toLocaleString('vi-VN')}₫</span>
                               </div>
@@ -142,49 +328,276 @@ const AccountTabs = () => {
                 </div>
               )}
 
-
-              {activeTab === 'track' && (
-                <div className="tracing-order-account">
-                  <h2 className="title">Tra cứu đơn hàng</h2>
-                  <form className="order-tracking">
-                    <div className="single-input">
-                      <label>Order Id</label>
-                      <input type="text" placeholder="Tìm trong email xác nhận đơn hàng" required />
-                    </div>
-                    <div className="single-input">
-                      <label>Email đặt hàng</label>
-                      <input type="email" placeholder="Email bạn dùng khi thanh toán" />
-                    </div>
-                    <button className="rts-btn btn-primary" type="submit">Track</button>
-                  </form>
-                </div>
-              )}
-
+              {/* Tab địa chỉ */}
               {activeTab === 'address' && (
-                <div className="">
-                  <h2 className="title">Địa chỉ giao hàng của bạn</h2>
+                <div className="address-section-area">
+                  <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h2 className="title">Sổ địa chỉ của bạn</h2>
+                    <button className="rts-btn btn-primary" onClick={handleOpenAddressModal}>
+                      <i className="fa-solid fa-plus me-2"></i>Thêm địa chỉ mới
+                    </button>
+                  </div>
+
                   {addresses.length === 0 ? (
-                    <p>Chưa có địa chỉ nào.</p>
+                    <div className="text-center my-5">
+                      <i className="fa-solid fa-map-location-dot fa-2x text-muted mb-3"></i>
+                      <h5>Chưa có địa chỉ nào</h5>
+                      <p>Hãy thêm địa chỉ giao hàng để việc đặt hàng dễ dàng hơn.</p>
+                    </div>
                   ) : (
-                    <ul className="list-group">
-                      {addresses.map(addr => (
-                        <li key={addr.id} className="list-group-item p-4">
-                          <strong>{addr.name}</strong><br />
-                          {addr.fullAddress}<br />
-                          {addr.ward}, {addr.district}, {addr.city}<br />
-                          {addr.isDefault && <span className="badge bg-success">Mặc định</span>}
-                        </li>
+                    <div className="row">
+                      {addresses.map((addr) => (
+                        <div key={addr.id} className="col-md-6 col-lg-4 mb-4">
+                          <div className="card h-100 shadow-sm border rounded-3 p-3">
+                            <div className="d-flex justify-content-between mb-2">
+                              <div>
+                                <h5 className="mb-1">
+                                  <i className="fa-solid fa-user me-2"></i>{addr.name}
+                                </h5>
+                                {addr.isDefault && (
+                                  <span className="badge bg-success text-white">
+                                    <i className="fa-solid fa-star me-1"></i>Địa chỉ mặc định
+                                  </span>
+                                )}
+                              </div>
+                              <div>
+                                {!addr.isDefault && (
+                                  <button
+                                    className="btn btn-sm btn-outline-secondary me-2"
+                                    onClick={() => handleSetDefaultAddress(addr.id!)}
+                                    title="Đặt làm mặc định"
+                                  >
+                                    <i className="fa-solid fa-star"></i>
+                                  </button>
+                                )}
+                                <button
+                                  className="btn btn-sm btn-outline-danger"
+                                  onClick={() => handleDeleteAddress(addr.id!)}
+                                  title="Xóa"
+                                >
+                                  <i className="fa-solid fa-trash"></i>
+                                </button>
+                              </div>
+                            </div>
+                            <p className="mb-1 text-muted">
+                              <i className="fa-solid fa-location-dot me-2"></i>
+                              {addr.fullAddress}
+                            </p>
+                          </div>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   )}
                 </div>
               )}
+
+
+              {showAddressModal && (
+                <>
+                  <div className="modal fade show d-block" tabIndex={-1} role="dialog">
+                    <div className="modal-dialog modal-lg modal-dialog-centered">
+                      <div className="modal-content border-0 shadow-lg">
+                        <form onSubmit={handleAddAddress}>
+                          {/* Modal Header */}
+                          <div className="modal-header text-white border-0 rounded-top">
+                            <h4 className="modal-title fw-bold mb-0">
+                              <i className="fas fa-plus-circle me-2"></i>
+                              Thêm địa chỉ giao hàng mới
+                            </h4>
+                            <button
+                              type="button"
+                              className="btn-close btn-close-white"
+                              onClick={handleCloseAddressModal}
+                              aria-label="Close"
+                            ></button>
+                          </div>
+
+                          {/* Modal Body */}
+                          <div className="modal-body p-4">
+                            <div className="row g-4">
+                              {/* Full width for name */}
+                              <div className="col-12">
+                                <div className="mb-3">
+                                  <label className="form-label fw-semibold text-dark">
+                                    <i className="fas fa-user text-success me-2"></i>
+                                    Tên người nhận
+                                    <span className="text-danger ms-1">*</span>
+                                  </label>
+                                  <input
+                                    type="text"
+                                    name="name"
+                                    className="form-control form-control-lg border-2"
+                                    value={newAddress.name}
+                                    onChange={handleNewAddressChange}
+                                    placeholder="Nhập tên người nhận"
+                                    required
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Address fields in logical order */}
+                              <div className="col-md-4">
+                                <div className="mb-3">
+                                  <label className="form-label fw-semibold text-dark">
+                                    <i className="fas fa-map-marked-alt text-success me-2"></i>
+                                    Tỉnh / Thành phố
+                                    <span className="text-danger ms-1">*</span>
+                                  </label>
+                                  <select
+                                    className="form-select form-select-lg border-2"
+                                    value={selectedProvinceId || ""}
+                                    onChange={(e) => {
+                                      const provinceId = Number.parseInt(e.target.value)
+                                      const selected = provinces.find((p) => p.provinceID === provinceId)
+                                      setSelectedProvinceId(provinceId)
+                                      setSelectedDistrictId(null)
+                                      setSelectedWardId(null)
+                                      setNewAddress((prev) => ({
+                                        ...prev,
+                                        city: selected?.provinceName || "",
+                                        district: "",
+                                        ward: "",
+                                      }))
+                                    }}
+                                    required
+                                  >
+                                    <option value="">Chọn tỉnh/thành phố</option>
+                                    {provinces.map((province) => (
+                                      <option key={province.provinceID} value={province.provinceID}>
+                                        {province.provinceName}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              </div>
+
+                              <div className="col-md-4">
+                                <div className="mb-3">
+                                  <label className="form-label fw-semibold text-dark">
+                                    <i className="fas fa-building text-success me-2"></i>
+                                    Quận / Huyện
+                                    <span className="text-danger ms-1">*</span>
+                                  </label>
+                                  <select
+                                    className="form-select form-select-lg border-2"
+                                    value={selectedDistrictId || ""}
+                                    onChange={(e) => {
+                                      const districtId = Number.parseInt(e.target.value)
+                                      const selected = districts.find((d) => d.districtID === districtId)
+                                      setSelectedDistrictId(districtId)
+                                      setSelectedWardId(null)
+                                      setNewAddress((prev) => ({
+                                        ...prev,
+                                        district: selected?.districtName || "",
+                                        ward: "",
+                                      }))
+                                    }}
+                                    disabled={!selectedProvinceId}
+                                    required
+                                  >
+                                    <option value="">Chọn quận/huyện</option>
+                                    {districts.map((district) => (
+                                      <option key={district.districtID} value={district.districtID}>
+                                        {district.districtName}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              </div>
+
+                              <div className="col-md-4">
+                                <div className="mb-3">
+                                  <label className="form-label fw-semibold text-dark">
+                                    <i className="fas fa-home text-success me-2"></i>
+                                    Phường / Xã
+                                  </label>
+                                  <select
+                                    className="form-select form-select-lg border-2"
+                                    value={selectedWardId || ""}
+                                    onChange={(e) => {
+                                      const wardCode = e.target.value
+                                      const selected = wards.find((w) => w.wardCode === wardCode)
+                                      setSelectedWardId(wardCode)
+                                      setNewAddress((prev) => ({
+                                        ...prev,
+                                        ward: selected?.wardCode || "",
+                                      }))
+                                    }}
+                                    disabled={!selectedDistrictId}
+                                  >
+                                    <option value="">Chọn phường/xã</option>
+                                    {wards.map((ward) => (
+                                      <option key={ward.wardCode} value={ward.wardCode}>
+                                        {ward.wardName}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              </div>
+
+                              {/* Full width for detailed address */}
+                              <div className="col-12">
+                                <div className="mb-3">
+                                  <label className="form-label fw-semibold text-dark">
+                                    <i className="fas fa-location-dot text-success me-2"></i>
+                                    Địa chỉ chi tiết
+                                    <span className="text-danger ms-1">*</span>
+                                  </label>
+                                  <textarea
+                                    name="fullAddress"
+                                    className="form-control form-control-lg border-2"
+                                    rows={3}
+                                    value={newAddress.fullAddress}
+                                    onChange={(e) => handleNewAddressChange(e as any)}
+                                    placeholder="Số nhà, tên đường, khu vực... (VD: 123 Nguyễn Trãi, Khu phố 1)"
+                                    required
+                                  />
+                                </div>
+                              </div>
+
+                            </div>
+                          </div>
+
+                          {/* Modal Footer */}
+                          <div className="modal-footer bg-light border-0 rounded-bottom p-4">
+                            <button type="submit" className="btn btn-success btn-lg px-4" disabled={isLoading}>
+                              {isLoading ? (
+                                <>
+                                  <span
+                                    className="spinner-border spinner-border-sm me-2"
+                                    role="status"
+                                    aria-hidden="true"
+                                  ></span>
+                                  Đang thêm...
+                                </>
+                              ) : (
+                                <>
+                                  <i className="fas fa-check me-2"></i>
+                                  Lưu địa chỉ
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="modal-backdrop fade show"></div>
+                </>
+              )}
+
+
+
+
+
+
+
 
               {activeTab === 'account' && (
                 <form className="account-details-area" onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }}>
                   <h2 className="title">Thông tin cá nhân</h2>
                   <div className="row">
-                    <div className="col-md-3 mb-3 text-center me-5" style={{ maxWidth: '200px' }}>
+                    {/* <div className="col-md-3 mb-3 text-center me-5" style={{ maxWidth: '200px' }}>
                       {profile.avatarUrl ? (
                         <img src={profile.avatarUrl} alt="Avatar" className="rounded-circle shadow" style={{ width: '100%', aspectRatio: 1, objectFit: 'cover' }} />
                       ) : (
@@ -199,12 +612,12 @@ const AccountTabs = () => {
                       />
                       <button
                         type="button"
-                        className="btn btn-sm btn-outline-secondary  mb-2"
+                        className="btn btn-sm btn-outline-secondary mb-2"
                         onClick={() => avatarInputRef.current?.click()}
                       >
                         Đổi ảnh
                       </button>
-                    </div>
+                    </div> */}
                     <div className="col-md-8">
                       <div className="single-input">
                         <label>Họ tên</label>
@@ -232,23 +645,78 @@ const AccountTabs = () => {
                           onChange={(e) =>
                             setProfile((prev) => ({
                               ...prev,
-                              dob: e.target.value || undefined, // giữ null/undefined nếu user xóa
+                              dob: e.target.value || undefined,
                             }))
                           }
                         />
                       </div>
-
 
                       <button type="submit" className="rts-btn btn-primary mt-3">Lưu thay đổi</button>
                     </div>
                   </div>
                 </form>
               )}
-
             </div>
           </div>
         </div>
       </div>
+      <style jsx>{`
+        .form-control:focus, .form-select:focus {
+
+          box-shadow: 0 0 0 0.2rem rgba(74, 124, 89, 0.25);
+        }
+        
+        .btn-outline-success {
+          margin-right: 20px;
+        }
+        
+        .btn-outline-success:hover {
+
+          color: white;
+        }
+        
+        .btn-outline-success::before {
+          opacity: 0;
+        }
+        
+        .btn-check:checked + .btn-outline-success {
+
+        }
+        
+        .text-success {
+
+        }
+        
+        .bg-success {
+
+        }
+        
+        input[type="radio"] {
+          display: none;
+        }
+        
+        label:before {
+          display: none;
+        }
+        
+        input[type="text"], input[type="number"], input[type="email"], input[type="password"], select {
+          border: 1px solid #4a7c59;
+        }
+        
+        .card {
+          border: 1px solid #e0e0e0;
+          transition: box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn-sm {
+          padding: 0.25rem 0.5rem;
+          font-size: 0.875rem;
+        }
+      `}</style>
     </div>
   );
 };

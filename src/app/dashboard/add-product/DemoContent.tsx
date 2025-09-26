@@ -22,19 +22,21 @@ export default function AddProductPage() {
     name: '',
     slug: '',
     basePrice: 0,
-    salePrice: 0,
+    salePrice: undefined,
+    description: '',
+    shortDescription: '',
     unit: 1,
     unitSize: '',
-    lowStockThreshold: 0,
-    maxOrderQuantity: 0,
-    minOrderQuantity: 0,
+    lowStockThreshold: undefined,
+    maxOrderQuantity: undefined,
+    minOrderQuantity: undefined,
     isAvailable: true,
     isFeatured: false,
     isOrganic: false,
     isFreshProduct: false,
     displayOrder: 0,
     variants: [],
-    initialStock: 0,
+    initialStock: undefined,
   });
 
   const [thumbnail, setThumbnail] = useState<File | null>(null);
@@ -176,7 +178,7 @@ export default function AddProductPage() {
 
       await AdminProductService.create(payload);
       toast.success('Product created successfully!');
-      router.push('/dashboard/products');
+      router.push('/dashboard/product-list');
     } catch (err: any) {
       console.error(err);
       toast.error('Error: ' + (err.response?.data?.message || err.message));
@@ -425,6 +427,67 @@ export default function AddProductPage() {
                                   placeholder="g, kg, ml, lít, hộp, chai..."
                                 />
                                 <div className="form-text">Ví dụ: g, ml, lít, hộp, gói, cái,...</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="row mb-4">
+                  <div className="col-12">
+                    <div className="card border-0 mb-4" style={{ backgroundColor: '#f0f8f0' }}>
+                      <div className="card-header bg-transparent border-bottom-0">
+                        <h5 className="mb-0" style={{ color: '#2d5a3d' }}>
+                          <i className="fas fa-file-alt me-2"></i>
+                          Mô Tả Sản Phẩm
+                        </h5>
+                      </div>
+                      <div className="card-body">
+                        <div className="row">
+                          <div className="col-12">
+                            <div className="mb-3">
+                              <label className="form-label fw-bold">
+                                Mô Tả Ngắn <span className="text-danger">*</span>
+                              </label>
+                              <textarea
+                                id="shortDescription"
+                                value={form.shortDescription}
+                                onChange={handleChange}
+                                required
+                                rows={3}
+                                className="form-control"
+                                style={{ borderColor: '#4a7c59' }}
+                                placeholder="Nhập mô tả ngắn gọn về sản phẩm (tối đa 200 ký tự)..."
+                                maxLength={200}
+                              />
+                              <div className="form-text d-flex justify-content-between">
+                                <span>Mô tả ngắn sẽ hiển thị trong danh sách sản phẩm</span>
+                                <span className="text-muted">
+                                  {form.shortDescription?.length}/200
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-12">
+                            <div className="mb-3">
+                              <label className="form-label fw-bold">
+                                Mô Tả Chi Tiết <span className="text-danger">*</span>
+                              </label>
+                              <textarea
+                                id="description"
+                                value={form.description}
+                                onChange={handleChange}
+                                required
+                                rows={8}
+                                className="form-control"
+                                style={{ borderColor: '#4a7c59' }}
+                                placeholder="Nhập mô tả chi tiết về sản phẩm, bao gồm thành phần, cách sử dụng, bảo quản..."
+                              />
+                              <div className="form-text">
+                                Mô tả chi tiết sẽ hiển thị trong trang chi tiết sản phẩm
                               </div>
                             </div>
                           </div>
@@ -746,39 +809,52 @@ export default function AddProductPage() {
                               <h6 className="fw-bold mb-3">Quy Tắc Đặt Hàng</h6>
                               <div className="row">
                                 <div className="col-12 mb-3">
-                                  <label className="form-label fw-bold">Ngưỡng Hàng Tồn Kho Thấp</label>
+                                  <label className="form-label fw-bold">
+                                    Ngưỡng Hàng Tồn Kho Thấp <span className="text-danger">*</span>
+                                  </label>
                                   <input
                                     id="lowStockThreshold"
                                     type="number"
-                                    value={form.lowStockThreshold}
+                                    min="0"
+                                    value={form.lowStockThreshold ?? ''}  // Hiển thị rỗng nếu undefined
                                     onChange={handleChange}
+                                    required
                                     className="form-control"
                                     style={{ borderColor: '#4a7c59' }}
-                                    placeholder="0"
+                                    placeholder="Nhập ngưỡng cảnh báo..."
                                   />
+                                  <div className="form-text">Số lượng tối thiểu để cảnh báo hết hàng</div>
                                 </div>
                                 <div className="col-6 mb-3">
-                                  <label className="form-label fw-bold">Số Lượng Tối Thiểu</label>
+                                  <label className="form-label fw-bold">
+                                    Số Lượng Tối Thiểu <span className="text-danger">*</span>
+                                  </label>
                                   <input
                                     id="minOrderQuantity"
                                     type="number"
-                                    value={form.minOrderQuantity}
+                                    min="1"
+                                    value={form.minOrderQuantity ?? ''}  // Hiển thị rỗng nếu undefined
                                     onChange={handleChange}
+                                    required
                                     className="form-control"
                                     style={{ borderColor: '#4a7c59' }}
-                                    placeholder="0"
+                                    placeholder="Ví dụ: 1"
                                   />
                                 </div>
                                 <div className="col-6 mb-3">
-                                  <label className="form-label fw-bold">Số Lượng Tối Đa</label>
+                                  <label className="form-label fw-bold">
+                                    Số Lượng Tối Đa <span className="text-danger">*</span>
+                                  </label>
                                   <input
                                     id="maxOrderQuantity"
                                     type="number"
-                                    value={form.maxOrderQuantity}
+                                    min="1"
+                                    value={form.maxOrderQuantity ?? ''}  // Hiển thị rỗng nếu undefined
                                     onChange={handleChange}
+                                    required
                                     className="form-control"
                                     style={{ borderColor: '#4a7c59' }}
-                                    placeholder="0"
+                                    placeholder="Ví dụ: 100"
                                   />
                                 </div>
                                 <div className="col-12">
@@ -786,12 +862,14 @@ export default function AddProductPage() {
                                   <input
                                     id="displayOrder"
                                     type="number"
-                                    value={form.displayOrder}
+                                    min="0"
+                                    value={form.displayOrder ?? ''}  // Hiển thị rỗng nếu undefined
                                     onChange={handleChange}
                                     className="form-control"
                                     style={{ borderColor: '#4a7c59' }}
-                                    placeholder="0"
+                                    placeholder="0 (mặc định)"
                                   />
+                                  <div className="form-text">Số thứ tự hiển thị sản phẩm (càng nhỏ càng ưu tiên)</div>
                                 </div>
                               </div>
                             </div>

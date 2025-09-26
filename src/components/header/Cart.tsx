@@ -19,7 +19,7 @@ const CartDropdown: React.FC = () => {
       <span className="number">{cartItems.length}</span>
       <div className="category-sub-menu card-number-show">
         <h5 className="shopping-cart-number">
-          Shopping Cart ({cartItems.length.toString().padStart(2, '0')})
+          Giỏ hàng của bạn ({cartItems.length.toString().padStart(2, '0')})
         </h5>
 
         {cartItems.map(item => (
@@ -53,7 +53,7 @@ const CartDropdown: React.FC = () => {
                 </Link>
                 <div className="number">
                   {item.quantity} <i className="fa-regular fa-x" />{" "}
-                  <span>${(item.unitPrice * item.quantity).toFixed(2)}</span>
+                  <span>{(item.unitPrice * item.quantity).toFixed(2)} đ</span>
                 </div>
               </div>
             </div>
@@ -63,8 +63,8 @@ const CartDropdown: React.FC = () => {
         <div className="sub-total-cart-balance">
           <div className="bottom-content-deals mt--10">
             <div className="top">
-              <span>Sub Total:</span>
-              <span className="number-c">${total.toFixed(2)}</span>
+              <span>Tổng tiền:</span>
+              <span className="number-c">{total.toFixed(2)} đ</span>
             </div>
 
             <div className="single-progress-area-incard">
@@ -79,20 +79,14 @@ const CartDropdown: React.FC = () => {
               </div>
             </div>
 
-            {total < freeShippingThreshold && (
-              <p>
-                Spend ore <span>${remaining.toFixed(2)}</span> to reach{' '}
-                <span>Free Shipping</span>
-              </p>
-            )}
           </div>
 
           <div className="button-wrapper d-flex align-items-center justify-content-between">
             <Link href="/cart" className="rts-btn btn-primary">
-              View Cart
+              Xem chi tiết
             </Link>
             <Link href="/checkout" className="rts-btn btn-primary border-only">
-              Checkout
+              Thanh toán
             </Link>
           </div>
         </div>

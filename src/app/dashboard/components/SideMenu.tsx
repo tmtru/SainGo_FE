@@ -2,29 +2,27 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
+import { ArrowLeft } from "lucide-react"
 interface MenuItem {
   title: string;
-  icon: string;
+  icon: any;
   children?: { title: string; href: string }[];
   href?: string;
 }
 
 const menuItems: MenuItem[] = [
-  {
-    title: "Dashboard",
-    icon: "/assets/images-dashboard/icons/01.svg",
-    children: [
-      { title: "Main Demo", href: "/dashboard" },
-      { title: "Coming Soon", href: "#" },
-    ],
-  },
+  // {
+  //   title: "Dashboard",
+  //   icon: "/assets/images-dashboard/icons/01.svg",
+  //   children: [
+  //     { title: "Main Demo", href: "/dashboard" },
+  //     { title: "Coming Soon", href: "#" },
+  //   ],
+  // },
   {
     title: "Order",
     icon: "/assets/images-dashboard/icons/09.svg",
-    children: [
-      { title: "Order", href: "/dashboard/order" },
-    ],
+    href: "/dashboard/order"
   },
   {
     title: "Product",
@@ -49,44 +47,15 @@ const menuItems: MenuItem[] = [
     icon: "/assets/images-dashboard/icons/coupon.svg",
     href: "/dashboard/manage-coupon",
   },
+  // {
+  //   title: "Transactions",
+  //   icon: "/assets/images-dashboard/icons/06.svg",
+  //   href: "/dashboard/transaction",
+  // },
   {
-    title: "Vendor",
-    icon: "/assets/images-dashboard/icons/04.svg",
-    children: [
-      { title: "Vendor Grid", href: "/dashboard/vendor-grid" },
-      { title: "Vendor List", href: "/dashboard/vendor-list" },
-      { title: "Vendor Details", href: "/dashboard/vendor-details" },
-      { title: "Create Vendors", href: "/dashboard/create-vendors" },
-    ],
-  },
-  {
-    title: "Transactions",
-    icon: "/assets/images-dashboard/icons/06.svg",
-    href: "/dashboard/transaction",
-  },
-  {
-    title: "Reviews",
-    icon: "/assets/images-dashboard/icons/07.svg",
-    href: "/dashboard/review",
-  },
-  {
-    title: "Brand",
-    icon: "/assets/images-dashboard/icons/16.svg",
-    href: "/dashboard/brand",
-  },
-  {
-    title: "Payment",
-    icon: "/assets/images-dashboard/icons/17.svg",
-    href: "/dashboard/payment",
-  },
-  {
-    title: "User Profile",
+    title: "Users Management",
     icon: "/assets/images-dashboard/icons/05.svg",
-    children: [
-      { title: "Profile Setting", href: "/dashboard/profile-setting" },
-      { title: "Log In", href: "/dashboard/log-in" },
-      { title: "Registration", href: "/dashboard/registration" },
-    ],
+    href: "/dashboard/manage-user",
   },
 ];
 
@@ -116,13 +85,13 @@ const SidebarMenu = () => {
       {menuItems.map((item, index) => {
         const hasSubmenu = !!item.children?.length;
         const isOpen = openIndex === index;
-
+        const isDirectActive = pathname.includes(item.href || "");
         return (
           <li className="single-menu-item" key={index}>
             {hasSubmenu ? (
               <Link
                 href="#"
-                className={`with-plus ${isOpen ? "active" : ""}`}
+                className={`with-plus`}
                 onClick={(e) => {
                   e.preventDefault();
                   handleToggle(index);
@@ -132,8 +101,12 @@ const SidebarMenu = () => {
                 <p>{item.title}</p>
               </Link>
             ) : (
-              <Link href={item.href || "#"}>
-                <img src={item.icon} alt="icon" className="icon" style={{maxWidth: '24px', maxHeight: '24px'}} />
+
+              <Link
+                href={item.href || "#"}
+                className={isDirectActive ? "active" : ""}
+              >
+                <img src={item.icon} alt="icon" style={{ maxWidth: '24px', maxHeight: '24px' }} />
                 <p>{item.title}</p>
               </Link>
             )}

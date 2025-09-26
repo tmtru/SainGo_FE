@@ -1,227 +1,75 @@
-"use clients"
-import React from 'react'
+"use client";
 
-function TrandingProduct() {
+import React, { useEffect, useState } from "react";
+import WeeklyBestSellingMain from "@/components/product-main/WeeklyBestSellingMain";
+import ProductService, { Product } from "@/data/Services/ProductService";
+import CustomLoader from "../common/CustomLoader";
+
+const SaledProduct: React.FC = () => {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [limit, setLimit] = useState(12); // Giới hạn số lượng sản phẩm hiển thị
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const res = await ProductService.getSaledProducts(limit);
+                setProducts(res.data);
+                console.log("Featured products fetched:", res);
+            } catch (error) {
+                console.error("Error fetching featured products:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, [limit]);
+
+    if (loading) return <CustomLoader />;
+
     return (
-        <div>
-            <>
-                {/* rts top tranding product area */}
-                <div className="top-tranding-product rts-section-gap">
-                    <div className="container">
-                        <div className="row">
-                            <div className="col-lg-12">
-                                <div className="title-area-between">
-                                    <h2 className="title-left mb--10">Top Trending Products</h2>
-                                </div>
-                            </div>
+        <div className="rts-grocery-feature-area rts-section-gapBottom">
+            <div className="container">
+                <div className="row">
+                    <div className="col-lg-12">
+                        <div className="title-area-between">
+                            <h2 className="title-left">Sản phẩm Giảm giá HOT</h2>
                         </div>
-                        <div className="row">
-                            <div className="col-lg-12">
-                                <div className="cover-card-main-over">
-                                    <div className="row g-4">
-                                        <div className="col-xl-3 col-md-6 col-sm-12 col-12">
-                                            <div className="single-shopping-card-one tranding-product">
-                                                <a href="/shop" className="thumbnail-preview">
-                                                    <div className="badge">
-                                                        <span>
-                                                            25% <br />
-                                                            Off
-                                                        </span>
-                                                        <i className="fa-solid fa-bookmark" />
-                                                    </div>
-                                                    <img src="assets/images/grocery/07.jpg" alt="grocery" />
-                                                </a>
-                                                <div className="body-content">
-                                                    <a href="/shop">
-                                                        <h4 className="title">Pastine Mellin Filid</h4>
-                                                    </a>
-                                                    <span className="availability">500g Pack</span>
-                                                    <div className="price-area">
-                                                        <span className="current">$36.00</span>
-                                                        <div className="previous">$36.00</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-xl-3 col-md-6 col-sm-12 col-12">
-                                            <div className="single-shopping-card-one tranding-product">
-                                                <a href="/shop" className="thumbnail-preview">
-                                                    <div className="badge">
-                                                        <span>
-                                                            25% <br />
-                                                            Off
-                                                        </span>
-                                                        <i className="fa-solid fa-bookmark" />
-                                                    </div>
-                                                    <img src="assets/images/grocery/08.jpg" alt="grocery" />
-                                                </a>
-                                                <div className="body-content">
-                                                    <a href="/shop">
-                                                        <h4 className="title">Di Grano Tenero</h4>
-                                                    </a>
-                                                    <span className="availability">500g Pack</span>
-                                                    <div className="price-area">
-                                                        <span className="current">$36.00</span>
-                                                        <div className="previous">$36.00</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-xl-3 col-md-6 col-sm-12 col-12">
-                                            <div className="single-shopping-card-one tranding-product">
-                                                <a href="/shop" className="thumbnail-preview">
-                                                    <div className="badge">
-                                                        <span>
-                                                            25% <br />
-                                                            Off
-                                                        </span>
-                                                        <i className="fa-solid fa-bookmark" />
-                                                    </div>
-                                                    <img src="assets/images/grocery/09.jpg" alt="grocery" />
-                                                </a>
-                                                <div className="body-content">
-                                                    <a href="/shop">
-                                                        <h4 className="title">Mellin Grano Tenero</h4>
-                                                    </a>
-                                                    <span className="availability">500g Pack</span>
-                                                    <div className="price-area">
-                                                        <span className="current">$36.00</span>
-                                                        <div className="previous">$36.00</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-xl-3 col-md-6 col-sm-12 col-12">
-                                            <div className="single-shopping-card-one tranding-product">
-                                                <a href="/shop" className="thumbnail-preview">
-                                                    <div className="badge">
-                                                        <span>
-                                                            25% <br />
-                                                            Off
-                                                        </span>
-                                                        <i className="fa-solid fa-bookmark" />
-                                                    </div>
-                                                    <img src="assets/images/grocery/10.jpg" alt="grocery" />
-                                                </a>
-                                                <div className="body-content">
-                                                    <a href="/shop">
-                                                        <h4 className="title">Grano Tenero</h4>
-                                                    </a>
-                                                    <span className="availability">500g Pack</span>
-                                                    <div className="price-area">
-                                                        <span className="current">$36.00</span>
-                                                        <div className="previous">$36.00</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-xl-3 col-md-6 col-sm-12 col-12">
-                                            <div className="single-shopping-card-one tranding-product">
-                                                <a href="/shop" className="thumbnail-preview">
-                                                    <div className="badge">
-                                                        <span>
-                                                            25% <br />
-                                                            Off
-                                                        </span>
-                                                        <i className="fa-solid fa-bookmark" />
-                                                    </div>
-                                                    <img src="assets/images/grocery/11.jpg" alt="grocery" />
-                                                </a>
-                                                <div className="body-content">
-                                                    <a href="/shop">
-                                                        <h4 className="title">Jack Froot</h4>
-                                                    </a>
-                                                    <span className="availability">500g Pack</span>
-                                                    <div className="price-area">
-                                                        <span className="current">$36.00</span>
-                                                        <div className="previous">$36.00</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-xl-3 col-md-6 col-sm-12 col-12">
-                                            <div className="single-shopping-card-one tranding-product">
-                                                <a href="/shop" className="thumbnail-preview">
-                                                    <div className="badge">
-                                                        <span>
-                                                            25% <br />
-                                                            Off
-                                                        </span>
-                                                        <i className="fa-solid fa-bookmark" />
-                                                    </div>
-                                                    <img src="assets/images/grocery/12.jpg" alt="grocery" />
-                                                </a>
-                                                <div className="body-content">
-                                                    <a href="/shop">
-                                                        <h4 className="title">Fresh Mango</h4>
-                                                    </a>
-                                                    <span className="availability">500g Pack</span>
-                                                    <div className="price-area">
-                                                        <span className="current">$36.00</span>
-                                                        <div className="previous">$36.00</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-xl-3 col-md-6 col-sm-12 col-12">
-                                            <div className="single-shopping-card-one tranding-product">
-                                                <a href="/shop" className="thumbnail-preview">
-                                                    <div className="badge">
-                                                        <span>
-                                                            25% <br />
-                                                            Off
-                                                        </span>
-                                                        <i className="fa-solid fa-bookmark" />
-                                                    </div>
-                                                    <img src="assets/images/grocery/13.jpg" alt="grocery" />
-                                                </a>
-                                                <div className="body-content">
-                                                    <a href="/shop">
-                                                        <h4 className="title">Fresh Juice</h4>
-                                                    </a>
-                                                    <span className="availability">500g Pack</span>
-                                                    <div className="price-area">
-                                                        <span className="current">$36.00</span>
-                                                        <div className="previous">$36.00</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-xl-3 col-md-6 col-sm-12 col-12">
-                                            <div className="single-shopping-card-one tranding-product">
-                                                <a href="/shop" className="thumbnail-preview">
-                                                    <div className="badge">
-                                                        <span>
-                                                            25% <br />
-                                                            Off
-                                                        </span>
-                                                        <i className="fa-solid fa-bookmark" />
-                                                    </div>
-                                                    <img src="assets/images/grocery/14.jpg" alt="grocery" />
-                                                </a>
-                                                <div className="body-content">
-                                                    <a href="/shop">
-                                                        <h4 className="title">Pastine Mellin</h4>
-                                                    </a>
-                                                    <span className="availability">500g Pack</span>
-                                                    <div className="price-area">
-                                                        <span className="current">$36.00</span>
-                                                        <div className="previous">$36.00</div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="container">
+                <div className="row">
+                    <div className="col-lg-12">
+                        <div className="category-area-main-wrapper-one">
+                            <div className="row g-3">
+                                {products.map((product) => (
+                                    <div
+                                        key={product.id}
+                                        className="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2"
+                                    >
+                                        <div className="single-shopping-card-one">
+                                            <WeeklyBestSellingMain
+                                                Id={product.id}
+                                                Slug={product.slug}
+                                                ProductImage={product.thumbnailUrl}
+                                                ProductTitle={product.name}
+                                                Price={product.salePrice.toString()}
+                                                BasePrice={product.basePrice.toString()}
+                                                StockAvailable={product.stockQuantity}
+                                            />
                                         </div>
                                     </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     </div>
                 </div>
-                {/* rts top tranding product area end */}
-            </>
-
+            </div>
         </div>
-    )
-}
+    );
+};
 
-export default TrandingProduct
+export default SaledProduct;

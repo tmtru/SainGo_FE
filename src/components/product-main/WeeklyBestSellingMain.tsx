@@ -145,13 +145,13 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
             >
               <i className="fa-solid fa-arrows-retweet" />
             </span> */}
-            <span
+            {/* <span
               className="single-action openuptip"
               title="Quick View"
               onClick={() => setActiveModal('two')}
             >
               <i className="fa-regular fa-eye" />
-            </span>
+            </span> */}
           </div>
 
         </div>

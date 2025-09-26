@@ -26,6 +26,8 @@ export default function UpdateProductPage() {
     mainCategoryId: '',
     name: '',
     slug: '',
+    description: '',
+    shortDescription: '',
     basePrice: 0,
     salePrice: 0,
     unit: 1,
@@ -101,7 +103,7 @@ export default function UpdateProductPage() {
           unitSize: product.unitSize || '',
           thumbnailUrl: product.thumbnailUrl || '',
           imageUrls: product.imageUrls || '',
-          initialStock: product.stockQuantity || 0,
+          initialStock: product.initialStock || 0,
           lowStockThreshold: product.lowStockThreshold || 0,
           maxOrderQuantity: product.maxOrderQuantity || 0,
           minOrderQuantity: product.minOrderQuantity || 0,
@@ -262,7 +264,7 @@ export default function UpdateProductPage() {
     setIsSubmitting(true);
 
     try {
-      if (variants.length === 0 && (form.initialStock == null || form.initialStock ==undefined || form.initialStock < 0)) {
+      if (variants.length === 0 && (form.initialStock == null || form.initialStock == undefined || form.initialStock < 0)) {
         toast.error('Vui lòng nhập số lượng sản phẩm hiện có.');
         setIsSubmitting(false);
         return;
@@ -572,7 +574,66 @@ export default function UpdateProductPage() {
                     </div>
                   </div>
                 </div>
-
+                <div className="row mb-4">
+                  <div className="col-12">
+                    <div className="card border-0 mb-4" style={{ backgroundColor: '#f0f8f0' }}>
+                      <div className="card-header bg-transparent border-bottom-0">
+                        <h5 className="mb-0" style={{ color: '#2d5a3d' }}>
+                          <i className="fas fa-file-alt me-2"></i>
+                          Mô Tả Sản Phẩm
+                        </h5>
+                      </div>
+                      <div className="card-body">
+                        <div className="row">
+                          <div className="col-12">
+                            <div className="mb-3">
+                              <label className="form-label fw-bold">
+                                Mô Tả Ngắn <span className="text-danger">*</span>
+                              </label>
+                              <textarea
+                                id="shortDescription"
+                                value={form.shortDescription}
+                                onChange={handleChange}
+                                required
+                                rows={3}
+                                className="form-control"
+                                style={{ borderColor: '#4a7c59' }}
+                                placeholder="Nhập mô tả ngắn gọn về sản phẩm (tối đa 200 ký tự)..."
+                                maxLength={200}
+                              />
+                              <div className="form-text d-flex justify-content-between">
+                                <span>Mô tả ngắn sẽ hiển thị trong danh sách sản phẩm</span>
+                                <span className="text-muted">
+                                  {form.shortDescription?.length}/200
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-12">
+                            <div className="mb-3">
+                              <label className="form-label fw-bold">
+                                Mô Tả Chi Tiết <span className="text-danger">*</span>
+                              </label>
+                              <textarea
+                                id="description"
+                                value={form.description}
+                                onChange={handleChange}
+                                required
+                                rows={8}
+                                className="form-control"
+                                style={{ borderColor: '#4a7c59' }}
+                                placeholder="Nhập mô tả chi tiết về sản phẩm, bao gồm thành phần, cách sử dụng, bảo quản..."
+                              />
+                              <div className="form-text">
+                                Mô tả chi tiết sẽ hiển thị trong trang chi tiết sản phẩm
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 {/* Images Section */}
                 <div className="row mb-4">
                   <div className="col-12">
@@ -797,6 +858,12 @@ export default function UpdateProductPage() {
                                 placeholder="Nhập số lượng..."
                               />
                             </div>
+                            <div className="mb-3">
+                              <label className="form-label fw-bold">
+                                Số Lượng chờ xác nhận <span className="text-danger"> {originalProduct?.stockQuantity}</span>
+                              </label>
+                              <div></div>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -986,17 +1053,17 @@ export default function UpdateProductPage() {
           </div>
         </div>
       </div>
-            <ToastContainer
-                position="top-right"
-                autoClose={3000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-            />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <style jsx>{`
         .form-control:focus, .form-select:focus {
           border-color: #4a7c59;
