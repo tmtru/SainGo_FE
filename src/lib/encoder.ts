@@ -29,7 +29,7 @@
 import CryptoJS from "crypto-js";
 
 const getHashKey = (): string => {
-  const key = process.env.NEXT_PUBLIC_REACT_APP_HASH_KEY;
+  const key = "DEFAULT_HASH_KEY";
   if (!key) {
     throw new Error("MISSING: NEXT_PUBLIC_REACT_APP_HASH_KEY in .env.local");
   }
