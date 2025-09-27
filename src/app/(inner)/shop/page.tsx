@@ -4,7 +4,7 @@ import type React from "react";
 
 import HeaderOne from "@/components/header/HeaderOne";
 import { useState, useEffect } from "react";
-// import ShopMainList from "./ShopMainList";
+import ShopMain from "./ShopMain";
 import FooterOne from "@/components/footer/FooterOne";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -16,6 +16,7 @@ import { Pagination } from "@mui/material";
 import CategoryService, {
   type Category,
 } from "@/data/Services/CategoryService";
+import CustomLoader from "@/components/common/CustomLoader";
 import { RestaurantMenuWithApi } from "@/components/product/RestaurantMenu";
 
 // Sort options interface
@@ -356,40 +357,236 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="rts-section-gap">
-       
-      </div>
-      <div className="container">
-         <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100">
-          <div className="max-w-4xl mx-auto p-8">
-            <div className="bg-white shadow-2xl rounded-lg overflow-hidden border-4 border-green-800">
-              <RestaurantMenuWithApi
-                products={filteredProducts}
-                categories={allCategories}
-                loading={loading}
-                error={error}
-                searchQuery={debouncedSearchQuery}
-                onSearchChange={(query) => {
-                  setLocalSearchQuery(query);
-                  setDebouncedSearchQuery(query);
-                }}
-                selectedCategories={selectedCategories}
-                onCategoryChange={handleCategoryChange}
-              />
+      <div className="shop-grid-sidebar-area rts-section-gap">
+        <div className="container">
+          <div className="row g-0">
 
-              {!loading && !error && filteredProducts.length > 0 && (
-                <div className="mt-4 d-flex justify-content-center">
-                  <Pagination
-                    count={totalPages}
-                    page={pageNumber}
-                    onChange={(_, page) => handlePageChange(page)}
-                    color="primary"
-                    shape="rounded"
-                    showFirstButton
-                    showLastButton
-                  />
+            {/* Sidebar */}
+            <div className="col-xl-3 col-lg-12 pr--70 pr_lg--10 pr_sm--10 pr_md--5 rts-sticky-column-item">
+              <div className="sidebar-filter-main theiaStickySidebar">
+
+                {/* Widget Search */}
+                <div className="single-filter-box">
+                  <h5 className="title">Tìm kiếm sản phẩm</h5>
+                  <div className="filterbox-body">
+                    <form onSubmit={handleSearchSubmit} className="search-form-filter">
+                      <input
+                        type="text"
+                        placeholder="Nhập tên sản phẩm..."
+                        value={localSearchQuery}
+                        onChange={handleSearchInputChange}
+                        style={{ marginBottom: '15px' }}
+                      />
+                      <button type="submit" className="search-button mt-12">
+                        <i className="fa-solid fa-magnifying-glass" />
+                      </button>
+                    </form>
+                  </div>
                 </div>
-              )}
+
+                <div className="single-filter-box">
+                  <h5 className="title">Khoảng giá</h5>
+                  <div className="filterbox-body">
+                    <div className="category-wrapper">
+                      {[
+                        { label: "Dưới 500.000đ", value: "0-500000" },
+                        { label: "500.000đ – 1.000.000đ", value: "500000-1000000" },
+                        { label: "1.000.000đ – 3.000.000đ", value: "1000000-3000000" },
+                        { label: "3.000.000đ – 10.000.000đ", value: "3000000-10000000" },
+                        { label: "Trên 10.000.000đ", value: "10000000-999999999" },
+                      ].map(({ label, value }) => (
+                        <div className="single-category" key={value}>
+                          <input
+                            id={`price-${value}`}
+                            type="checkbox"
+                            value={value}
+                            onChange={handlePriceRangeCheckbox}
+                            checked={selectedPriceRanges.includes(value)}
+                          />
+                          <label htmlFor={`price-${value}`}>{label}</label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Categories (Interactive) */}
+                <div className="single-filter-box">
+                  <h5 className="title">Danh mục sản phẩm</h5>
+                  <div className="filterbox-body">
+                    <div className="category-wrapper ">
+                      {allCategories.map((cat: Category, index: number) => (
+                        <div className="single-category" key={cat.id}>
+                          <input
+                            id={cat.id}
+                            type="checkbox"
+                            checked={selectedCategories.includes(cat.id)}
+                            onChange={() => handleCategoryChange(cat.id)}
+                          />
+                          <label htmlFor={cat.id}>{cat.name}</label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Brands */}
+                {/* <div className="single-filter-box">
+                  <h5 className="title">Select Brands</h5>
+                  <div className="filterbox-body">
+                    <div className="category-wrapper">
+                      {allBrands.map((brand: string, i: number) => (
+                        <div className="single-category" key={i}>
+                          <input
+                            id={`brand${i + 1}`}
+                            type="checkbox"
+                            checked={selectedBrands.includes(brand)}
+                            onChange={() => handleBrandChange(brand)}
+                          />
+                          <label htmlFor={`brand${i + 1}`}>{brand}</label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div> */}
+              </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="col-xl-9 col-lg-12">
+              <div className="filter-select-area">
+                <div className="top-filter">
+                  <span>
+                    {loading ? "Loading..." : `Hiện ${filteredProducts.length} kết quả`}
+                  </span>
+                  {error && <p className="text-danger">{error}</p>}
+                  <div className="right-end">
+                    <div className="sort-dropdown-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span>Sắp xếp theo:</span>
+                      <select
+                        value={selectedSortValue}
+                        onChange={handleSortChange}
+                        style={{
+                          padding: '5px 10px',
+                          border: '1px solid #ddd',
+                          borderRadius: '4px',
+                          background: 'white',
+                          minWidth: '150px'
+                        }}
+                      >
+                        {sortOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="button-tab-area">
+                      <ul className="nav nav-tabs" id="myTab" role="tablist">
+                        <li className="nav-item" role="presentation">
+                          <button
+                            onClick={() => setActiveTab('tab1')}
+                            className={`nav-link single-button ${activeTab === 'tab1' ? 'active' : ''}`}
+                          >
+                            <svg width={16} height={16} viewBox="0 0 16 16" fill="none">
+                              <rect x="0.5" y="0.5" width={6} height={6} rx="1.5" stroke="#2C3B28" />
+                              <rect x="0.5" y="9.5" width={6} height={6} rx="1.5" stroke="#2C3B28" />
+                              <rect x="9.5" y="0.5" width={6} height={6} rx="1.5" stroke="#2C3B28" />
+                              <rect x="9.5" y="9.5" width={6} height={6} rx="1.5" stroke="#2C3B28" />
+                            </svg>
+                          </button>
+                        </li>
+                        {/* <li className="nav-item" role="presentation">
+                          <button
+                            onClick={() => setActiveTab('tab2')}
+                            className={`nav-link single-button ${activeTab === 'tab2' ? 'active' : ''}`}
+                          >
+                            <svg width={16} height={16} viewBox="0 0 16 16" fill="none">
+                              <rect x="0.5" y="0.5" width={6} height={6} rx="1.5" stroke="#2C3C28" />
+                              <rect x="0.5" y="9.5" width={6} height={6} rx="1.5" stroke="#2C3C28" />
+                              <rect x={9} y={3} width={7} height={1} fill="#2C3C28" />
+                              <rect x={9} y={12} width={7} height={1} fill="#2C3C28" />
+                            </svg>
+                          </button>
+                        </li> */}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Grid or List view */}
+              <div className="tab-content" id="myTabContent">
+                {loading ? (
+                  <div className="col-12 text-center py-5">
+                    <CustomLoader />
+                  </div>
+                ) : error ? (
+                  <div className="col-12 text-center py-5">
+                    <p>{error}</p>
+                  </div>
+                ) : filteredProducts.length === 0 ? (
+                  <div className="col-12 text-center py-5">
+                    <h2>No Product Found</h2>
+                  </div>
+                ) : activeTab === 'tab1' ? (
+                  <div className="product-area-wrapper-shopgrid-list mt--20 tab-pane fade show active">
+                    <div className="row g-4">
+                      {filteredProducts.map((post: Product) => (
+                        <div key={post.id} className="col-lg-20 col-lg-4 col-md-6 col-sm-6 col-12">
+                          <div className="single-shopping-card-one">
+                            <ShopMain
+                              Id={post.id}
+                              Slug={post.slug}
+                              ProductImage={post.imageUrl}
+                              ProductTitle={post.name}
+                              Price={
+                                post.salePrice == null
+                                  ? post.basePrice.toString()
+                                  : post.salePrice.toString()
+                              }
+                              BasePrice={post.basePrice.toString()}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : activeTab === 'tab2' ? (
+                  <div className="product-area-wrapper-shopgrid-list with-list mt--20 tab-pane fade show active">
+                    {/* <div className="row">
+                      {filteredProducts.map((post: Product) => (
+                        <div key={post.id} className="col-lg-6">
+                          <div className="single-shopping-card-one discount-offer">
+                            <ShopMainList
+                              Slug={post.slug}
+                              ProductImage={post.thumbnailUrl}
+                              ProductTitle={post.name}
+                              Price={
+                                post.salePrice == null
+                                  ? post.basePrice.toString()
+                                  : post.salePrice.toString()
+                              }
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div> */}
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="mt-4 d-flex justify-content-center">
+                <Pagination
+                  count={totalPages}
+                  page={pageNumber}
+                  onChange={(_, page) => handlePageChange(page)}
+                  color="primary"
+                  shape="rounded"
+                  showFirstButton
+                  showLastButton
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -93,11 +93,14 @@ const FeatureProduct: React.FC = () => {
                                                 <WeeklyBestSellingMain
                                                     Id={product.id}
                                                     Slug={product.slug}
-                                                    ProductImage={product.thumbnailUrl}
+                                                    ProductImage={product.imageUrl}
                                                     ProductTitle={product.name}
-                                                    Price={product.salePrice.toString()}
+                                                    Price={
+                                                        product.salePrice == null
+                                                            ? product.basePrice.toString()
+                                                            : product.salePrice.toString()
+                                                    }
                                                     BasePrice={product.basePrice.toString()}
-                                                    StockAvailable={product.stockQuantity}
                                                 />
                                             </div>
                                         ))}

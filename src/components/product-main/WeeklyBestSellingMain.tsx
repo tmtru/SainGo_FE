@@ -13,11 +13,10 @@ import 'react-toastify/dist/ReactToastify.css';
 interface BlogGridMainProps {
   Id: string;
   Slug: string;
-  ProductImage: string;
+  ProductImage?: string;
   ProductTitle?: string;
   Price?: string;
   BasePrice?: string;
-  StockAvailable: number;
 }
 
 type ModalType = 'one' | 'two' | 'three' | null;
@@ -29,7 +28,6 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
   ProductTitle = 'Default Product Title',
   Price = '0',
   BasePrice = '0',
-  StockAvailable,
 }) => {
   const [productSale, setProductSale] = useState(0);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
@@ -40,7 +38,6 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
   const { addToWishlist } = useWishlist();
   const { addToCompare } = useCompare();
 
-  const isOutOfStock = StockAvailable <= 0;
 
   const handleSalePercentage = (basePrice: string, currentPrice: string) => {
     const base = parseFloat(basePrice);
@@ -70,7 +67,7 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
   const handleWishlist = () => {
     addToWishlist({
       id: Id,
-      image: ProductImage,
+      image: ProductImage?? 'default-image.jpg',
       title: ProductTitle,
       price: parseFloat(Price),
       quantity: 1,
@@ -83,7 +80,7 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
   const handleCompare = () => {
     addToCompare({
       id: Id,
-      image: ProductImage,
+      image: ProductImage ?? 'default-image.jpg',
       name: ProductTitle,
       price: Price,
       description: 'Mô tả ngắn gọn sản phẩm.',
@@ -115,25 +112,14 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
                 <i className="fa-solid fa-bookmark" />
               </div>
             )}
-            <img
-              src={ProductImage}
-              alt="product"
-              className={`object-fit-cover ${isOutOfStock ? 'opacity-60' : ''}`}
-              style={{ width: '100%', height: '150px' }}
-            />
-            {isOutOfStock && (
-              <div className="sold-out-overlay">
-                <div className="overlay-content">Hết hàng</div>
-              </div>
-            )}
+
 
           </Link>
           <div className="action-share-option">
             <span
               className="single-action openuptip"
               title="Add To Wishlist"
-              onClick={!isOutOfStock ? handleWishlist : undefined}
-              style={{ pointerEvents: isOutOfStock ? 'none' : 'auto', opacity: isOutOfStock ? 0.5 : 1 }}
+              onClick={ handleWishlist }
             >
               <i className="fa-light fa-heart" />
             </span>
@@ -180,7 +166,7 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
       <ProductDetails
         show={activeModal === 'two'}
         handleClose={() => setActiveModal(null)}
-        productImage={ProductImage}
+        productImage={ProductImage?? 'default-image.jpg'}
         productTitle={ProductTitle}
         productPrice={Price}
       />
