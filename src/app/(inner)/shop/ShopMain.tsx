@@ -14,7 +14,7 @@ import WeeklyBestSellingMain from '@/components/product-main/WeeklyBestSellingMa
 interface BlogGridMainProps {
     Id: string;
     Slug: string;
-    ProductImage: string;
+    ProductImage?: string;
     ProductTitle?: string;
     Price?: string;
     BasePrice?: string;
@@ -131,11 +131,10 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
                 <WeeklyBestSellingMain
                     Id={Id}
                     Slug={Slug}
-                    ProductImage={ProductImage}
+                    ProductImage={ProductImage ?? 'default-image.jpg'}
                     ProductTitle={ProductTitle}
                     Price={Price}
                     BasePrice={BasePrice}
-                    StockAvailable={StockAvailable}
                 />
             </div>
 

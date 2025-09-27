@@ -484,7 +484,7 @@ export default function Home() {
                             <ShopMain
                               Id={post.id}
                               Slug={post.slug}
-                              ProductImage={post.thumbnailUrl}
+                              ProductImage={post.imageUrl}
                               ProductTitle={post.name}
                               Price={
                                 post.salePrice == null
@@ -492,7 +492,6 @@ export default function Home() {
                                   : post.salePrice.toString()
                               }
                               BasePrice={post.basePrice.toString()}
-                              StockAvailable={post.stockQuantity}
                             />
                           </div>
                         </div>
