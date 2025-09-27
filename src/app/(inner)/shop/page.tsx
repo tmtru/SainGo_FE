@@ -2,22 +2,21 @@
 
 import type React from "react";
 
-import HeaderOne from "@/components/header/HeaderOne";
-import { useState, useEffect } from "react";
-import ShopMain from "./ShopMain";
+import CustomLoader from "@/components/common/CustomLoader";
 import FooterOne from "@/components/footer/FooterOne";
-import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
+import HeaderOne from "@/components/header/HeaderOne";
+import CategoryService, {
+  type Category,
+} from "@/data/Services/CategoryService";
 import ProductService, {
   type Product,
   type ProductFilterDto,
 } from "@/data/Services/ProductService";
 import { Pagination } from "@mui/material";
-import CategoryService, {
-  type Category,
-} from "@/data/Services/CategoryService";
-import CustomLoader from "@/components/common/CustomLoader";
-import { RestaurantMenuWithApi } from "@/components/product/RestaurantMenu";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import ShopMain from "./ShopMain";
 
 // Sort options interface
 interface SortOption {
@@ -360,22 +359,23 @@ export default function Home() {
       <div className="shop-grid-sidebar-area rts-section-gap">
         <div className="container">
           <div className="row g-0">
-
             {/* Sidebar */}
             <div className="col-xl-3 col-lg-12 pr--70 pr_lg--10 pr_sm--10 pr_md--5 rts-sticky-column-item">
               <div className="sidebar-filter-main theiaStickySidebar">
-
                 {/* Widget Search */}
                 <div className="single-filter-box">
                   <h5 className="title">Tìm kiếm sản phẩm</h5>
                   <div className="filterbox-body">
-                    <form onSubmit={handleSearchSubmit} className="search-form-filter">
+                    <form
+                      onSubmit={handleSearchSubmit}
+                      className="search-form-filter"
+                    >
                       <input
                         type="text"
                         placeholder="Nhập tên sản phẩm..."
                         value={localSearchQuery}
                         onChange={handleSearchInputChange}
-                        style={{ marginBottom: '15px' }}
+                        style={{ marginBottom: "15px" }}
                       />
                       <button type="submit" className="search-button mt-12">
                         <i className="fa-solid fa-magnifying-glass" />
@@ -390,10 +390,22 @@ export default function Home() {
                     <div className="category-wrapper">
                       {[
                         { label: "Dưới 500.000đ", value: "0-500000" },
-                        { label: "500.000đ – 1.000.000đ", value: "500000-1000000" },
-                        { label: "1.000.000đ – 3.000.000đ", value: "1000000-3000000" },
-                        { label: "3.000.000đ – 10.000.000đ", value: "3000000-10000000" },
-                        { label: "Trên 10.000.000đ", value: "10000000-999999999" },
+                        {
+                          label: "500.000đ – 1.000.000đ",
+                          value: "500000-1000000",
+                        },
+                        {
+                          label: "1.000.000đ – 3.000.000đ",
+                          value: "1000000-3000000",
+                        },
+                        {
+                          label: "3.000.000đ – 10.000.000đ",
+                          value: "3000000-10000000",
+                        },
+                        {
+                          label: "Trên 10.000.000đ",
+                          value: "10000000-999999999",
+                        },
                       ].map(({ label, value }) => (
                         <div className="single-category" key={value}>
                           <input
@@ -430,25 +442,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Brands */}
-                {/* <div className="single-filter-box">
-                  <h5 className="title">Select Brands</h5>
-                  <div className="filterbox-body">
-                    <div className="category-wrapper">
-                      {allBrands.map((brand: string, i: number) => (
-                        <div className="single-category" key={i}>
-                          <input
-                            id={`brand${i + 1}`}
-                            type="checkbox"
-                            checked={selectedBrands.includes(brand)}
-                            onChange={() => handleBrandChange(brand)}
-                          />
-                          <label htmlFor={`brand${i + 1}`}>{brand}</label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div> */}
               </div>
             </div>
 
@@ -457,21 +450,30 @@ export default function Home() {
               <div className="filter-select-area">
                 <div className="top-filter">
                   <span>
-                    {loading ? "Loading..." : `Hiện ${filteredProducts.length} kết quả`}
+                    {loading
+                      ? "Loading..."
+                      : `Hiện ${filteredProducts.length} kết quả`}
                   </span>
                   {error && <p className="text-danger">{error}</p>}
                   <div className="right-end">
-                    <div className="sort-dropdown-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div
+                      className="sort-dropdown-wrapper"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                      }}
+                    >
                       <span>Sắp xếp theo:</span>
                       <select
                         value={selectedSortValue}
                         onChange={handleSortChange}
                         style={{
-                          padding: '5px 10px',
-                          border: '1px solid #ddd',
-                          borderRadius: '4px',
-                          background: 'white',
-                          minWidth: '150px'
+                          padding: "5px 10px",
+                          border: "1px solid #ddd",
+                          borderRadius: "4px",
+                          background: "white",
+                          minWidth: "150px",
                         }}
                       >
                         {sortOptions.map((option) => (
@@ -485,30 +487,52 @@ export default function Home() {
                       <ul className="nav nav-tabs" id="myTab" role="tablist">
                         <li className="nav-item" role="presentation">
                           <button
-                            onClick={() => setActiveTab('tab1')}
-                            className={`nav-link single-button ${activeTab === 'tab1' ? 'active' : ''}`}
+                            onClick={() => setActiveTab("tab1")}
+                            className={`nav-link single-button ${
+                              activeTab === "tab1" ? "active" : ""
+                            }`}
                           >
-                            <svg width={16} height={16} viewBox="0 0 16 16" fill="none">
-                              <rect x="0.5" y="0.5" width={6} height={6} rx="1.5" stroke="#2C3B28" />
-                              <rect x="0.5" y="9.5" width={6} height={6} rx="1.5" stroke="#2C3B28" />
-                              <rect x="9.5" y="0.5" width={6} height={6} rx="1.5" stroke="#2C3B28" />
-                              <rect x="9.5" y="9.5" width={6} height={6} rx="1.5" stroke="#2C3B28" />
+                            <svg
+                              width={16}
+                              height={16}
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <rect
+                                x="0.5"
+                                y="0.5"
+                                width={6}
+                                height={6}
+                                rx="1.5"
+                                stroke="#2C3B28"
+                              />
+                              <rect
+                                x="0.5"
+                                y="9.5"
+                                width={6}
+                                height={6}
+                                rx="1.5"
+                                stroke="#2C3B28"
+                              />
+                              <rect
+                                x="9.5"
+                                y="0.5"
+                                width={6}
+                                height={6}
+                                rx="1.5"
+                                stroke="#2C3B28"
+                              />
+                              <rect
+                                x="9.5"
+                                y="9.5"
+                                width={6}
+                                height={6}
+                                rx="1.5"
+                                stroke="#2C3B28"
+                              />
                             </svg>
                           </button>
                         </li>
-                        {/* <li className="nav-item" role="presentation">
-                          <button
-                            onClick={() => setActiveTab('tab2')}
-                            className={`nav-link single-button ${activeTab === 'tab2' ? 'active' : ''}`}
-                          >
-                            <svg width={16} height={16} viewBox="0 0 16 16" fill="none">
-                              <rect x="0.5" y="0.5" width={6} height={6} rx="1.5" stroke="#2C3C28" />
-                              <rect x="0.5" y="9.5" width={6} height={6} rx="1.5" stroke="#2C3C28" />
-                              <rect x={9} y={3} width={7} height={1} fill="#2C3C28" />
-                              <rect x={9} y={12} width={7} height={1} fill="#2C3C28" />
-                            </svg>
-                          </button>
-                        </li> */}
                       </ul>
                     </div>
                   </div>
@@ -529,11 +553,14 @@ export default function Home() {
                   <div className="col-12 text-center py-5">
                     <h2>No Product Found</h2>
                   </div>
-                ) : activeTab === 'tab1' ? (
+                ) : activeTab === "tab1" ? (
                   <div className="product-area-wrapper-shopgrid-list mt--20 tab-pane fade show active">
                     <div className="row g-4">
                       {filteredProducts.map((post: Product) => (
-                        <div key={post.id} className="col-lg-20 col-lg-4 col-md-6 col-sm-6 col-12">
+                        <div
+                          key={post.id}
+                          className="col-lg-20 col-lg-4 col-md-6 col-sm-6 col-12"
+                        >
                           <div className="single-shopping-card-one">
                             <ShopMain
                               Id={post.id}
@@ -552,26 +579,8 @@ export default function Home() {
                       ))}
                     </div>
                   </div>
-                ) : activeTab === 'tab2' ? (
+                ) : activeTab === "tab2" ? (
                   <div className="product-area-wrapper-shopgrid-list with-list mt--20 tab-pane fade show active">
-                    {/* <div className="row">
-                      {filteredProducts.map((post: Product) => (
-                        <div key={post.id} className="col-lg-6">
-                          <div className="single-shopping-card-one discount-offer">
-                            <ShopMainList
-                              Slug={post.slug}
-                              ProductImage={post.thumbnailUrl}
-                              ProductTitle={post.name}
-                              Price={
-                                post.salePrice == null
-                                  ? post.basePrice.toString()
-                                  : post.salePrice.toString()
-                              }
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div> */}
                   </div>
                 ) : null}
               </div>

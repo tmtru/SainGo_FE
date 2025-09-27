@@ -1,5 +1,10 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
 @import "tw-animate-css";
+
 
 @custom-variant dark (&:is(.dark *));
 
@@ -121,81 +126,106 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Georgia', serif; /* đổi font thân thiện với menu */
   }
 
-  /* Cập nhật font styles cho menu nhà hàng với tone màu xanh */
+  /* Tiêu đề lớn cho menu */
   .menu-title {
-    font-family: "serif";
+    font-family: "Playfair Display", serif;
     letter-spacing: 0.05em;
-    color: #166534; /* green-800 */
+    color: #14532d; /* green-900 */
+    font-size: 2.25rem; /* text-4xl */
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1.5rem;
   }
 
+  /* Tiêu đề section */
   .menu-section-title {
-    font-family: "serif";
-    letter-spacing: 0.02em;
-    border-bottom: 2px solid #166534; /* green-800 */
-    display: inline-block;
-    padding-bottom: 4px;
+    font-family: "Playfair Display", serif;
+    font-size: 1.5rem; /* text-2xl */
+    font-weight: 600;
     color: #166534; /* green-800 */
+    border-bottom: 2px solid #16a34a; /* green-600 */
+    padding-bottom: 6px;
+    display: inline-block;
+    margin-bottom: 1rem;
   }
 
+  /* Tên món */
   .menu-item-name {
     font-weight: 600;
-    letter-spacing: 0.01em;
-    color: #374151; /* gray-700 */
+    color: #1f2937; /* gray-800 */
+    font-size: 1.125rem; /* text-lg */
   }
 
+  /* Giá món */
   .menu-price {
     font-weight: 700;
     color: #15803d; /* green-700 */
+    font-size: 1rem;
   }
 
+  /* Mô tả món */
   .menu-description {
     font-style: italic;
-    line-height: 1.5;
     color: #6b7280; /* gray-500 */
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
   }
 
+  /* Dots line giữa tên món và giá */
   .menu-dots {
-    border-bottom: 1px dotted #9ca3af; /* gray-400 */
+    border-bottom: 1px dotted #d1d5db; /* gray-300 */
     flex: 1;
-    margin: 0 8px;
+    margin: 0 10px;
     height: 1px;
-    align-self: flex-end;
-    margin-bottom: 6px;
+    align-self: center;
   }
 
-  /* Thêm styles cho responsive menu */
+  /* Card món ăn */
+  .menu-card {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+  }
+  .menu-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(22,101,52,0.15);
+  }
+
+  /* Responsive */
   @media (max-width: 768px) {
     .menu-title {
-      font-size: 2rem;
-      line-height: 2.5rem;
+      font-size: 1.75rem;
     }
-
     .menu-section-title {
       font-size: 1.25rem;
-      line-height: 1.75rem;
     }
-
     .menu-dots {
       display: none;
     }
   }
 
-  /* Thêm animation cho filter buttons */
+  /* Filter buttons */
   .filter-button {
     transition: all 0.3s ease;
     transform: translateY(0);
+    border-radius: 9999px;
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
   }
-
   .filter-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(22, 101, 52, 0.15);
   }
-
   .filter-button.active {
     background-color: #15803d;
     color: white;
     box-shadow: 0 4px 12px rgba(22, 101, 52, 0.25);
   }
 }
+
+
