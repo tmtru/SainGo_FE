@@ -5,6 +5,7 @@ export interface UserAddress {
     userId?: string
     name?: string
     fullAddress: string
+    phoneNumber?: string
     ward?: string
     district?: string
     city?: string

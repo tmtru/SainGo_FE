@@ -38,13 +38,13 @@ const ProductTable = () => {
         <div className="inner-content">
           <h5>Accept Payment With Woo</h5>
           <p>Credit/Debit cards, Apple Pay, Google Pay, and more.</p>
-          <Image
+          {/* <Image
             src="/assets/images/payment/01.png"
             alt="Payment options"
             className="one"
             width={500}
             height={100}
-          />
+          /> */}
         </div>
         <button
           onClick={() => togglePaymentMethod('woo')}
@@ -68,13 +68,13 @@ const ProductTable = () => {
         <div className="inner-content">
           <h5>Accept Payment With Paypal</h5>
           <p>Credit/Debit cards, Apple Pay, Google Pay, and more.</p>
-          <Image
+          {/* <Image
             src="/assets/images/payment/01.png"
             alt="Payment options"
             className="one"
             width={400}
             height={100}
-          />
+          /> */}
         </div>
         <button
           onClick={() => togglePaymentMethod('paypal')}

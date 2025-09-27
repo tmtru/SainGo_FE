@@ -13,6 +13,7 @@ export interface Order {
     id?: string;
     orderNumber?: string;
     customerId?: string;
+    deliveryPhone?: string;
     deliveryAddressId?: string;
     paymentMethod: string;
     deliveryNote?: string;
@@ -26,7 +27,9 @@ export interface Order {
     deliveryAddress?: UserAddress;
     orderType?: string;
     requestedDeliveryTime?: string; // ISO format, e.g. "2025-07-27T11:34:55.126Z"
-    PreferredTimeSlot?: string; // e.g. "Morning", "Afternoon", "Evening"
+    preferredTimeSlot?: string; // e.g. "Morning", "Afternoon", "Evening"
+    specialInstructions?: string, 
+    deliveryTime?: string // e.g. "ASAP", "Scheduled"
 
 }
 export interface ChangeOrderStatus {
