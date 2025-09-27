@@ -23,16 +23,6 @@ interface RestaurantMenuWithApiProps {
   onCategoryChange: (categoryId: string) => void
 }
 
-const nutritionCategories = [
-  { id: "all", label: "Tất cả món", icon: "🍽️", description: "Toàn bộ thực đơn dinh dưỡng" },
-  { id: "weight-gain", label: "Tăng cân", icon: "💪", description: "Giàu protein và calories tự nhiên" },
-  { id: "weight-loss", label: "Giảm cân", icon: "🥗", description: "Ít calories, nhiều chất xơ" },
-  { id: "maintenance", label: "Duy trì", icon: "⚖️", description: "Cân bằng dinh dưỡng hoàn hảo" },
-  { id: "heart-healthy", label: "Tim mạch", icon: "❤️", description: "Ít muối, giàu omega-3" },
-  { id: "diabetes", label: "Tiểu đường", icon: "🩺", description: "Chỉ số đường huyết thấp" },
-  { id: "blood-pressure", label: "Huyết áp", icon: "🌿", description: "Ít natri, giàu kali và magie" },
-]
-
 export function RestaurantMenuWithApi({
   products,
   categories,
@@ -61,14 +51,8 @@ export function RestaurantMenuWithApi({
       // Clear all category selections
       selectedCategories.forEach((catId) => onCategoryChange(catId))
     } else {
-      // Find matching category and select it
-      const matchingCategory = categories.find(
-        (cat) =>
-          cat.name.toLowerCase().includes(filterId.replace("-", " ")) ||
-          filterId.includes(cat.name.toLowerCase().replace(" ", "-")),
-      )
-      if (matchingCategory && !selectedCategories.includes(matchingCategory.id)) {
-        onCategoryChange(matchingCategory.id)
+      if (!selectedCategories.includes(filterId)) {
+        onCategoryChange(filterId)
       }
     }
   }
@@ -83,7 +67,6 @@ export function RestaurantMenuWithApi({
   }
 
   const getProductCalories = (product: Product) => {
-    // Estimate calories based on price range (this is just for demo)
     const price = product.salePrice || product.basePrice
     if (price < 100000) return "280-350 kcal"
     if (price < 200000) return "400-520 kcal"
@@ -91,7 +74,6 @@ export function RestaurantMenuWithApi({
   }
 
   const getProductProtein = (product: Product) => {
-    // Estimate protein based on price range (this is just for demo)
     const price = product.salePrice || product.basePrice
     if (price < 100000) return "18-25g protein"
     if (price < 200000) return "28-38g protein"
@@ -151,6 +133,7 @@ export function RestaurantMenuWithApi({
         </p>
       </div>
 
+      {/* Search */}
       <div className="mb-6 md:mb-8">
         <form onSubmit={handleSearchSubmit} className="max-w-md mx-auto relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600 h-4 w-4" />
@@ -164,29 +147,47 @@ export function RestaurantMenuWithApi({
         </form>
       </div>
 
+      {/* Category filter */}
       <div className="mb-8 md:mb-12">
         <h3 className="text-center text-lg md:text-xl font-semibold text-green-800 mb-4 md:mb-6">
           Lọc theo mục đích dinh dưỡng
         </h3>
         <div className="flex flex-wrap justify-center gap-2 md:gap-3 px-2 md:px-0">
-          {nutritionCategories.map((option) => (
+          {/* Nút tất cả */}
+          <Button
+            key="all"
+            variant={activeFilter === "all" ? "default" : "outline"}
+            onClick={() => handleFilterChange("all")}
+            className={`flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 rounded-full transition-all text-xs md:text-sm ${
+              activeFilter === "all"
+                ? "bg-green-700 hover:bg-green-800 text-white"
+                : "border-green-300 text-green-700 hover:bg-green-50"
+            }`}
+          >
+            <span className="text-sm md:text-base">🍽️</span>
+            <span className="font-medium">Tất cả món</span>
+          </Button>
+
+          {/* Categories từ API */}
+          {categories.map((cat) => (
             <Button
-              key={option.id}
-              variant={activeFilter === option.id ? "default" : "outline"}
-              onClick={() => handleFilterChange(option.id)}
+              key={cat.id}
+              variant={activeFilter === cat.id ? "default" : "outline"}
+              onClick={() => handleFilterChange(cat.id)}
               className={`flex items-center gap-1 md:gap-2 px-3 md:px-4 py-2 rounded-full transition-all text-xs md:text-sm ${
-                activeFilter === option.id
+                activeFilter === cat.id
                   ? "bg-green-700 hover:bg-green-800 text-white"
                   : "border-green-300 text-green-700 hover:bg-green-50"
               }`}
             >
-              <span className="text-sm md:text-base">{option.icon}</span>
-              <span className="font-medium">{option.label}</span>
+              <span className="text-sm md:text-base">{cat.icon || "🍴"}</span>
+              <span className="font-medium">{cat.name}</span>
             </Button>
           ))}
         </div>
       </div>
 
+      {/* Products */}
       {products.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-6xl mb-4">🔍</div>
@@ -199,22 +200,14 @@ export function RestaurantMenuWithApi({
             <div key={group.category.id} className="mb-8 md:mb-12">
               <div className="flex items-start md:items-center gap-3 md:gap-4 mb-4 md:mb-6">
                 <span className="text-2xl md:text-3xl flex-shrink-0">
-                  {nutritionCategories.find(
-                    (cat) =>
-                      group.category.name.toLowerCase().includes(cat.label.toLowerCase()) ||
-                      cat.label.toLowerCase().includes(group.category.name.toLowerCase()),
-                  )?.icon || "🍽️"}
+                  {group.category.icon || "🍽️"}
                 </span>
                 <div>
                   <h2 className="menu-section-title text-xl md:text-2xl font-bold text-green-800">
                     {group.category.name.toUpperCase()}
                   </h2>
                   <p className="text-green-600 italic text-xs md:text-sm mt-1">
-                    {nutritionCategories.find(
-                      (cat) =>
-                        group.category.name.toLowerCase().includes(cat.label.toLowerCase()) ||
-                        cat.label.toLowerCase().includes(group.category.name.toLowerCase()),
-                    )?.description || "Món ăn chất lượng cao"}
+                    {group.category.description || "Món ăn chất lượng cao"}
                   </p>
                 </div>
               </div>
