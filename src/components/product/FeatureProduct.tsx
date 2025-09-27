@@ -50,7 +50,7 @@ const FeatureProduct: React.FC = () => {
                 <div className="row">
                     <div className="col-lg-12">
                         <div className="title-area-between">
-                            <h2 className="title-left">Featured Grocery</h2>
+                            <h2 className="title-left">Món ăn nổi bật</h2>
                             <div className="next-prev-swiper-wrapper">
                                 <div className="swiper-button-prev">
                                     <i className="fa-regular fa-chevron-left" />

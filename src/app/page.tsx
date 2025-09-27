@@ -7,24 +7,20 @@ import FeatureProduct from "@/components/product/FeatureProduct";
 import FooterOne from "@/components/footer/FooterOne";
 import { CartProvider } from "@/components/header/CartContext";
 import { WishlistProvider } from "@/components/header/WishlistContext";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from "react-toastify";
 import SaledProduct from "@/components/product/TrandingProduct";
-
 
 export default function Home() {
   return (
-
-
-        <div className="demo-one">
-          
-        <ToastContainer position="top-right" autoClose={3000} />
-          <HeaderOne />
-          <BannerOne />
-           <FeatureOne />
-         <FeatureProduct />
-          <DiscountProduct />
-          <SaledProduct />
-          <FooterOne />
-        </div>
+    <div className="demo-one">
+      <ToastContainer position="top-right" autoClose={3000} />
+      <HeaderOne />
+      <BannerOne />
+      <FeatureOne />
+      <FeatureProduct />
+      <DiscountProduct />
+      <SaledProduct />
+      <FooterOne />
+    </div>
   );
 }

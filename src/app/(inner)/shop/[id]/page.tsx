@@ -15,8 +15,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import ProductService, { Product } from '@/data/Services/ProductService';
 import ProductDetails from '@/components/modal/ProductDetails';
 import CustomLoader from '@/components/common/CustomLoader';
-// Import CompareModal nếu bạn sẽ dùng nó
-// import CompareModal from '@/components/modal/CompareModal';
+
 
 type ModalType = 'productDetails' | 'compare' | null;
 

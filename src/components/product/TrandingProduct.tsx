@@ -34,7 +34,7 @@ const SaledProduct: React.FC = () => {
                 <div className="row">
                     <div className="col-lg-12">
                         <div className="title-area-between">
-                            <h2 className="title-left">Sản phẩm Giảm giá HOT</h2>
+                            <h2 className="title-left">Món ăn đang được ưu đãi</h2>
                         </div>
                     </div>
                 </div>
