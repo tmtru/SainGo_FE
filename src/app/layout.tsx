@@ -10,10 +10,11 @@ import { CartProvider } from "../components/header/CartContext";
 import { WishlistProvider } from "../components/header/WishlistContext";
 import { CompareProvider } from "../components/header/CompareContext";
 import { ToastContainer } from 'react-toastify';
-
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import 'react-toastify/dist/ReactToastify.css';
 import { Suspense } from "react";
 import { AuthProvider } from "@/components/Context/AuthContext";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
     ],
   },
 };
-
+const CLIENT_ID = "673047498819-mc0couvc6kb1omtiet793s5paps0r27u.apps.googleusercontent.com";
 export default function RootLayout({
   children,
 }: {
@@ -47,7 +48,9 @@ export default function RootLayout({
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>
         <Suspense>
+
           <AuthProvider>
+            <GoogleOAuthProvider clientId={CLIENT_ID}>
             <CompareProvider>
               <WishlistProvider>
                 <CartProvider>
@@ -56,9 +59,10 @@ export default function RootLayout({
                 </CartProvider>
               </WishlistProvider>
             </CompareProvider>
-          </AuthProvider>
-        </Suspense>
-      </body>
-    </html>
+          </GoogleOAuthProvider>
+        </AuthProvider>
+      </Suspense>
+    </body>
+    </html >
   );
 }

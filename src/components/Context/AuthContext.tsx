@@ -24,6 +24,7 @@ type AuthContextType = {
     loginWithEmail: (email: string, password: string) => Promise<void>;
     logout: () => void;
     loginWithToken: (accessToken: string, refreshToken: string) => Promise<void>;
+    loginWithGoogle: (idToken: any) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -91,6 +92,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             throw error;
         }
     };
+    const loginWithGoogle = async (idToken: string) => {
+        try {
+            // Gọi API BE để verify Google token
+            const res = await AuthService.googleLogin(idToken);
+            const { accessToken, refreshToken } = res.data;
+
+            if (!accessToken) throw new Error("Google login failed");
+
+            setToken(accessToken);
+            setStorage(STORAGE.TOKEN, accessToken);
+            if (refreshToken) setStorage(STORAGE.REFRESH_TOKEN, refreshToken);
+
+            // Lấy profile user sau khi login thành công
+            const userRes = await UserService.getProfile();
+            setUser(userRes.data);
+            toast.success("Đăng nhập Google thành công!");
+        } catch (error: any) {
+            toast.error(error?.message || "Đăng nhập Google thất bại");
+            logout();
+            throw error;
+        }
+    };
 
     const logout = () => {
         setToken(null);
@@ -110,7 +133,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             loading,
             loginWithEmail,
             logout,
-            loginWithToken
+            loginWithToken,
+            loginWithGoogle,
         }),
         [token, user, loading]
     );

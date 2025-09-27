@@ -69,12 +69,6 @@ const WishList: React.FC = () => {
                                 />
                             </div>
                         </div>
-                        {total < freeShippingThreshold && (
-                            <p>
-                                Tích lũy thêm <span>${remaining.toFixed(2)}</span> {""}
-                                <span>để được ưu đãi</span>
-                            </p>
-                        )}
                     </div>
 
                     <div className="button-wrapper d-flex align-items-center justify-content-between">

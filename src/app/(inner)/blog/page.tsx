@@ -6,15 +6,22 @@ import ShortService from '@/components/service/ShortService';
 import FooterOne from '@/components/footer/FooterOne';
 import BlogGridMain from './BlogGridMain';
 import Posts from '@/data/Posts.json';
-
-interface PostType {
-    category?: string;
+export interface PostType {
+    id: number;
     slug: string;
-    image: string;
-    title?: string;
-    author?: string;
-    publishedDate?: string;
+    bannerImg: string;          // Ảnh banner chính
+    images: string[];           // Các ảnh bổ sung
+    category: string;
+    title: string;
+    author: string;
+    publishedDate: string;
+    intro?: string;             // Đoạn giới thiệu (optional)
+    paragraph1?: string;
+    quote?: string;
+    paragraph2?: string;
+    conclusion?: string;
 }
+
 
 export default function BlogGridPage() {
     const [currentPage, setCurrentPage] = useState(1);
@@ -65,7 +72,7 @@ export default function BlogGridPage() {
                                 <div className="single-blog-style-card-border">
                                     <BlogGridMain
                                         Slug={post.slug}
-                                        blogImage={post.image}
+                                        blogImage={post.bannerImg}
                                         blogTitle={post.title}
                                     />
                                 </div>

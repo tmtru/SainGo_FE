@@ -41,12 +41,17 @@ const verifyEmail = (token: string) =>
 const resendVerificationEmail = (payload: ResendEmailPayload) =>
     http.post("/api/Login/resend-verification", payload);
 
+const googleLogin = (idToken: any) =>
+    http.post<AuthResponse>("/api/Login/google-login", { idToken });
+
+
 const AuthService = {
     login,
     refreshToken,
     register,
     verifyEmail,
-    resendVerificationEmail
+    resendVerificationEmail,
+    googleLogin
 };
 
 export default AuthService;
