@@ -38,6 +38,7 @@
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.13",
     "@types/crypto-js": "^4.2.2",
     "@types/lodash": "^4.17.17",
     "@types/node": "^20",

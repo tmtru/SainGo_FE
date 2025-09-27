@@ -17217,15 +17217,11 @@ li.with-megamenu:hover .rts-megamenu {
 }
 
 .bg_one-banner {
-  background-image: url(/assets/images/banner/01.webp);
-}
-
-.bg_one-banner {
-  background-image: url(/assets/images/banner/01.webp);
+  background-image: url(/assets/images/banner/10.png);
 }
 
 .bg_one-banner.two {
-  background-image: url(/assets/images/banner/08.webp);
+  background-image: url(/assets/images/banner/11.png);
 }
 
 .category-area-main-wrapper-one {

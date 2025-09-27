@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import ProductDetails from '@/components/modal/ProductDetails';
-import CompareModal from '@/components/modal/CompareModal';
-import { useCart } from '@/components/header/CartContext';
-import { useWishlist } from '@/components/header/WishlistContext';
-import { useCompare } from '@/components/header/CompareContext';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import ProductDetails from "@/components/modal/ProductDetails";
+import CompareModal from "@/components/modal/CompareModal";
+import { useCart } from "@/components/header/CartContext";
+import { useWishlist } from "@/components/header/WishlistContext";
+import { useCompare } from "@/components/header/CompareContext";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface BlogGridMainProps {
   Id: string;
@@ -19,15 +19,15 @@ interface BlogGridMainProps {
   BasePrice?: string;
 }
 
-type ModalType = 'one' | 'two' | 'three' | null;
+type ModalType = "one" | "two" | "three" | null;
 
 const BlogGridMain: React.FC<BlogGridMainProps> = ({
   Id,
   Slug,
   ProductImage,
-  ProductTitle = 'Default Product Title',
-  Price = '0',
-  BasePrice = '0',
+  ProductTitle = "Default Product Title",
+  Price = "0",
+  BasePrice = "0",
 }) => {
   const [productSale, setProductSale] = useState(0);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
@@ -37,7 +37,6 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
   const { addToCart } = useCart();
   const { addToWishlist } = useWishlist();
   const { addToCompare } = useCompare();
-
 
   const handleSalePercentage = (basePrice: string, currentPrice: string) => {
     const base = parseFloat(basePrice);
@@ -52,10 +51,10 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
     try {
       await addToCart({
         productId: Id,
-        productVariantId: '',
+        productVariantId: "",
         quantity: 1,
         unitPrice: parseFloat(Price),
-        cartId: '',
+        cartId: "",
       });
       setAdded(true);
       setTimeout(() => setAdded(false), 3000);
@@ -67,36 +66,36 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
   const handleWishlist = () => {
     addToWishlist({
       id: Id,
-      image: ProductImage?? 'default-image.jpg',
+      image: ProductImage ?? "default-image.jpg",
       title: ProductTitle,
       price: parseFloat(Price),
       quantity: 1,
     });
     setWishlisted(true);
-    toast.success('Đã thêm vào danh sách yêu thích.');
+    toast.success("Đã thêm vào danh sách yêu thích.");
     setTimeout(() => setWishlisted(false), 3000);
   };
 
   const handleCompare = () => {
     addToCompare({
       id: Id,
-      image: ProductImage ?? 'default-image.jpg',
+      image: ProductImage ?? "default-image.jpg",
       name: ProductTitle,
       price: Price,
-      description: 'Mô tả ngắn gọn sản phẩm.',
+      description: "Mô tả ngắn gọn sản phẩm.",
       rating: 5,
       ratingCount: 25,
-      weight: '500g',
+      weight: "500g",
       inStock: true,
     });
   };
 
   useEffect(() => {
-    setProductSale(handleSalePercentage(BasePrice || '0', Price || '0'));
+    setProductSale(handleSalePercentage(BasePrice || "0", Price || "0"));
   }, [BasePrice, Price]);
 
   const formatCurrency = (value: string | number): string =>
-    parseFloat(value.toString()).toLocaleString('vi-VN') + '₫';
+    parseFloat(value.toString()).toLocaleString("vi-VN") + "₫";
 
   return (
     <>
@@ -112,14 +111,17 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
                 <i className="fa-solid fa-bookmark" />
               </div>
             )}
-
-
+            <img
+              src={ProductImage ?? "/assets/images/grocery/default-image.jpg"}
+              alt={ProductTitle}
+              className="w-full h-auto object-cover"
+            />
           </Link>
           <div className="action-share-option">
             <span
               className="single-action openuptip"
               title="Add To Wishlist"
-              onClick={ handleWishlist }
+              onClick={handleWishlist}
             >
               <i className="fa-light fa-heart" />
             </span>
@@ -139,14 +141,12 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
               <i className="fa-regular fa-eye" />
             </span> */}
           </div>
-
         </div>
         <div className="body-content">
           <Link href={`/shop/${Id}`}>
             <h4 className="title">{ProductTitle}</h4>
           </Link>
           <span className="availability">500g Pack</span>
-
 
           {productSale > 0 ? (
             <div className="price-area">
@@ -158,15 +158,14 @@ const BlogGridMain: React.FC<BlogGridMainProps> = ({
               <span className="current">{formatCurrency(BasePrice)}</span>
             </div>
           )}
-
         </div>
       </div>
 
       {/* <CompareModal show={activeModal === 'one'} handleClose={() => setActiveModal(null)} /> */}
       <ProductDetails
-        show={activeModal === 'two'}
+        show={activeModal === "two"}
         handleClose={() => setActiveModal(null)}
-        productImage={ProductImage?? 'default-image.jpg'}
+        productImage={ProductImage ?? "default-image.jpg"}
         productTitle={ProductTitle}
         productPrice={Price}
       />
