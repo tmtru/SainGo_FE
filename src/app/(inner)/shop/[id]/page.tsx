@@ -15,8 +15,11 @@ import 'react-toastify/dist/ReactToastify.css';
 import ProductService, { Product } from '@/data/Services/ProductService';
 import ProductDetails from '@/components/modal/ProductDetails';
 import CustomLoader from '@/components/common/CustomLoader';
-// Import CompareModal nếu bạn sẽ dùng nó
-// import CompareModal from '@/components/modal/CompareModal';
+
+export interface RecipeStep {
+  step: number
+  text: string
+}
 
 type ModalType = 'productDetails' | 'compare' | null;
 
@@ -49,7 +52,7 @@ const CompareElements: React.FC = () => {
       try {
         const response = await ProductService.getProductById(productId);
         setBlogPost(response.data);
-        setActiveImage(response.data.thumbnailUrl);
+        setActiveImage(response.data.imageUrl || '/assets/images/default-product.jpg');
         setQuantity(1);
       } catch (err: any) {
         if (err.response && err.response.data && err.response.data.message) {
@@ -66,10 +69,9 @@ const CompareElements: React.FC = () => {
     fetchProduct();
   }, [productId]);
 
-
-  const handleSalePercentage = (basePrice: number, currentPrice: number) => {
-    if (basePrice > 0 && currentPrice > 0 && basePrice > currentPrice) {
-      const sale = ((basePrice - currentPrice) / basePrice) * 100;
+  const handleSalePercentage = (basePrice: number, salePrice?: number) => {
+    if (basePrice > 0 && salePrice && salePrice > 0 && basePrice > salePrice) {
+      const sale = ((basePrice - salePrice) / basePrice) * 100;
       return Math.round(sale);
     }
     return 0;
@@ -85,19 +87,13 @@ const CompareElements: React.FC = () => {
     const value = parseInt(event.target.value, 10);
     if (isNaN(value) || value < 1) {
       setQuantity(1);
-    } else if (blogPost && value > blogPost.stockQuantity) {
-      setQuantity(blogPost.stockQuantity);
     } else {
       setQuantity(value);
     }
   };
 
   const incrementQuantity = () => {
-    if (blogPost && quantity < blogPost.stockQuantity) {
-      setQuantity((prevQuantity) => prevQuantity + 1);
-    } else if (!blogPost) {
-      setQuantity((prevQuantity) => prevQuantity + 1);
-    }
+    setQuantity((prevQuantity) => prevQuantity + 1);
   };
 
   const decrementQuantity = () => {
@@ -110,19 +106,17 @@ const CompareElements: React.FC = () => {
       return;
     }
 
-    const finalQuantity = Math.min(quantity, blogPost.stockQuantity);
-    if (finalQuantity <= 0) {
+    if (quantity <= 0) {
       toast.error("Số lượng sản phẩm phải lớn hơn 0.");
       return;
     }
 
-
-    const storeId = blogPost.brandId;
+    const storeId = blogPost.brandId || '';
     const itemToAdd = {
       productId: blogPost.id,
       productVariantId: null,
       unitPrice: currentPrice,
-      quantity: finalQuantity,
+      quantity: quantity,
       storeId: storeId,
       cartId: ""
     };
@@ -133,7 +127,6 @@ const CompareElements: React.FC = () => {
       setTimeout(() => setAdded(false), 3000);
     } catch (err) {
       console.error("Lỗi khi thêm sản phẩm vào giỏ hàng:", err);
-
     }
   };
 
@@ -146,7 +139,7 @@ const CompareElements: React.FC = () => {
     addToWishlist({
       id: blogPost.id,
       title: blogPost.name,
-      image: blogPost.thumbnailUrl,
+      image: blogPost.imageUrl || '/assets/images/default-product.jpg',
       price: currentPrice,
       quantity: 1
     });
@@ -163,14 +156,14 @@ const CompareElements: React.FC = () => {
 
     addToCompare({
       id: blogPost.id,
-      image: blogPost.thumbnailUrl,
+      image: blogPost.imageUrl || '/assets/images/default-product.jpg',
       name: blogPost.name,
       price: currentPrice.toString(),
-      description: blogPost.description,
-      rating: blogPost.averageRating,
-      ratingCount: blogPost.totalReviews,
-      weight: blogPost.weight ? blogPost.weight.toString() : 'N/A', // Đảm bảo là string hoặc giá trị mặc định
-      inStock: blogPost.isAvailable,
+      description: blogPost.description || '',
+      rating: 0, // Không có thông tin rating trong interface mới
+      ratingCount: 0, // Không có thông tin rating count trong interface mới
+      weight: blogPost.weight ? blogPost.weight.toString() : 'N/A',
+      inStock: blogPost.isAvailable || false,
     });
     toast.success('Đã thêm vào danh sách so sánh!');
   };
@@ -191,19 +184,13 @@ const CompareElements: React.FC = () => {
     ? blogPost.salePrice
     : blogPost.basePrice;
 
+  // Tạo thumbnails array với imageUrl chính
   const thumbnails = [
     {
       id: 'main',
-      src: blogPost.thumbnailUrl,
+      src: blogPost.imageUrl || '/assets/images/default-product.jpg',
       alt: blogPost.name,
-    },
-    ...(blogPost.imageUrls
-      ? JSON.parse(blogPost.imageUrls).map((url: string, index: number) => ({
-        id: `extra-${index}`,
-        src: url,
-        alt: `${blogPost.name} ảnh phụ ${index + 1}`,
-      }))
-      : []),
+    }
   ];
 
   const formatCurrency = (value: number): string =>
@@ -264,12 +251,11 @@ const CompareElements: React.FC = () => {
 
                         <div className="contents">
                           <div className="product-status">
-                            {/* <span className="product-catagory">Category Placeholder</span> */}
                             <div className="rating-stars-group">
                               <div className="rating-star"><i className="fas fa-star" /></div>
                               <div className="rating-star"><i className="fas fa-star" /></div>
                               <div className="rating-star"><i className="fas fa-star-half-alt" /></div>
-                              <span>{blogPost.totalReviews} Đánh giá ({blogPost.averageRating.toFixed(1)}/5)</span>
+                              <span>Chưa có đánh giá</span>
                             </div>
                           </div>
                           <h2 className="product-title">{blogPost.name}</h2>
@@ -280,7 +266,6 @@ const CompareElements: React.FC = () => {
                               <span className="old-price ml--15">{formatCurrency(blogPost.basePrice)}</span>
                             )}
                           </span>
-
 
                           <div className="quantity-area-shop-details">
                             <label htmlFor="quantity">Số lượng:</label>
@@ -300,29 +285,26 @@ const CompareElements: React.FC = () => {
                                 value={quantity}
                                 onChange={handleQuantityChange}
                                 min="1"
-                                max={blogPost.stockQuantity}
                                 className="qty-input" />
                               <button
                                 type="button"
                                 className="qty-increase"
                                 onClick={incrementQuantity}
-                                disabled={quantity >= blogPost.stockQuantity}
                               >
                                 <i className="far fa-plus" />
                               </button>
                             </div>
                           </div>
 
-
                           <div className="product-bottom-action">
                             <button
                               className="rts-btn btn-primary radious-sm with-icon"
                               onClick={handleAdd}
                               type="button"
-                              disabled={blogPost.stockQuantity === 0}
+                              disabled={!blogPost.isAvailable}
                             >
                               <div className="btn-text">
-                                {blogPost.stockQuantity === 0 ? "Hết hàng" : "Thêm vào giỏ hàng"}
+                                {!blogPost.isAvailable ? "Hết hàng" : "Thêm vào giỏ hàng"}
                               </div>
                               <div className="arrow-icon"><i className="fa-regular fa-cart-shopping" /></div>
                               <div className="arrow-icon"><i className="fa-regular fa-cart-shopping" /></div>
@@ -330,14 +312,15 @@ const CompareElements: React.FC = () => {
                           </div>
 
                           <div className="product-uniques">
-                            <span className="tags product-unipue mb--10"><strong>Trọng lượng:</strong> {blogPost.weight} </span>
-                            <span className="tags product-unipue mb--10"><strong>Kích thước:</strong> {blogPost.dimensions}</span>
+                            <span className="tags product-unipue mb--10"><strong>Trọng lượng:</strong> {blogPost.weight} {blogPost.unit}</span>
                             <span className="tags product-unipue mb--10"><strong>Kích cỡ đơn vị:</strong> {blogPost.unitSize}</span>
-                            {blogPost.expiryDate && (
-                              <span className="tags product-unipue mb--10"><strong>Ngày hết hạn:</strong> {new Date(blogPost.expiryDate).toLocaleDateString()}</span>
-                            )}
-                            <span className="tags product-unipue mb--10"><strong>Tồn kho:</strong> {blogPost.stockQuantity}</span>
+                            <span className="tags product-unipue mb--10"><strong>SKU:</strong> {blogPost.sku}</span>
                             <span className="tags product-unipue mb--10"><strong>Có sẵn:</strong> {blogPost.isAvailable ? 'Có' : 'Không'}</span>
+                            <span className="tags product-unipue mb--10"><strong>Hữu cơ:</strong> {blogPost.isOrganic ? 'Có' : 'Không'}</span>
+                            <span className="tags product-unipue mb--10"><strong>Chay:</strong> {blogPost.isVegetarian ? 'Có' : 'Không'}</span>
+                            {blogPost.isGlutenFree && (
+                              <span className="tags product-unipue mb--10"><strong>Không gluten:</strong> Có</span>
+                            )}
                           </div>
 
                           <div className="share-option-shop-details">
@@ -352,6 +335,7 @@ const CompareElements: React.FC = () => {
                     </div>
                   </div>
                 </div>
+
                 <div className="product-discription-tab-shop mt--50">
                   <ul className="nav nav-tabs" id="myTab" role="tablist">
                     <li className="nav-item" role="presentation">
@@ -365,23 +349,23 @@ const CompareElements: React.FC = () => {
                       <button
                         onClick={() => setActiveTab('tab2')}
                         className={`nav-link ${activeTab === 'tab2' ? 'active' : ''}`}>
-                        Thông tin bổ sung
+                        Thông tin dinh dưỡng
                       </button>
                     </li>
                     <li className="nav-item" role="presentation">
                       <button
                         onClick={() => setActiveTab('tab3')}
                         className={`nav-link ${activeTab === 'tab3' ? 'active' : ''}`}>
-                        Đánh giá khách hàng ({blogPost.totalReviews})
+                        Thành phần & Công thức
                       </button>
                     </li>
                   </ul>
                   <div className="tab-content" id="myTabContent">
-                    {activeTab === 'tab1' &&
+                    {activeTab === 'tab1' && (
                       <div>
                         <div className="single-tab-content-shop-details">
                           <p className="disc">
-                            {blogPost.description.split('\n').map((line, index) => (
+                            {blogPost.description?.split('\n').map((line, index) => (
                               <React.Fragment key={index}>
                                 {line}
                                 <br />
@@ -389,116 +373,126 @@ const CompareElements: React.FC = () => {
                             ))}
                           </p>
 
+                          {blogPost.healthBenefits && blogPost.healthBenefits.length > 0 && (
+                            <div className="mt--30">
+                              <h5>Lợi ích sức khỏe:</h5>
+                              <ul>
+                                {blogPost.healthBenefits.map((benefit, index) => (
+                                  <li key={index}>{benefit}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {blogPost.reheatingInstructions && (
+                            <div className="mt--30">
+                              <h5>Hướng dẫn hâm nóng:</h5>
+                              <p>{blogPost.reheatingInstructions}</p>
+                            </div>
+                          )}
                         </div>
-                      </div>}
-                    {activeTab === 'tab2' &&
+                      </div>
+                    )}
+
+                    {activeTab === 'tab2' && (
                       <div>
                         <div className="single-tab-content-shop-details">
                           <div className="table-responsive table-shop-details-pd">
                             <table className="table">
                               <thead>
                                 <tr>
-                                  <th>Thuộc tính</th>
+                                  <th>Thành phần dinh dưỡng (trên 100g)</th>
                                   <th>Giá trị</th>
                                 </tr>
                               </thead>
                               <tbody>
+                                {blogPost.caloriesPer100g && (
+                                  <tr>
+                                    <td>Calories</td>
+                                    <td>{blogPost.caloriesPer100g} kcal</td>
+                                  </tr>
+                                )}
+                                {blogPost.proteinPer100g && (
+                                  <tr>
+                                    <td>Protein</td>
+                                    <td>{blogPost.proteinPer100g}g</td>
+                                  </tr>
+                                )}
+                                {blogPost.carbsPer100g && (
+                                  <tr>
+                                    <td>Carbohydrate</td>
+                                    <td>{blogPost.carbsPer100g}g</td>
+                                  </tr>
+                                )}
+                                {blogPost.fatPer100g && (
+                                  <tr>
+                                    <td>Chất béo</td>
+                                    <td>{blogPost.fatPer100g}g</td>
+                                  </tr>
+                                )}
                                 <tr>
                                   <td>Khối lượng</td>
                                   <td>{blogPost.weight} {blogPost.unit}</td>
                                 </tr>
                                 <tr>
-                                  <td>Kích thước</td>
-                                  <td>{blogPost.dimensions}</td>
-                                </tr>
-                                <tr>
-                                  <td>Thương hiệu</td>
-                                  <td>{blogPost.brandId}</td>
-                                </tr>
-                                <tr>
                                   <td>Đơn vị</td>
                                   <td>{blogPost.unitSize}</td>
-                                </tr>
-                                {blogPost.expiryDate && (
-                                  <tr>
-                                    <td>Ngày hết hạn</td>
-                                    <td>{new Date(blogPost.expiryDate).toLocaleDateString()}</td>
-                                  </tr>
-                                )}
-                                <tr>
-                                  <td>Tồn kho</td>
-                                  <td>{blogPost.stockQuantity}</td>
                                 </tr>
                               </tbody>
                             </table>
                           </div>
-                          <p className="cansellation mt--20">
-                            <span> Trả hàng/hủy:</span> Không thay đổi sẽ được
-                            áp dụng đối với các sản phẩm đã giao cho khách hàng. Nếu
-                            phát hiện vấn đề về chất lượng hoặc số lượng sản phẩm thì khách hàng có thể
-                            trả hàng/hủy đơn hàng tại thời điểm giao hàng với sự hiện diện của
-                            người giao hàng.
-                          </p>
-                          <p className="note">
-                            <span>Lưu ý:</span> Thời gian giao hàng có thể thay đổi do
-                            sản phẩm có sẵn trong kho.
-                          </p>
-                        </div>
-                      </div>}
 
-                    {activeTab === 'tab3' &&
+                          {blogPost.allergens && (
+                            <div className="mt--20">
+                              <p className="allergens">
+                                <span>Chất gây dị ứng:</span> {blogPost.allergens}
+                              </p>
+                            </div>
+                          )}
+
+                          {blogPost.nutritionHighlights && (
+                            <div className="mt--20">
+                              <p className="nutrition-highlights">
+                                <span>Điểm nổi bật về dinh dưỡng:</span> {blogPost.nutritionHighlights}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {activeTab === 'tab3' && (
                       <div>
                         <div className="single-tab-content-shop-details">
-                          <div className="product-details-review-product-style">
-                            <div className="average-stars-area-left">
-                              <div className="top-stars-wrapper">
-                                <h4 className="review">{blogPost.averageRating.toFixed(1)}</h4>
-                                <div className="rating-disc">
-                                  <span>Đánh giá trung bình</span>
-                                  <div className="stars">
-                                    {Array.from({ length: 5 }).map((_, i) => (
-                                      <i key={i} className={`fa-solid fa-star ${i < Math.floor(blogPost.averageRating) ? '' : (i === Math.floor(blogPost.averageRating) && blogPost.averageRating % 1 !== 0 ? 'fa-star-half-alt' : 'fa-regular fa-star')}`} />
-                                    ))}
-                                    <span>({blogPost.totalReviews} Đánh giá)</span>
-                                  </div>
-                                </div>
-                              </div>
+                          {blogPost.ingredients && blogPost.ingredients.length > 0 && (
+                            <div className="mb--30">
+                              <h5>Thành phần:</h5>
+                              <ul>
+                                {blogPost.ingredients.map((ingredient, index) => (
+                                  <li key={index}>{ingredient}</li>
+                                ))}
+                              </ul>
                             </div>
-                            <div className="submit-review-area">
-                              <form action="#" className="submit-review-area">
-                                <h5 className="title">Gửi đánh giá của bạn</h5>
-                                <div className="your-rating">
-                                  <span>Đánh giá của bạn về sản phẩm này:</span>
-                                  <div className="stars">
-                                    <i className="fa-solid fa-star" />
-                                    <i className="fa-solid fa-star" />
-                                    <i className="fa-solid fa-star" />
-                                    <i className="fa-solid fa-star" />
-                                    <i className="fa-solid fa-star" />
-                                  </div>
-                                </div>
-                                <div className="half-input-wrapper">
-                                  <div className="half-input">
-                                    <input type="text" placeholder="Tên của bạn*" />
-                                  </div>
-                                  <div className="half-input">
-                                    <input type="text" placeholder="Email của bạn *" />
-                                  </div>
-                                </div>
-                                <textarea
-                                  name="#"
-                                  id="#"
-                                  placeholder="Viết đánh giá của bạn"
-                                  defaultValue={""}
-                                />
-                                <button className="rts-btn btn-primary">
-                                  GỬI ĐÁNH GIÁ
-                                </button>
-                              </form>
+                          )}
+
+                          {blogPost.recipeSteps && blogPost.recipeSteps.length > 0 && (
+                            <div className="mb--30">
+                              <h5>Công thức chế biến:</h5>
+                              <ol>
+                                {blogPost.recipeSteps
+                                  .sort((a, b) => a.step - b.step)
+                                  .map((step) => (
+                                    <li key={step.step}>
+                                      <strong>Bước {step.step}:</strong> {step.text}
+                                    </li>
+                                  ))
+                                }
+                              </ol>
                             </div>
-                          </div>
+                          )}
                         </div>
-                      </div>}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -509,11 +503,11 @@ const CompareElements: React.FC = () => {
                     <h6 className="title">Ưu đãi có sẵn</h6>
                     <div className="single-offer-area">
                       <div className="icon"><img src="/assets/images/shop/01.svg" alt="icon" /></div>
-                      <div className="details"><p>Giảm giá 5% ngay lập tức cho Đơn hàng Flipkart đầu tiên bằng Ekomart UPI</p></div>
+                      <div className="details"><p>Giảm giá 5% ngay lập tức cho Đơn hàng đầu tiên</p></div>
                     </div>
                     <div className="single-offer-area">
                       <div className="icon"><img src="/assets/images/shop/02.svg" alt="icon" /></div>
-                      <div className="details"><p>Giảm giá cố định $250 cho các Giao dịch trả góp bằng thẻ tín dụng Citi trên $30</p></div>
+                      <div className="details"><p>Giảm giá cố định cho các giao dịch trả góp bằng thẻ tín dụng</p></div>
                     </div>
                     <div className="single-offer-area">
                       <div className="icon"><img src="/assets/images/shop/03.svg" alt="icon" /></div>
@@ -531,20 +525,16 @@ const CompareElements: React.FC = () => {
         </div>
       </div>
 
-      {/* <RelatedProduct />
-      <ShortService /> */}
       <FooterOne />
       <ToastContainer />
 
       <ProductDetails
         show={activeModal === 'productDetails'}
         handleClose={handleCloseModal}
-        productImage={blogPost.thumbnailUrl}
+        productImage={blogPost.imageUrl || '/assets/images/default-product.jpg'}
         productTitle={blogPost.name}
         productPrice={currentPrice.toString()}
       />
-      {/* Uncomment và import CompareModal nếu bạn đã tạo component này */}
-      {/* <CompareModal show={activeModal === 'compare'} handleClose={handleCloseModal} /> */}
     </div>
   );
 };

@@ -24,6 +24,10 @@ export interface Order {
     statusId?: string;
     createdAt?: string;
     deliveryAddress?: UserAddress;
+    orderType?: string;
+    requestedDeliveryTime?: string; // ISO format, e.g. "2025-07-27T11:34:55.126Z"
+    PreferredTimeSlot?: string; // e.g. "Morning", "Afternoon", "Evening"
+
 }
 export interface ChangeOrderStatus {
     statusId: string;

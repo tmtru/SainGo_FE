@@ -8,10 +8,22 @@ import { useAuth } from '@/components/Context/AuthContext';
 import { toast } from 'react-toastify';
 import CustomLoader from '@/components/common/CustomLoader';
 import Link from 'next/link';
+import Script from 'next/script';
+import { GoogleLogin } from '@react-oauth/google';
+import Image from 'next/image';
+// global.d.ts
+declare global {
+  interface Window {
+    google: any;
+  }
+  const google: any;
+}
+
+export { };
 
 export default function LoginPage() {
   const router = useRouter();
-  const { loginWithEmail, isAuthenticated, loading: authLoading } = useAuth();
+  const { loginWithEmail, isAuthenticated, loading: authLoading, loginWithGoogle } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -66,97 +78,123 @@ export default function LoginPage() {
     setShowPassword(!showPassword);
   };
 
+
   if (authLoading) return <div className="text-center py-10"><CustomLoader /></div>;
 
   return (
-    <div className="demo-one">
-      <HeaderOne />
+    <>
+    <Script
+        src="https://accounts.google.com/gsi/client"
+        strategy="afterInteractive"
+      />
+      <div className="demo-one">
+        <HeaderOne />
 
-      <div className="rts-navigation-area-breadcrumb bg_light-1">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="navigator-breadcrumb-wrapper">
-                <a href="/">Trang chủ</a>
-                <i className="fa-regular fa-chevron-right" />
-                <a className="current" href="/login">Log In</a>
+        <div className="rts-navigation-area-breadcrumb bg_light-1">
+          <div className="container">
+            <div className="row">
+              <div className="col-lg-12">
+                <div className="navigator-breadcrumb-wrapper">
+                  <a href="/">Trang chủ</a>
+                  <i className="fa-regular fa-chevron-right" />
+                  <a className="current" href="/login">Log In</a>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="rts-register-area rts-section-gap bg_light-1">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="registration-wrapper-1">
-                <div className="logo-area mb--0">
-                  <img className="mb--10" src="/assets/images/logo/fav.png" alt="logo" />
-                </div>
-                <h3 className="title">Đăng nhập tài khoản</h3>
-                <form onSubmit={handleLogin} className="registration-form">
-                  <div className="input-wrapper">
-                    <label htmlFor="email">Email*</label>
-                    <input
-                      type="email"
-                      id="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
+        <div className="rts-register-area rts-section-gap bg_light-1">
+          <div className="container">
+            <div className="row">
+              <div className="col-lg-12">
+                <div className="registration-wrapper-1">
+                  <div className="logo-area mb--0">
+                    <Image
+                      src="/assets/images/logo/fav.png"
+                      alt="logo"
+                      width={150} // chiều rộng mong muốn
+                      height={150} // height auto tỷ lệ => bạn có thể tính hoặc dùng 150 để vuông
+                      className="mb--10"
                     />
-                    {errors.email && <small className="text-danger">{errors.email}</small>}
                   </div>
-                  <div className="input-wrapper">
-                    <label htmlFor="password">Mật khẩu*</label>
-                    <div className="password-input-wrapper" style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
+
+                  <h3 className="title">Đăng nhập tài khoản</h3>
+                  <form onSubmit={handleLogin} className="registration-form">
+                    <div className="input-wrapper">
+                      <label htmlFor="email">Email*</label>
                       <input
-                        type={showPassword ? "text" : "password"}
-                        id="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        type="email"
+                        id="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
-                        style={{ paddingRight: '45px', width: '100%' }}
                       />
-                      <span
-                        onClick={togglePasswordVisibility}
-                        className="password-toggle-btn"
-                        style={{
-                          position: 'absolute',
-                          right: '12px',
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          cursor: 'pointer',
-                          padding: '5px',
-                          fontSize: '16px',
-                          color: '#666',
-                          zIndex: 10,
-                          userSelect: 'none',
-                          lineHeight: '1'
-                        }}
-                        title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                      >
-                        <i className={showPassword ? "fa-regular fa-eye-slash" : "fa-regular fa-eye"}></i>
-                      </span>
+                      {errors.email && <small className="text-danger">{errors.email}</small>}
                     </div>
-                    {errors.password && <small className="text-danger">{errors.password}</small>}
-                  </div>
-
-                  {formError && <div className="text-danger mb-3 d-flex">{formError}</div>}
-
-                  <button
-                    type="submit"
-                    className="rts-btn btn-primary"
-                    disabled={formLoading || authLoading}
-                  >
-                    {formLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-                  </button>
-
-                  <div className="another-way-to-registration mt-4">
-                    <div className="registradion-top-text">
-                      {/* <span>Hoặc đăng nhập bằng</span> */}
+                    <div className="input-wrapper">
+                      <label htmlFor="password">Mật khẩu*</label>
+                      <div className="password-input-wrapper" style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          id="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          style={{ paddingRight: '45px', width: '100%' }}
+                        />
+                        <span
+                          onClick={togglePasswordVisibility}
+                          className="password-toggle-btn"
+                          style={{
+                            position: 'absolute',
+                            right: '12px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            cursor: 'pointer',
+                            padding: '5px',
+                            fontSize: '16px',
+                            color: '#666',
+                            zIndex: 10,
+                            userSelect: 'none',
+                            lineHeight: '1'
+                          }}
+                          title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                        >
+                          <i className={showPassword ? "fa-regular fa-eye-slash" : "fa-regular fa-eye"}></i>
+                        </span>
+                      </div>
+                      {errors.password && <small className="text-danger">{errors.password}</small>}
                     </div>
-                    {/* <div className="login-with-brand">
+
+                    {formError && <div className="text-danger mb-3 d-flex">{formError}</div>}
+
+                    <button
+                      type="submit"
+                      className="rts-btn btn-primary"
+                      disabled={formLoading || authLoading}
+                    >
+                      {formLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                    </button>
+
+                    <div className="another-way-to-registration mt-4">
+                      <div className="registradion-top-text">
+                        <span>OR</span>
+                      </div>
+                      <div>
+                        <GoogleLogin
+                          onSuccess={async (credentialResponse) => {
+                            const idToken = credentialResponse.credential;
+                            await loginWithGoogle(idToken);
+                            router.replace("/");
+                          }}
+                          onError={() => {
+                            toast.error("Đăng nhập bằng Google thất bại. Vui lòng thử lại.");
+                          }}
+                          useOneTap
+                        />
+                      </div>
+                      {/* <div className="login-with-brand">
                       <a href="#" className="single">
                         <img src="/assets/images/form/google.svg" alt="google" />
                       </a>
@@ -164,18 +202,22 @@ export default function LoginPage() {
                         <img src="/assets/images/form/facebook.svg" alt="facebook" />
                       </a>
                     </div> */}
-                    <p className="mt-3">
-                      Chưa có tài khoản? <Link href="/register">Đăng ký</Link>
-                    </p>
-                  </div>
-                </form>
+
+
+                      <p className="mt-5">
+                        Chưa có tài khoản? <Link href="/register">Đăng ký</Link>
+                      </p>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <FooterOne />
-    </div>
+        <FooterOne />
+      </div>
+    </>
+
   );
 }

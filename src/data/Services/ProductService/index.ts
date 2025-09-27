@@ -1,30 +1,56 @@
 import http from "../axios/index"
 
+export interface RecipeStep {
+    step: number
+    text: string
+}
+
 export interface Product {
     id: string
-    mainCategoryId?: string
+    mainCategoryId: string
     subCategoryId?: string
+    brandId?: string
+
     name: string
     slug: string
-    thumbnailUrl: string
-    shortDescription: string
-    salePrice: number
+    description?: string
+    shortDescription?: string
+    sku?: string
+
     basePrice: number
-    stockQuantity: number
-    isAvailable: boolean
-    isFeatured: boolean
-    averageRating: number
-    totalReviews: number
-    createdAt: string
-    description: string
-    imageUrls: string
-    weight: number
-    dimensions: string
+    salePrice?: number
+    costPrice?: number
+
+    weight?: number
     unit: string
-    unitSize: string
-    brandId: string
-    expiryDate?: Date
+    unitSize?: string
+    lowStockThreshold?: number
+
+    isAvailable?: boolean
+    isFeatured?: boolean
+    isOrganic?: boolean
+    isVegetarian?: boolean
+    isVegan?: boolean
+    isGlutenFree?: boolean
+
+    createdAt?: string
+    updatedAt?: string
+    deletedAt?: string
+
+    allergens?: string
+    caloriesPer100g?: number
+    proteinPer100g?: number
+    carbsPer100g?: number
+    fatPer100g?: number
+
+    imageUrl?: string
+    nutritionHighlights?: string
+    ingredients: string[]
+    recipeSteps: RecipeStep[]
+    healthBenefits: string[]
+    reheatingInstructions?: string
 }
+
 
 export interface ProductFilterDto {
     storeId?: string

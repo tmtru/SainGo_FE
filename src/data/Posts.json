@@ -1,167 +1,74 @@
 [
     {
         "id": 1,
-        "slug": "profitable-business-makes-your-profit-Best-Solution",
-        "image": "05.jpg",
-        "bannerImg": "05.jpg",
-        "category": "Business Solution",
-        "title": "Profitable business makes your profit Best Solution",
-        "author": "David Smith",
-        "publishedDate": "15 Jan, 2023",
-        "descripTion": "Collaboratively pontificate bleeding edge resources with inexpensive methodologies globally initiate multidisciplinary compatible architectures pidiously repurpose leading edge growth strategies with just in time web readiness communicate timely meta services."
+        "slug": "bua-sang-hoan-hao-cho-nguoi-tap-gym",
+        "bannerImg": "gym-breakfast-banner.jpg",
+        "images": [
+            "gym-breakfast-1.jpg",
+            "gym-breakfast-2.jpg"
+        ],
+        "category": "Dinh Dưỡng Thể Thao",
+        "title": "Bữa Sáng Hoàn Hảo Cho Người Tập Gym: Năng Lượng Bền Bỉ",
+        "author": "Anna Nguyen",
+        "publishedDate": "22 Nov, 2024",
+        "intro": "Bữa sáng là 'chìa khóa' quyết định hiệu suất tập luyện của bạn trong suốt buổi sáng. Một bữa ăn cân bằng không chỉ cung cấp năng lượng tức thì mà còn hỗ trợ quá trình phục hồi cơ bắp diễn ra hiệu quả ngay từ những giờ đầu tiên của ngày mới.",
+        "paragraph1": "Để tối ưu hóa buổi tập, bữa sáng nên là sự kết hợp của carbohydrate phức hợp (để duy trì năng lượng) và protein chất lượng cao (để ngăn ngừa dị hóa cơ). Yến mạch, chuối, trứng và whey protein là những lựa chọn hàng đầu được các chuyên gia thể hình khuyên dùng.",
+        "quote": "“Đừng bao giờ bỏ qua bữa sáng tập luyện. Nó không chỉ là nhiên liệu, mà còn là tín hiệu cho cơ thể bắt đầu quá trình đồng hóa và phục hồi cơ bắp.”",
+        "paragraph2": "Ngoài ra, đừng quên bổ sung chất béo lành mạnh như hạt chia, hạt óc chó, hoặc bơ. Chất béo giúp cơ thể hấp thụ các vitamin tan trong dầu (A, D, E, K) và hỗ trợ sản xuất hormone, vốn rất quan trọng cho sự phát triển cơ bắp và sức bền tổng thể.",
+        "conclusion": "Việc chuẩn bị bữa sáng không cần phức tạp. Chỉ 15 phút với yến mạch ngâm qua đêm hoặc một bữa trứng ốp la đơn giản cũng đủ để bạn có một ngày tập luyện bùng nổ và đạt được mục tiêu thể hình đã đề ra."
     },
     {
         "id": 2,
-        "slug": "details-profitable-business-makes-your-profit",
-        "image": "06.jpg",
-        "bannerImg": "06.jpg",
-        "category": "Business Solution",
-        "title": "Details Profitable business makes your profit",
-        "author": "David Smith",
-        "publishedDate": "15 Jan, 2023",
-        "descripTion": "Collaboratively pontificate bleeding edge resources with inexpensive methodologies globally initiate multidisciplinary compatible architectures pidiously repurpose leading edge growth strategies with just in time web readiness communicate timely meta services."
+        "slug": "5-loi-ich-cua-thuc-pham-huu-co",
+        "bannerImg": "organic-benefits-banner.jpg",
+        "images": [
+            "organic-benefits-1.jpg",
+            "organic-benefits-2.jpg"
+        ],
+        "category": "Sống Khỏe (Healthy Living)",
+        "title": "5 Lợi Ích Tuyệt Vời Của Thực Phẩm Hữu Cơ (Organic)",
+        "author": "Dr. Tran",
+        "publishedDate": "10 Dec, 2024",
+        "intro": "Thực phẩm hữu cơ, hay Organic, không chỉ là một xu hướng mà là một lựa chọn nghiêm túc về sức khỏe và môi trường. Việc sản xuất Organic nghiêm ngặt loại bỏ việc sử dụng hóa chất độc hại, mang lại nhiều lợi ích bất ngờ cho người tiêu dùng.",
+        "paragraph1": "Lợi ích lớn nhất là giảm thiểu tiếp xúc với thuốc trừ sâu và thuốc diệt cỏ. Các nghiên cứu đã chỉ ra mối liên hệ giữa việc tiêu thụ thực phẩm phi hữu cơ với dư lượng thuốc trừ sâu, có thể ảnh hưởng đến hệ thần kinh và hormone trong cơ thể theo thời gian.",
+        "quote": "“Ăn uống hữu cơ là một cách đầu tư dài hạn vào hệ miễn dịch của chính bạn. Bạn chọn chất lượng thay vì số lượng.”",
+        "paragraph2": "Thứ hai, nhiều nghiên cứu cho thấy rau quả hữu cơ có hàm lượng chất chống oxy hóa cao hơn đáng kể so với sản phẩm thông thường. Điều này giúp cơ thể chống lại các gốc tự do, làm chậm quá trình lão hóa và giảm nguy cơ mắc bệnh mãn tính. Thứ ba là hương vị; do được trồng trong đất giàu dinh dưỡng và không bị thúc ép tăng trưởng nhanh, sản phẩm hữu cơ thường có hương vị tự nhiên và đậm đà hơn.",
+        "conclusion": "Bằng cách chọn thực phẩm hữu cơ, chúng ta không chỉ chăm sóc sức khỏe cá nhân mà còn ủng hộ phương pháp canh tác bền vững, giúp bảo vệ đa dạng sinh học và nguồn nước sạch cho thế hệ tương lai."
     },
     {
         "id": 3,
-        "slug": "one-Profitable-business-makes-your-profit",
-        "image": "07.jpg",
-        "bannerImg": "07.jpg",
-        "category": "Business Solution",
-        "title": "One Profitable business makes your profit",
-        "author": "David Smith",
-        "publishedDate": "15 Jan, 2023",
-        "descripTion": "Collaboratively pontificate bleeding edge resources with inexpensive methodologies globally initiate multidisciplinary compatible architectures pidiously repurpose leading edge growth strategies with just in time web readiness communicate timely meta services."
+        "slug": "len-thuc-don-giam-can-ben-vung",
+        "bannerImg": "sustainable-weightloss-banner.jpg",
+        "images": [
+            "sustainable-weightloss-1.jpg",
+            "sustainable-weightloss-2.jpg"
+        ],
+        "category": "Kiểm Soát Cân Nặng",
+        "title": "Lên Thực Đơn Giảm Cân Bền Vững: Không Cần Nhịn Ăn Khổ Sở",
+        "author": "Anna Nguyen",
+        "publishedDate": "05 Jan, 2025",
+        "intro": "Giảm cân bền vững không phải là một chế độ ăn kiêng hà khắc, mà là một sự thay đổi lối sống. Mục tiêu là tạo ra sự thâm hụt calo nhẹ nhàng, có thể duy trì được, thay vì nhịn ăn gây căng thẳng và làm chậm quá trình trao đổi chất.",
+        "paragraph1": "Nguyên tắc cốt lõi là 'Calo In < Calo Out'. Thay vì cắt giảm triệt để, hãy tập trung vào việc tăng cường thực phẩm giàu chất xơ (rau xanh, ngũ cốc nguyên hạt) và protein nạc. Chất xơ giúp bạn no lâu hơn, trong khi protein duy trì khối lượng cơ bắp, giữ cho quá trình trao đổi chất của bạn luôn hoạt động.",
+        "quote": "“Sự nhất quán quan trọng hơn sự hoàn hảo. Thay vì cố gắng ăn kiêng hoàn hảo trong một tuần, hãy ăn uống lành mạnh 80% thời gian trong suốt cả năm.”",
+        "paragraph2": "Bí quyết là kiểm soát khẩu phần và học cách lắng nghe cơ thể. Hãy sử dụng đĩa nhỏ hơn, ăn chậm và chia bữa ăn thành 5-6 bữa nhỏ thay vì 3 bữa lớn. Việc này giúp ổn định đường huyết, giảm cảm giác đói đột ngột và ngăn chặn việc ăn quá nhiều trong bữa chính.",
+        "conclusion": "Giảm cân bền vững đòi hỏi sự kiên nhẫn và linh hoạt. Hãy cho phép bản thân những 'bữa ăn tự do' hợp lý và tập trung vào việc xây dựng thói quen ăn uống tích cực mà bạn có thể duy trì trọn đời, không chỉ trong vài tháng."
     },
     {
         "id": 4,
-        "slug": "me-profitable-business-makes-your-profit",
-        "image": "08.jpg",
-        "bannerImg": "08.jpg",
-        "category": "Business Solution",
-        "title": "Me Profitable business makes your profit",
-        "author": "David Smith",
-        "publishedDate": "15 Jan, 2023",
-        "descripTion": "Collaboratively pontificate bleeding edge resources with inexpensive methodologies globally initiate multidisciplinary compatible architectures pidiously repurpose leading edge growth strategies with just in time web readiness communicate timely meta services."
-    },
-    {
-        "id": 5,
-        "slug": "details-business-makes-your-profit",
-        "image": "09.jpg",
-        "bannerImg": "09.jpg",
-        "category": "Business",
-        "title": "Details business makes your profit",
-        "author": "David Smith",
-        "publishedDate": "15 Jan, 2023",
-        "descripTion": "Collaboratively pontificate bleeding edge resources with inexpensive methodologies globally initiate multidisciplinary compatible architectures pidiously repurpose leading edge growth strategies with just in time web readiness communicate timely meta services."
-    },
-    {
-        "id": 6,
-        "slug": "firebase-business-makes-your-profit",
-        "image": "10.jpg",
-        "bannerImg": "10.jpg",
-        "category": "Business",
-        "title": "Firebase business makes your profit",
-        "author": "David Smith",
-        "publishedDate": "15 Jan, 2023",
-        "descripTion": "Collaboratively pontificate bleeding edge resources with inexpensive methodologies globally initiate multidisciplinary compatible architectures pidiously repurpose leading edge growth strategies with just in time web readiness communicate timely meta services."
-    },
-    {
-        "id": 7,
-        "slug": "netlyfy-business-makes-your-profit",
-        "image": "11.jpg",
-        "bannerImg": "11.jpg",
-        "category": "Business",
-        "title": "Netlyfy business makes your profit",
-        "author": "David Smith",
-        "publishedDate": "15 Jan, 2023",
-        "descripTion": "Collaboratively pontificate bleeding edge resources with inexpensive methodologies globally initiate multidisciplinary compatible architectures pidiously repurpose leading edge growth strategies with just in time web readiness communicate timely meta services."
-    },
-    {
-        "id": 8,
-        "slug": "profitable-business-makes-your-profit",
-        "image": "12.jpg",
-        "bannerImg": "12.jpg",
-        "category": "Business",
-        "title": "Profitable business makes your profit",
-        "author": "David Smith",
-        "publishedDate": "15 Jan, 2023",
-        "descripTion": "Collaboratively pontificate bleeding edge resources with inexpensive methodologies globally initiate multidisciplinary compatible architectures pidiously repurpose leading edge growth strategies with just in time web readiness communicate timely meta services."
-    },
-    {
-        "id": 9,
-        "slug": "firebase-business-makes-your-profit",
-        "image": "10.jpg",
-        "bannerImg": "10.jpg",
-        "category": "Business",
-        "title": "Firebase business makes your profit",
-        "author": "David Smith",
-        "publishedDate": "15 Jan, 2023",
-        "descripTion": "Collaboratively pontificate bleeding edge resources with inexpensive methodologies globally initiate multidisciplinary compatible architectures pidiously repurpose leading edge growth strategies with just in time web readiness communicate timely meta services."
-    },
-    {
-        "id": 10,
-        "slug": "netlyfy-business-makes-your-profit",
-        "image": "11.jpg",
-        "bannerImg": "11.jpg",
-        "category": "Business",
-        "title": "Netlyfy business makes your profit",
-        "author": "David Smith",
-        "publishedDate": "15 Jan, 2023",
-        "descripTion": "Collaboratively pontificate bleeding edge resources with inexpensive methodologies globally initiate multidisciplinary compatible architectures pidiously repurpose leading edge growth strategies with just in time web readiness communicate timely meta services."
-    },
-    {
-        "id": 11,
-        "slug": "profitable-business-makes-your-profit",
-        "image": "12.jpg",
-        "bannerImg": "12.jpg",
-        "category": "Business",
-        "title": "Profitable business makes your profit",
-        "author": "David Smith",
-        "publishedDate": "15 Jan, 2023",
-        "descripTion": "Collaboratively pontificate bleeding edge resources with inexpensive methodologies globally initiate multidisciplinary compatible architectures pidiously repurpose leading edge growth strategies with just in time web readiness communicate timely meta services."
-    },
-    {
-        "id": 12,
-        "slug": "Shion-Fixation-Fueling-Your-Passion-for-All-Things-Stylish",
-        "image": "01.jpg",
-        "bannerImg": "01.jpg",
-        "category": "Business",
-        "title": "Shion Fixation: Fueling Your Passion for All Things Stylish",
-        "author": "David Smith",
-        "publishedDate": "15 Jan, 2023",
-        "descripTion": "Collaboratively pontificate bleeding edge resources with inexpensive methodologies globally initiate multidisciplinary compatible architectures pidiously repurpose leading edge growth strategies with just in time web readiness communicate timely meta services."
-    },
-    {
-        "id": 13,
-        "slug": "ashion-fixation-fueling-your-passion-for-all-things-stylish",
-        "image": "02.jpg",
-        "bannerImg": "02.jpg",
-        "category": "Business",
-        "title": "Ashion Fixation: Fueling Your Passion for All Things Stylish",
-        "author": "David Smith",
-        "publishedDate": "15 Jan, 2023",
-        "descripTion": "Collaboratively pontificate bleeding edge resources with inexpensive methodologies globally initiate multidisciplinary compatible architectures pidiously repurpose leading edge growth strategies with just in time web readiness communicate timely meta services."
-    },
-    {
-        "id": 14,
-        "slug": "fixation-fueling-your-passion-for-all-things-stylish",
-        "image": "03.jpg",
-        "bannerImg": "03.jpg",
-        "category": "Business",
-        "title": "Fixation: Fueling Your Passion for All Things Stylish",
-        "author": "David Smith",
-        "publishedDate": "15 Jan, 2023",
-        "descripTion": "Collaboratively pontificate bleeding edge resources with inexpensive methodologies globally initiate multidisciplinary compatible architectures pidiously repurpose leading edge growth strategies with just in time web readiness communicate timely meta services."
-    },
-    {
-        "id": 15,
-        "slug": "fashion-fixation-fueling-your-passion-for-all-things-stylish",
-        "image": "04.jpg",
-        "bannerImg": "04.jpg",
-        "category": "Business",
-        "title": "Fashion Fixation: Fueling Your Passion for All Things Stylish",
-        "author": "David Smith",
-        "publishedDate": "15 Jan, 2023",
-        "descripTion": "Collaboratively pontificate bleeding edge resources with inexpensive methodologies globally initiate multidisciplinary compatible architectures pidiously repurpose leading edge growth strategies with just in time web readiness communicate timely meta services."
+        "slug": "tinh-toan-macro-dinh-duong-ca-nhan",
+        "bannerImg": "macro-calculation-banner.jpg",
+        "images": [
+            "macro-calculation-1.jpg",
+            "macro-calculation-2.jpg"
+        ],
+        "category": "Dinh Dưỡng Cá Nhân",
+        "title": "Tối Ưu Hóa Sức Khỏe: Hướng Dẫn Tính Toán Macro Dinh Dưỡng Cá Nhân",
+        "author": "Dr. Tran",
+        "publishedDate": "18 Jan, 2025",
+        "intro": "Macro (Macronutrients) là ba nhóm chất dinh dưỡng đa lượng: Protein, Carbohydrate và Chất béo. Việc tính toán và điều chỉnh tỷ lệ Macro là bước nâng cao trong quản lý chế độ ăn, giúp bạn đạt được mục tiêu cụ thể như tăng cơ, giảm mỡ, hoặc cải thiện hiệu suất thể thao.",
+        "paragraph1": "Bước đầu tiên là xác định Tổng Năng Lượng Tiêu Thụ Hàng Ngày (TDEE) của bạn, dựa trên tỷ lệ trao đổi chất cơ bản (BMR) và mức độ hoạt động thể chất. Sau đó, bạn cần thiết lập mục tiêu: Giảm cân (giảm 10-20% TDEE), Tăng cân (tăng 5-15% TDEE), hoặc Duy trì (bằng TDEE).",
+        "quote": "“Macro không phải là công cụ ăn kiêng mà là công cụ tối ưu hóa. Nó cho phép bạn biến thực phẩm thành một công cụ chính xác để định hình cơ thể.”",
+        "paragraph2": "Sau khi có tổng lượng calo, bạn phân bổ cho Protein, Carb và Chất béo. Tỷ lệ Protein thường được giữ ở mức cao nhất (khoảng 30-40% tổng calo) cho hầu hết các mục tiêu cơ thể vì vai trò của nó trong việc xây dựng và phục hồi cơ bắp, cũng như tạo cảm giác no. Carbohydrate và Chất béo sẽ được điều chỉnh tùy theo mục tiêu giảm mỡ hay tăng cơ.",
+        "conclusion": "Việc theo dõi Macro đòi hỏi sự kiên trì nhưng mang lại kết quả rõ rệt vì nó đảm bảo cơ thể nhận được đúng loại năng lượng vào đúng thời điểm. Hãy bắt đầu bằng cách theo dõi chế độ ăn hiện tại của bạn để có cơ sở điều chỉnh tốt nhất."
     }
 ]

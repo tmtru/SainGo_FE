@@ -59,8 +59,14 @@ function HeaderOne() {
                             <div className="col-lg-12">
                                 <div className="logo-search-category-wrapper">
                                     <Link href="/" className="logo-area">
-                                        <img src="/assets/images/logo/logo-01.png" alt="Trang chủ" className="logo" />
+                                        <img
+                                            src="/assets/images/logo/logo-01.png"
+                                            alt="Trang chủ"
+                                            className="logo"
+                                            style={{ maxHeight: "100px", width: "auto" }}
+                                        />
                                     </Link>
+
 
                                     <div className="category-search-wrapper">
 
