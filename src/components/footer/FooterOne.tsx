@@ -124,7 +124,7 @@ function FooterOne() {
                   </div>
                   <div className="payment-access">
                     <span>Hỗ trợ thanh toán:</span>
-                    <img src="assets/images/payment/01.png" alt="" />
+                    {/* <img src="assets/images/payment/01.png" alt="" /> */}
                   </div>
                 </div>
               </div>
@@ -144,8 +144,8 @@ function FooterOne() {
                   </p>
                   <a href="#" className="playstore-app-area">
                     <span>Download App</span>
-                    <img src="assets/images/payment/02.png" alt="" />
-                    <img src="assets/images/payment/03.png" alt="" />
+                    {/* <img src="assets/images/payment/02.png" alt="" />
+                    <img src="assets/images/payment/03.png" alt="" /> */}
                   </a>
                 </div>
               </div>
