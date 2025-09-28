@@ -16,10 +16,10 @@ export default function Home() {
                         <div className="row">
                             <div className="col-lg-12">
                                 <div className="navigator-breadcrumb-wrapper">
-                                    <a href="index.html">Home</a>
+                                    <a href="index.html">Trang cch</a>
                                     <i className="fa-regular fa-chevron-right" />
                                     <a className="current" href="index.html">
-                                        My Cart
+                                        Giỏ hàng của tôi
                                     </a>
                                 </div>
                             </div>

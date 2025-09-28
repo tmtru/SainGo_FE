@@ -12,6 +12,14 @@ const CartDropdown: React.FC = () => {
   const freeShippingThreshold = 125;
   const remaining = freeShippingThreshold - total;
 
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+      minimumFractionDigits: 0,
+    }).format(value);
+  };
+
   return (
     <div className="btn-border-only cart category-hover-header">
       <i className="fa-sharp fa-regular fa-cart-shopping" />
@@ -44,7 +52,6 @@ const CartDropdown: React.FC = () => {
                     unoptimized
                   />
                 )}
-
               </div>
 
               <div className="details">
@@ -53,7 +60,7 @@ const CartDropdown: React.FC = () => {
                 </Link>
                 <div className="number">
                   {item.quantity} <i className="fa-regular fa-x" />{" "}
-                  <span>{(item.unitPrice * item.quantity).toFixed(2)} đ</span>
+                  <span>{formatCurrency(item.unitPrice * item.quantity)}</span>
                 </div>
               </div>
             </div>
@@ -64,7 +71,7 @@ const CartDropdown: React.FC = () => {
           <div className="bottom-content-deals mt--10">
             <div className="top">
               <span>Tổng tiền:</span>
-              <span className="number-c">{total.toFixed(2)} đ</span>
+              <span className="number-c">{formatCurrency(total)}</span>
             </div>
 
             <div className="single-progress-area-incard">
@@ -78,7 +85,6 @@ const CartDropdown: React.FC = () => {
                 />
               </div>
             </div>
-
           </div>
 
           <div className="button-wrapper d-flex align-items-center justify-content-between">

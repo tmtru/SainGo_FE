@@ -122,37 +122,18 @@ function FooterOne() {
                       
                     </ul>
                   </div>
-                  <div className="payment-access">
-                    <span>Hỗ trợ thanh toán:</span>
-                    {/* <img src="assets/images/payment/01.png" alt="" /> */}
+                  <div className="payment-access copyright-between-1">
+                      <p className="disc">
+                    Copyright 2025 <a href="#">©SainGo</a>. All rights
+                    reserved.
+                  </p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        {/* rts footer one area end */}
-        {/* rts copyright-area start */}
-        <div className="rts-copyright-area">
-          <div className="container">
-            <div className="row">
-              <div className="col-lg-12">
-                <div className="copyright-between-1">
-                  <p className="disc">
-                    Copyright 2025 <a href="#">©SainGo</a>. All rights
-                    reserved.
-                  </p>
-                  <a href="#" className="playstore-app-area">
-                    <span>Download App</span>
-                    {/* <img src="assets/images/payment/02.png" alt="" />
-                    <img src="assets/images/payment/03.png" alt="" /> */}
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* rts copyright-area end */}
+  
       </>
     </div>
   );
