@@ -1,14 +1,17 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useWishlist } from './WishlistContext';
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useWishlist } from "./WishlistContext";
 
 const WishList: React.FC = () => {
   const { wishlistItems, removeFromWishlist } = useWishlist();
 
-  const total = wishlistItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = wishlistItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
   const freeShippingThreshold = 125;
   const remaining = freeShippingThreshold - total;
 
@@ -28,7 +31,7 @@ const WishList: React.FC = () => {
 
       <div className="category-sub-menu card-number-show">
         <h5 className="shopping-cart-number">
-          Món ăn yêu thích ({wishlistItems.length.toString().padStart(2, '0')})
+          Món ăn yêu thích ({wishlistItems.length.toString().padStart(2, "0")})
         </h5>
 
         {wishlistItems.map((item) => (
@@ -41,12 +44,18 @@ const WishList: React.FC = () => {
                 <i className="fa-regular fa-x" />
               </div>
               <div className="thumbanil">
-                <Image src={item.image} alt={item.title} width={60} height={60} />
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  width={60}
+                  height={60}
+                />
               </div>
               <div className="details">
-                <Link href='/shop/details-profitable-business-makes-your-profit'>
+                <Link href={`/shop/${item.id}`}>
                   <h5 className="title">{item.title}</h5>
                 </Link>
+
                 <div className="number">
                   {item.quantity} <i className="fa-regular fa-x" />{" "}
                   <span>{formatCurrency(item.price * item.quantity)}</span>
@@ -68,7 +77,10 @@ const WishList: React.FC = () => {
                   className="progress-bar wow fadeInLeft"
                   role="progressbar"
                   style={{
-                    width: `${Math.min((total / freeShippingThreshold) * 100, 100)}%`,
+                    width: `${Math.min(
+                      (total / freeShippingThreshold) * 100,
+                      100
+                    )}%`,
                   }}
                 />
               </div>

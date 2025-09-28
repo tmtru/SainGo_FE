@@ -1,14 +1,17 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useCart } from './CartContext';
+import React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useCart } from "./CartContext";
 
 const CartDropdown: React.FC = () => {
   const { cartItems, removeFromCart } = useCart();
 
-  const total = cartItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+  const total = cartItems.reduce(
+    (sum, item) => sum + item.unitPrice * item.quantity,
+    0
+  );
   const freeShippingThreshold = 125;
   const remaining = freeShippingThreshold - total;
 
@@ -27,10 +30,10 @@ const CartDropdown: React.FC = () => {
       <span className="number">{cartItems.length}</span>
       <div className="category-sub-menu card-number-show">
         <h5 className="shopping-cart-number">
-          Giỏ hàng của bạn ({cartItems.length.toString().padStart(2, '0')})
+          Giỏ hàng của bạn ({cartItems.length.toString().padStart(2, "0")})
         </h5>
 
-        {cartItems.map(item => (
+        {cartItems.map((item) => (
           <div key={item.id} className="cart-item-1 border-top">
             <div className="img-name">
               <div
@@ -46,7 +49,7 @@ const CartDropdown: React.FC = () => {
                 {item.productImage && (
                   <Image
                     src={item.productImage}
-                    alt={item.productName ?? 'Product Image'}
+                    alt={item.productName ?? "Product Image"}
                     width={60}
                     height={60}
                     unoptimized
@@ -55,9 +58,10 @@ const CartDropdown: React.FC = () => {
               </div>
 
               <div className="details">
-                <Link href="/shop/details-profitable-business-makes-your-profit">
+                <Link href={`/shop/${item.id}`}>
                   <h5 className="title line-clamp-1">{item.productName}</h5>
                 </Link>
+
                 <div className="number">
                   {item.quantity} <i className="fa-regular fa-x" />{" "}
                   <span>{formatCurrency(item.unitPrice * item.quantity)}</span>
@@ -80,7 +84,10 @@ const CartDropdown: React.FC = () => {
                   className="progress-bar wow fadeInLeft"
                   role="progressbar"
                   style={{
-                    width: `${Math.min((total / freeShippingThreshold) * 100, 100)}%`,
+                    width: `${Math.min(
+                      (total / freeShippingThreshold) * 100,
+                      100
+                    )}%`,
                   }}
                 />
               </div>
