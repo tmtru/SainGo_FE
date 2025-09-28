@@ -18163,11 +18163,13 @@ li.with-megamenu:hover .rts-megamenu {
   font-size: 16px;
   font-weight: 700;
   color: #fff;
+  border: 1px solid transparent; 
 }
 
 .rts-btn:focus {
-  box-shadow: none !important;
-  border: none !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(98, 157, 35, 0.4); 
+  border: 1px solid #629D23 !important; 
 }
 
 .rts-btn.btn-primary {
@@ -18226,6 +18228,7 @@ li.with-megamenu:hover .rts-megamenu {
   transform: translateX(0);
   transition-delay: 0.225s;
 }
+
 
 .rts-btn.with-icon:hover .arrow-icon {
   opacity: 1;

@@ -314,7 +314,7 @@ export default function Home() {
 
             {/* Tabs categories */}
             <div className="title-area-between">
-              <h2 className="title-left mb--0">Danh mục sản phẩm</h2>
+              <h2 className="title-left mb--0">Danh sách món ăn</h2>
               <ul
                 className="nav nav-tabs best-selling-grocery"
                 id="categoryTabs"
@@ -412,11 +412,8 @@ export default function Home() {
                   <div className="product-area-wrapper-shopgrid-list mt--20 tab-pane fade show active">
                     <div className="row g-4">
                       {filteredProducts.map((post: Product) => (
-                        <div
-                          key={post.id}
-                          className="col-lg-20 col-lg-4 col-md-6 col-sm-6 col-12"
-                        >
-                          <div className="single-shopping-card-one">
+                        <div key={post.id} className="col-lg-6">
+                          <div className="single-shopping-card-one discount-offer">
                             <ShopMain
                               Id={post.id}
                               Slug={post.slug}
@@ -428,6 +425,13 @@ export default function Home() {
                                   : post.salePrice.toString()
                               }
                               BasePrice={post.basePrice.toString()}
+                              StockAvailable={post.isAvailable ? 1 : 0}
+                              Calories={post.caloriesPer100g}
+                              Protein={post.proteinPer100g}
+                              Carbs={post.carbsPer100g}
+                              Fat={post.fatPer100g}
+                              NutritionHighlights={post.nutritionHighlights}
+                              UnitSize={post.unitSize}
                             />
                           </div>
                         </div>
@@ -437,16 +441,32 @@ export default function Home() {
                 )}
               </div>
 
-              <div className="mt-4 d-flex justify-content-center">
-                <Pagination
-                  count={totalPages}
-                  page={pageNumber}
-                  onChange={(_, page) => handlePageChange(page)}
-                  color="primary"
-                  shape="rounded"
-                  showFirstButton
-                  showLastButton
-                />
+              <div className="row mt--50">
+                <div className="col-lg-12">
+                  <div className="pagination-area-main-wrappper">
+                    <ul>
+                      {[...Array(totalPages)].map((_, i) => (
+                        <li key={i}>
+                          <button
+                            className={pageNumber === i + 1 ? "active" : ""}
+                            onClick={() => handlePageChange(i + 1)}
+                          >
+                            {(i + 1).toString().padStart(2, "0")}
+                          </button>
+                        </li>
+                      ))}
+                      {pageNumber < totalPages && (
+                        <li>
+                          <button
+                            onClick={() => handlePageChange(pageNumber + 1)}
+                          >
+                            <i className="fa-regular fa-chevrons-right" />
+                          </button>
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

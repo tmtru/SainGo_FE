@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useCart } from "@/components/header/CartContext";
 import { useCompare } from "@/components/header/CompareContext";
 import { useWishlist } from "@/components/header/WishlistContext";
@@ -13,11 +13,17 @@ import WeeklyBestSellingMain from "@/components/product-main/WeeklyBestSellingMa
 interface ShopMainProps {
   Id: string;
   Slug: string;
-  ProductImage?: string; // từ API (URL đầy đủ hoặc relative)
+  ProductImage?: string;
   ProductTitle?: string;
   Price?: string;
   BasePrice?: string;
   StockAvailable?: number;
+  Calories?: number;
+  Protein?: number;
+  Carbs?: number;
+  Fat?: number;
+  NutritionHighlights?: string;
+  UnitSize?: string;
 }
 
 const ShopMain: React.FC<ShopMainProps> = ({
@@ -28,15 +34,16 @@ const ShopMain: React.FC<ShopMainProps> = ({
   Price,
   BasePrice,
   StockAvailable = 0,
+  Calories,
+  Protein,
+  Carbs,
+  Fat,
+  NutritionHighlights,
+  UnitSize,
 }) => {
   type ModalType = "one" | "two" | "three" | null;
   const [activeModal, setActiveModal] = useState<ModalType>(null);
-  const [added, setAdded] = useState(false);
-
-  const { addToCart } = useCart();
-  const { addToCompare } = useCompare();
-  const { addToWishlist } = useWishlist();
-
+ 
   const handleClose = () => setActiveModal(null);
 
   // ảnh fallback
@@ -44,51 +51,6 @@ const ShopMain: React.FC<ShopMainProps> = ({
     ProductImage && ProductImage.trim() !== ""
       ? ProductImage
       : "/assets/images/grocery/default-image.jpg";
-
-  const handleAdd = async () => {
-    try {
-      await addToCart({
-        productId: Id,
-        productVariantId: "",
-        quantity: 1,
-        unitPrice: parseFloat(Price ?? "0"),
-        cartId: "",
-      });
-
-      setAdded(true);
-      setTimeout(() => setAdded(false), 2000);
-    } catch (err) {
-      console.error(err);
-      toast.error("Không thể thêm vào giỏ hàng.");
-    }
-  };
-
-  const handleCompare = () => {
-    addToCompare({
-      id: Id,
-      image: imageSrc,
-      name: ProductTitle ?? "Default Product Title",
-      price: Price ?? "0",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-      rating: 5,
-      ratingCount: 25,
-      weight: "500g",
-      inStock: true,
-    });
-    toast("Successfully Add To Compare!");
-  };
-
-  const handleWishlist = () => {
-    addToWishlist({
-      id: Id,
-      image: imageSrc,
-      title: ProductTitle ?? "Default Product Title",
-      price: parseFloat(Price ?? "0"),
-      quantity: 1,
-    });
-    toast("Successfully Add To Wishlist!");
-  };
 
   return (
     <>
@@ -100,6 +62,12 @@ const ShopMain: React.FC<ShopMainProps> = ({
           ProductTitle={ProductTitle}
           Price={Price}
           BasePrice={BasePrice}
+          Calories={Calories}
+          Protein={Protein}
+          Carbs={Carbs}
+          Fat={Fat}
+          NutritionHighlights={NutritionHighlights}
+          UnitSize={UnitSize}
         />
       </div>
 
