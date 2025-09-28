@@ -4,14 +4,15 @@ import React, { useEffect, useState } from 'react';
 import { useCart } from '@/components/header/CartContext';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
-import UserAddressService from '@/data/Services/UserAddress';
+import UserAddressService, { UserAddress } from '@/data/Services/UserAddress';
 import OrderService from '@/data/Services/OrderService';
 import ShippingService from '@/data/Services/ShippingService';
 import UserCouponService from '@/data/Services/UserCouponService';
+import GhnService from '@/data/Services/GhnService';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from '@/components/Context/AuthContext';
 import { set } from 'lodash';
-import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaPhone, FaCommentDots, FaTicketAlt, FaCreditCard, FaMoneyBillWave } from 'react-icons/fa'; // Import icons
+import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaPhone, FaCommentDots, FaTicketAlt, FaCreditCard, FaMoneyBillWave } from 'react-icons/fa';
 
 function formatCurrency(value: number) {
     return value.toLocaleString('vi-VN', {
@@ -42,23 +43,38 @@ export default function CheckOutMain() {
     const { cartItems, clearCart } = useCart();
     const router = useRouter();
     const [leadTime, setLeadTime] = useState<string | null>(null);
+    const [errrorText, setErrrorText] = useState<string | null>(null);
 
-    const [defaultAddress, setDefaultAddress] = useState<any>(null);
-    const [loadingAddress, setLoadingAddress] = useState(true);
+    // Address states
+    const [addresses, setAddresses] = useState<any[]>([]);
+    const [selectedAddress, setSelectedAddress] = useState<any>(null);
+    const [loadingAddresses, setLoadingAddresses] = useState(true);
+    const [addressMode, setAddressMode] = useState<'select' | 'input'>('select'); // 'select' or 'input'
+
     const [shippingFee, setShippingFee] = useState<number>(0);
     const [loadingShipping, setLoadingShipping] = useState(false);
 
-    // --- NEW/UPDATED STATE FOR USER INPUT ---
-    const [billingInfo, setBillingInfo] = useState({
+    // Manual address input states
+    const [manualAddress, setManualAddress] = useState({
         name: '',
-        phone: '', // Added phone to billingInfo
+        phone: '',
         fullAddress: '',
+        city: '',
+        district: '',
+        ward: ''
     });
 
-    const [deliveryType, setDeliveryType] = useState<'regular' | 'preorder'>('regular'); // 'regular' or 'preorder'
-    const [preOrderTime, setPreOrderTime] = useState(''); // Selected delivery time for pre-order
-    const [notes, setNotes] = useState(''); // Added notes/special instructions
-    // ----------------------------------------
+    // GHN location states for manual input
+    const [provinces, setProvinces] = useState<any[]>([]);
+    const [districts, setDistricts] = useState<any[]>([]);
+    const [wards, setWards] = useState<any[]>([]);
+    const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(null);
+    const [selectedDistrictId, setSelectedDistrictId] = useState<number | null>(null);
+    const [selectedWardId, setSelectedWardId] = useState<any | null>(null);
+
+    const [deliveryType, setDeliveryType] = useState<'regular' | 'preorder'>('regular');
+    const [preOrderTime, setPreOrderTime] = useState('');
+    const [notes, setNotes] = useState('');
 
     const [paymentMethod, setPaymentMethod] = useState('cash');
     const [error, setError] = useState<string | null>(null);
@@ -72,7 +88,64 @@ export default function CheckOutMain() {
     const [couponApplied, setCouponApplied] = useState(false);
 
     const { user } = useAuth();
-    const timeSlots = getDeliveryTimeSlots(); // Get time slots
+    const timeSlots = getDeliveryTimeSlots();
+
+    // Load provinces on mount for manual address input
+    useEffect(() => {
+        const fetchProvinces = async () => {
+            try {
+                const res = await GhnService.getProvinces();
+                setProvinces(res.data);
+            } catch (error) {
+                console.error("Lỗi khi tải tỉnh/thành:", error);
+            }
+        };
+        fetchProvinces();
+    }, []);
+
+    // Load districts when province changes
+    useEffect(() => {
+        const fetchDistricts = async () => {
+            if (!selectedProvinceId) {
+                setDistricts([]);
+                setWards([]);
+                setSelectedDistrictId(null);
+                setSelectedWardId(null);
+                return;
+            }
+
+            try {
+                const res = await GhnService.getDistricts(selectedProvinceId);
+                setDistricts(res.data);
+                setWards([]);
+                setSelectedDistrictId(null);
+                setSelectedWardId(null);
+            } catch (error) {
+                console.error("Lỗi khi tải quận/huyện:", error);
+            }
+        };
+        fetchDistricts();
+    }, [selectedProvinceId]);
+
+    // Load wards when district changes
+    useEffect(() => {
+        const fetchWards = async () => {
+            if (!selectedDistrictId) {
+                setWards([]);
+                setSelectedWardId(null);
+                return;
+            }
+
+            try {
+                const res = await GhnService.getWards(selectedDistrictId);
+                setWards(res.data);
+                setSelectedWardId(null);
+            } catch (error) {
+                console.error("Lỗi khi tải phường/xã:", error);
+            }
+        };
+        fetchWards();
+    }, [selectedDistrictId]);
 
     // Load saved coupon and discount from localStorage
     useEffect(() => {
@@ -92,7 +165,112 @@ export default function CheckOutMain() {
 
     const finalTotal = subtotal - discount + shippingFee;
 
-    // Apply coupon function - (kept the same)
+    // Load addresses and set default
+    useEffect(() => {
+        if (!user) return;
+
+        const fetchAddresses = async () => {
+            try {
+                const res = await UserAddressService.getMyAddresses();
+                setAddresses(res.data);
+
+                if (res.data && res.data.length > 0) {
+                    // Find default address or use first one
+                    const defaultAddr = res.data.find(addr => addr.isDefault) || res.data[0];
+                    setSelectedAddress(defaultAddr);
+                    setAddressMode('select');
+                } else {
+                    // No addresses available, switch to input mode
+                    setAddressMode('input');
+                    setManualAddress(prev => ({
+                        ...prev,
+                        name: user.fullName || '',
+                        phone: user.phone || ''
+                    }));
+                }
+            } catch (err) {
+                console.warn('Lỗi khi tải địa chỉ:', err);
+                setAddressMode('input');
+                setManualAddress(prev => ({
+                    ...prev,
+                    name: user.fullName || '',
+                    phone: user.phone || ''
+                }));
+            } finally {
+                setLoadingAddresses(false);
+            }
+        };
+
+        fetchAddresses();
+    }, [user]);
+
+    // Calculate shipping fee and lead time
+    useEffect(() => {
+        const calculateShipping = async () => {
+            let addressForShipping = null;
+
+            if (addressMode === 'select' && selectedAddress) {
+                addressForShipping = selectedAddress;
+            } else if (addressMode === 'input' && selectedDistrictId && selectedWardId) {
+                addressForShipping = {
+                    district: selectedDistrictId.toString(),
+                    ward: selectedWardId
+                };
+            }
+
+            if (addressForShipping) {
+                setLoadingShipping(true);
+                try {
+                    const request = {
+                        toDistrictId: parseInt(addressForShipping.district),
+                        toWardCode: addressForShipping.ward,
+                        serviceId: 53320,
+                        length: 20,
+                        width: 20,
+                        height: 10,
+                        weight: 500,
+                        insuranceValue: 100000,
+                    };
+
+                    const res = await ShippingService.calculateShippingFee(request);
+                    setShippingFee(res.data);
+
+                    // Calculate lead time
+                    const leadTimeRes = await ShippingService.calculateDeliveryTime(request);
+                    const date = new Date(leadTimeRes.data);
+                    const formattedDate = date.toLocaleDateString("vi-VN", {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+
+                    setErrrorText(null);
+                    setLeadTime(formattedDate);
+                } catch (err) {
+                    toast.warn('Khu vực bạn không hỗ trợ giao hàng. Vui lòng chọn khu vực khác.');
+                    setErrrorText('Khu vực không hỗ trợ giao hàng');
+                    setShippingFee(0);
+                    setLeadTime(null);
+                } finally {
+                    setLoadingShipping(false);
+                }
+            } else {
+                setShippingFee(0);
+                setLeadTime(null);
+            }
+        };
+
+        calculateShipping();
+    }, [selectedAddress, addressMode, selectedDistrictId, selectedWardId]);
+
+    // Handle manual address input changes
+    const handleManualAddressChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setManualAddress(prev => ({ ...prev, [name]: value }));
+    };
+
+    // Apply coupon function
     const applyCoupon = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -110,7 +288,6 @@ export default function CheckOutMain() {
                 code: coupon,
                 orderAmount: subtotal
             });
-            console.log('Coupon response:', res);
 
             if (res?.data) {
                 const discountAmount = res.data;
@@ -138,7 +315,7 @@ export default function CheckOutMain() {
         }
     };
 
-    // Remove coupon function - (kept the same)
+    // Remove coupon function
     const removeCoupon = () => {
         setCoupon('');
         setDiscount(0);
@@ -149,102 +326,23 @@ export default function CheckOutMain() {
         toast.info('🗑️ Đã xóa mã giảm giá');
     };
 
-    // Fetch default address and set initial billingInfo/phone
-    useEffect(() => {
-        if (!user) return;
-
-        const fetchDefaultAddress = async () => {
-            try {
-                const res = await UserAddressService.getMyDefaultAddress();
-                const mergedAddress = {
-                    ...res.data,
-                    phone: user.phone,
-                    name: user.fullName,
-                };
-                setDefaultAddress(mergedAddress);
-                // Set initial phone and name from default address/user
-                setBillingInfo(prev => ({
-                    ...prev,
-                    phone: user.phone || '',
-                    name: user.fullName || '',
-                }));
-
-            } catch (err) {
-                console.warn('Không có địa chỉ mặc định');
-                setBillingInfo(prev => ({
-                    ...prev,
-                    phone: user.phone || '',
-                    name: user.fullName || '',
-                }));
-            } finally {
-                setLoadingAddress(false);
-            }
-        };
-
-        fetchDefaultAddress();
-    }, [user]);
-
-    // Calculate shipping fee and lead time - (kept the same logic, depends on defaultAddress)
-    useEffect(() => {
-        const calculateShipping = async () => {
-            if (defaultAddress) {
-                setLoadingShipping(true);
-                try {
-                    const request = {
-                        toDistrictId: defaultAddress.district,
-                        toWardCode: defaultAddress.ward,
-                        serviceId: 53320,
-                        length: 20,
-                        width: 20,
-                        height: 10,
-                        weight: 500,
-                        insuranceValue: 100000,
-                    };
-
-                    const res = await ShippingService.calculateShippingFee(request);
-                    setShippingFee(res.data);
-
-                    // Gọi thêm leadtime
-                    const leadTimeRes = await ShippingService.calculateDeliveryTime(request);
-
-                    const date = new Date(leadTimeRes.data);
-
-                    const formattedDate = date.toLocaleDateString("vi-VN", {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    });
-
-                    console.log("Ngày giao hàng dự kiến:", formattedDate);
-
-                    setLeadTime(formattedDate);
-                } catch (err) {
-                    toast.warn('Khu vực bạn không hỗ trợ giao hàng. Vui lòng chọn khu vực khác.');
-                    setShippingFee(0);
-                    setLeadTime(null);
-                } finally {
-                    setLoadingShipping(false);
-                }
-            } else {
-                setShippingFee(0); // No address, no shipping fee calculation
-                setLeadTime(null);
-            }
-        };
-
-        calculateShipping();
-    }, [defaultAddress]);
-
-    // Handle input change for general billing info (Name, FullAddress, Phone)
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { id, value } = e.target;
-        setBillingInfo(prev => ({ ...prev, [id]: value }));
-    };
-
     // Handle placing the order
     const handlePlaceOrder = async () => {
-        if (!billingInfo.phone || (deliveryType === 'preorder' && !preOrderTime)) {
-            toast.error('Vui lòng nhập số điện thoại và chọn thời gian giao hàng (nếu đặt trước).');
+        // Validation
+        if (addressMode === 'select' && !selectedAddress) {
+            toast.error('Vui lòng chọn địa chỉ giao hàng.');
+            return;
+        }
+
+        if (addressMode === 'input') {
+            if (!manualAddress.name || !manualAddress.phone || !manualAddress.fullAddress || !selectedProvinceId || !selectedDistrictId) {
+                toast.error('Vui lòng nhập đầy đủ thông tin địa chỉ giao hàng.');
+                return;
+            }
+        }
+
+        if (deliveryType === 'preorder' && !preOrderTime) {
+            toast.error('Vui lòng chọn thời gian giao hàng cho đơn đặt trước.');
             return;
         }
 
@@ -267,32 +365,53 @@ export default function CheckOutMain() {
                 discountAmount: discount,
                 shippingFee,
                 totalAmount: finalTotal,
-                // --- NEW FIELDS FOR ORDER OBJECT ---
-                deliveryPhone: billingInfo.phone, // Use phone from state
-                specialInstructions: notes, // Use notes from state
-                preferredTimeSlot: deliveryType === 'preorder' ? preOrderTime : undefined, // Pre-order time
-                // ----------------------------------
+                specialInstructions: notes,
+                preferredTimeSlot: deliveryType === 'preorder' ? preOrderTime : undefined,
+                deliveryPhone: addressMode === "input" ? manualAddress.phone : selectedAddress?.phone || manualAddress.phone,
+                deliveryName: addressMode === "input" ? manualAddress.name : selectedAddress?.name || manualAddress.name,
+                deliveryNote: notes,
             };
 
-            // Address logic (unchanged)
-            if (defaultAddress) {
-                order.deliveryAddressId = defaultAddress.id;
-                order.deliveryName = defaultAddress.name; // Gán thêm deliveryName
-            } else {
-                if (!billingInfo.fullAddress || !billingInfo.name) {
-                    toast.error('Vui lòng tạo địa chỉ hoặc nhập đầy đủ thông tin giao hàng.');
-                    setError('Vui lòng tạo địa chỉ mặc định trước khi thanh toán.');
-                    return;
-                }
-                order.deliveryAddressText = billingInfo.fullAddress;
-                order.deliveryName = billingInfo.name; // Use name from state
+            // Set address and phone based on mode
+            if (addressMode === "select" && selectedAddress) {
+                // Đang chọn từ sổ địa chỉ
+                order.deliveryAddressId = selectedAddress.id;
+                order.deliveryName = selectedAddress.name;
+                order.deliveryPhone = selectedAddress.phone || manualAddress.phone;
+            }
+            else if (addressMode === "input") {
+                // Đang nhập địa chỉ mới
+                const selectedProvince = provinces.find(p => p.provinceID === selectedProvinceId);
+                const selectedDistrict = districts.find(d => d.districtID === selectedDistrictId);
+                const selectedWard = wards.find(w => w.wardCode === selectedWardId);
+
+                const stringifiedAddress: UserAddress = {
+                    userId: '', // backend sẽ lấy từ token/user context
+                    name: manualAddress.name,
+                    fullAddress:
+                        manualAddress.fullAddress +
+                        (selectedWard ? ", " + selectedWard.wardName : "") +
+                        (selectedDistrict ? ", " + selectedDistrict.districtName : "") +
+                        (selectedProvince ? ", " + selectedProvince.provinceName : ""),
+                    city: selectedProvince?.provinceName ?? '',
+                    district: selectedDistrict?.districtID.toString() ?? '',
+                    ward: selectedWardId ?? '',
+                    isDefault: false,
+                };
+
+                // 1. Gọi API để lưu address
+                const newAddress = await UserAddressService.addAddress(stringifiedAddress);
+
+                // 2. Gán id address mới cho order
+                order.deliveryAddressId = newAddress.data.id;
             }
 
-            // Tạo đơn hàng
+
+            // Create order
             const res = await OrderService.createOrder(order);
             const createdOrder = res.data;
             const orderId = createdOrder.id;
-            console.log("Đơn hàng đã tạo:", createdOrder);
+
             if (!orderId) {
                 toast.error('❌ Không thể tạo đơn hàng. Vui lòng thử lại sau.');
                 return;
@@ -301,7 +420,6 @@ export default function CheckOutMain() {
             if (paymentMethod === 'momo') {
                 const momoRes = await OrderService.createMomoPayment(orderId);
                 const payUrl = momoRes.data;
-                console.log("Link thanh toán Momo:", payUrl);
 
                 if (payUrl) {
                     toast.success('✅ Chuyển sang Momo để thanh toán...');
@@ -311,10 +429,10 @@ export default function CheckOutMain() {
                 }
             } else {
                 clearCart();
-                toast.success('🎉 Đặt hàng thành công!');
+
                 localStorage.removeItem('coupon');
                 localStorage.removeItem('discount');
-                // router.push(`/`); // Redirect to a success page (or home as before)
+                toast.success('🎉 Đặt hàng thành công!');
             }
         } catch (err: any) {
             console.error(err);
@@ -330,79 +448,287 @@ export default function CheckOutMain() {
                     <div className="col-lg-8 p--20 order-2 order-xl-1" style={{ padding: '0 40px', border: "none" }}>
 
                         {/* 1. Địa chỉ Giao hàng */}
-                        <div className="mb-5 p-4 border rounded-3 shadow-sm bg-white">
-                            <h3 className="mb-4 d-flex align-items-center"><FaMapMarkerAlt className="me-2 text-primary" /> Địa chỉ giao hàng</h3>
-                            {loadingAddress ? (
-                                <p className="text-muted">Đang tải địa chỉ mặc định...</p>
-                            ) : (defaultAddress ? (
-                                <div className="p-3 border rounded bg-light">
-                                    <p className="mb-1"><strong>{defaultAddress.name}</strong> - <span>{defaultAddress.phone}</span></p>
-                                    <p className="mb-0">{defaultAddress.fullAddress}</p>
-                                    <button
-                                        className="rts-btn btn-primary btn-sm mt-3"
-                                        onClick={() => router.push('/account')}
-                                    > Thay đổi địa chỉ</button>
+                        <div className="mb-5 p-5 border rounded-3 shadow-sm bg-white">
+                            <h3 className="mb-4 d-flex align-items-center">
+                                <FaMapMarkerAlt className="me-2 text-primary" /> Địa chỉ giao hàng
+                            </h3>
+                            {errrorText && (
+                                <div className="alert alert-danger d-flex align-items-center" role="alert">
+                                    <i className="fa-solid fa-triangle-exclamation me-2"></i>
+                                    <span>{errrorText}</span>
                                 </div>
+                            )}
+
+
+                            {loadingAddresses ? (
+                                <p className="text-muted">Đang tải địa chỉ...</p>
                             ) : (
-                                <div className="p-3 border rounded" style={{ borderColor: 'var(--rts-color-danger) !important' }}>
-                                    <p className="mb-2 text-danger"><strong>Không có địa chỉ mặc định.</strong></p>
-                                    <p className="mb-3 small text-muted">Vui lòng tạo địa chỉ mới để tính phí vận chuyển và hoàn tất đơn hàng.</p>
-
-                                    <div className="form-group mb-3">
-                                        <label htmlFor="name" className="form-label small fw-bold">Tên người nhận *</label>
-                                        <input
-                                            type="text"
-                                            id="name"
-                                            className="form-control"
-                                            placeholder="Tên người nhận"
-                                            value={billingInfo.name}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
+                                <>
+                                    {/* Address Mode Selection */}
+                                    <div className="mb-4">
+                                        <div className="d-flex gap-4">
+                                            <div className="form-check">
+                                                <input
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="addressMode"
+                                                    id="selectAddress"
+                                                    value="select"
+                                                    checked={addressMode === 'select'}
+                                                    onChange={() => setAddressMode('select')}
+                                                    disabled={addresses.length === 0}
+                                                />
+                                                <label className="form-check-label" htmlFor="selectAddress">
+                                                    Chọn từ sổ địa chỉ {addresses.length > 0 && `(${addresses.length} địa chỉ)`}
+                                                </label>
+                                            </div>
+                                            <div className="form-check">
+                                                <input
+                                                    className="form-check-input"
+                                                    type="radio"
+                                                    name="addressMode"
+                                                    id="inputAddress"
+                                                    value="input"
+                                                    checked={addressMode === 'input'}
+                                                    onChange={() => setAddressMode('input')}
+                                                />
+                                                <label className="form-check-label" htmlFor="inputAddress">
+                                                    Nhập địa chỉ mới
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div className="form-group mb-3">
-                                        <label htmlFor="fullAddress" className="form-label small fw-bold">Địa chỉ chi tiết *</label>
-                                        <input
-                                            type="text"
-                                            id="fullAddress"
-                                            className="form-control"
-                                            placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"
-                                            value={billingInfo.fullAddress}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                    </div>
+                                    {/* Address Selection Mode */}
+                                    {addressMode === 'select' && addresses.length > 0 && (
+                                        <div className="address-selection">
+                                            <label className="form-label small fw-bold mb-3">Chọn địa chỉ giao hàng *</label>
+                                            <div className="row">
+                                                {addresses.map((addr) => (
+                                                    <div key={addr.id} className="col-md-6 mb-3">
+                                                        <div className={`card h-100 cursor-pointer ${selectedAddress?.id === addr.id ? 'border-primary bg-primary bg-opacity-10' : 'border-secondary'}`}
+                                                            onClick={() => setSelectedAddress(addr)}>
+                                                            <div className="card-body p-3">
+                                                                <div className="form-check">
+                                                                    <input
+                                                                        className="form-check-input"
+                                                                        type="radio"
+                                                                        name="selectedAddress"
+                                                                        checked={selectedAddress?.id === addr.id}
+                                                                        onChange={() => setSelectedAddress(addr)}
+                                                                    />
+                                                                    <label className="form-check-label">
+                                                                        <h6 className="mb-1">
+                                                                            {addr.name}
+                                                                            {addr.isDefault && (
+                                                                                <span className="badge bg-success text-white ms-2">Mặc định</span>
+                                                                            )}
+                                                                        </h6>
+                                                                        <p className="mb-1 small text-muted">{addr.phone}</p>
+                                                                        <p className="mb-0 small">{addr.fullAddress}</p>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
 
-                                    <button
-                                        className="rts-btn btn-primary btn-sm"
-                                        onClick={() => router.push('/account')}
-                                    > Quản lý/Tạo địa chỉ</button>
-                                </div>
-                            ))}
+                                            {/* Manual phone input for selected address if needed */}
+                                            {selectedAddress && (!selectedAddress.phone || selectedAddress.phone === '') && (
+                                                <div className="form-group mt-3">
+                                                    <label htmlFor="deliveryPhone" className="form-label small fw-bold">
+                                                        <FaPhone className="me-2 text-secondary" /> Số điện thoại nhận hàng *
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        id="deliveryPhone"
+                                                        className="form-control"
+                                                        placeholder="Nhập số điện thoại"
+                                                        value={manualAddress.phone}
+                                                        onChange={(e) => setManualAddress(prev => ({ ...prev, phone: e.target.value }))}
+                                                        required
+                                                    />
+                                                </div>
+                                            )}
+
+                                            <button
+                                                className="rts-btn btn-primary btn-sm mt-3"
+                                                onClick={() => router.push('/account')}
+                                            >
+                                                Quản lý địa chỉ
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {/* Manual Address Input Mode */}
+                                    {addressMode === 'input' && (
+                                        <div className="manual-address-input">
+                                            <div className="row">
+                                                <div className="col-md-6 form-group mb-3">
+                                                    <label htmlFor="manualName" className="form-label small fw-bold">Tên người nhận *</label>
+                                                    <input
+                                                        type="text"
+                                                        id="manualName"
+                                                        name="name"
+                                                        className="form-control"
+                                                        placeholder="Tên người nhận"
+                                                        value={manualAddress.name}
+                                                        onChange={handleManualAddressChange}
+                                                        required
+                                                    />
+                                                </div>
+
+                                                <div className="col-md-6 form-group mb-3">
+                                                    <label htmlFor="manualPhone" className="form-label small fw-bold">Số điện thoại *</label>
+                                                    <input
+                                                        type="text"
+                                                        id="manualPhone"
+                                                        name="phone"
+                                                        className="form-control"
+                                                        placeholder="Số điện thoại"
+                                                        value={manualAddress.phone}
+                                                        onChange={handleManualAddressChange}
+                                                        required
+                                                    />
+                                                </div>
+
+                                                <div className="col-md-4 form-group mb-3">
+                                                    <label className="form-label fw-bold">Tỉnh/Thành phố *</label>
+                                                    <select
+                                                        className="form-control"
+                                                        style={{ fontSize: '16px' }}
+                                                        value={selectedProvinceId || ""}
+                                                        onChange={(e) => {
+                                                            const provinceId = parseInt(e.target.value);
+                                                            const selected = provinces.find(p => p.provinceID === provinceId);
+                                                            setSelectedProvinceId(provinceId);
+                                                            setSelectedDistrictId(null);
+                                                            setSelectedWardId(null);
+                                                            setManualAddress(prev => ({
+                                                                ...prev,
+                                                                city: selected?.provinceName || "",
+                                                                district: "",
+                                                                ward: ""
+                                                            }));
+                                                        }}
+                                                        required
+                                                    >
+                                                        <option value="">-- Chọn tỉnh/thành phố --</option>
+                                                        {provinces.map((province) => (
+                                                            <option key={province.provinceID} value={province.provinceID}>
+                                                                {province.provinceName}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+
+                                                <div className="col-md-4 form-group mb-3">
+                                                    <label className="form-label fw-bold">Quận/Huyện *</label>
+                                                    <select
+                                                        className="form-control"
+                                                        style={{ fontSize: '16px' }}
+                                                        value={selectedDistrictId || ""}
+                                                        onChange={(e) => {
+                                                            const districtId = parseInt(e.target.value);
+                                                            const selected = districts.find(d => d.districtID === districtId);
+                                                            setSelectedDistrictId(districtId);
+                                                            setSelectedWardId(null);
+                                                            setManualAddress(prev => ({
+                                                                ...prev,
+                                                                district: selected?.districtName || "",
+                                                                ward: ""
+                                                            }));
+                                                        }}
+                                                        disabled={!selectedProvinceId}
+                                                        required
+                                                    >
+                                                        <option value="">-- Chọn quận/huyện --</option>
+                                                        {districts.map((district) => (
+                                                            <option key={district.districtID} value={district.districtID}>
+                                                                {district.districtName}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+
+                                                <div className="col-md-4 form-group mb-3">
+                                                    <label className="form-label fw-bold">Phường/Xã</label>
+                                                    <select
+                                                        className="form-control"
+                                                        style={{ fontSize: '16px' }}
+                                                        value={selectedWardId || ""}
+                                                        onChange={(e) => {
+                                                            const wardCode = e.target.value;
+                                                            const selected = wards.find(w => w.wardCode === wardCode);
+                                                            setSelectedWardId(wardCode);
+                                                            setManualAddress(prev => ({
+                                                                ...prev,
+                                                                ward: selected?.wardCode || ""
+                                                            }));
+                                                        }}
+                                                        disabled={!selectedDistrictId}
+                                                    >
+                                                        <option value="">-- Chọn phường/xã --</option>
+                                                        {wards.map((ward) => (
+                                                            <option key={ward.wardCode} value={ward.wardCode}>
+                                                                {ward.wardName}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+
+                                                <div className="col-12 form-group mb-3">
+                                                    <label htmlFor="manualFullAddress" className="form-label small fw-bold">Địa chỉ chi tiết *</label>
+                                                    <input
+                                                        type="text"
+                                                        id="manualFullAddress"
+                                                        name="fullAddress"
+                                                        className="form-control"
+                                                        placeholder="Số nhà, đường, ngõ..."
+                                                        value={manualAddress.fullAddress}
+                                                        onChange={handleManualAddressChange}
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* No Address Available */}
+                                    {addressMode === 'select' && addresses.length === 0 && (
+                                        <div className="text-center my-4">
+                                            <p className="text-muted">Bạn chưa có địa chỉ nào được lưu.</p>
+                                            <button
+                                                className="rts-btn btn-primary btn-sm"
+                                                onClick={() => router.push('/account')}
+                                            >
+                                                Tạo địa chỉ mới
+                                            </button>
+                                            <span className="mx-2">hoặc</span>
+                                            <button
+                                                className="rts-btn btn-outline-primary btn-sm"
+                                                onClick={() => setAddressMode('input')}
+                                            >
+                                                Nhập địa chỉ ngay
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
 
                         {/* 2. Thông tin Liên hệ và Giao hàng */}
-                        <div className="mb-5 p-4 border rounded-3 shadow-sm bg-white">
-                            <h3 className="mb-4 d-flex align-items-center"><FaCalendarAlt className="me-2 text-primary" /> Thông tin giao nhận</h3>
-
-                            {/* Số điện thoại */}
-                            <div className="form-group mb-4">
-                                <label htmlFor="phone" className="form-label d-flex align-items-center small fw-bold"><FaPhone className="me-2 text-secondary" /> Số điện thoại nhận hàng *</label>
-                                <input
-                                    type="text"
-                                    id="phone"
-                                    className="form-control form-control-lg"
-                                    placeholder="Nhập số điện thoại"
-                                    value={billingInfo.phone}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
+                        <div className="mb-5 p-5 border rounded-3 shadow-sm bg-white">
+                            <h3 className="mb-4 d-flex align-items-center">
+                                <FaCalendarAlt className="me-2 text-primary" /> Thông tin giao nhận
+                            </h3>
 
                             {/* Lựa chọn giao hàng */}
-                            <div className="mb-4 border-top pt-3">
-                                <label className="form-label d-flex align-items-center small fw-bold mb-3"><FaClock className="me-2 text-secondary" /> Thời gian giao hàng</label>
+                            <div className="mb-4">
+                                <label className="form-label d-flex align-items-center small fw-bold mb-3">
+                                    <FaClock className="me-2 text-secondary" /> Thời gian giao hàng
+                                </label>
                                 <div className="d-flex gap-4">
                                     <div className="form-check form-check-inline">
                                         <input
@@ -459,7 +785,9 @@ export default function CheckOutMain() {
 
                             {/* Ghi chú */}
                             <div className="form-group border-top pt-3">
-                                <label htmlFor="notes" className="form-label d-flex align-items-center small fw-bold"><FaCommentDots className="me-2 text-secondary" /> Ghi chú (tùy chọn)</label>
+                                <label htmlFor="notes" className="form-label d-flex align-items-center small fw-bold">
+                                    <FaCommentDots className="me-2 text-secondary" /> Ghi chú (tùy chọn)
+                                </label>
                                 <textarea
                                     id="notes"
                                     className="form-control"
@@ -473,8 +801,10 @@ export default function CheckOutMain() {
                         </div>
 
                         {/* 3. Phương thức Thanh toán */}
-                        <div className="mb-5 p-4 border rounded-3 shadow-sm bg-white">
-                            <h3 className="mb-4 d-flex align-items-center"><FaCreditCard className="me-2 text-primary" /> Phương thức thanh toán *</h3>
+                        <div className="mb-5 p-5 border rounded-3 shadow-sm bg-white">
+                            <h3 className="mb-4 d-flex align-items-center">
+                                <FaCreditCard className="me-2 text-primary" /> Phương thức thanh toán *
+                            </h3>
                             <div className="shipping">
                                 <ul className="list-unstyled">
                                     <li>
@@ -493,7 +823,6 @@ export default function CheckOutMain() {
                                             </label>
                                         </div>
                                     </li>
-                                    {/* Có thể thêm các option thanh toán khác ở đây */}
                                 </ul>
                             </div>
                         </div>
@@ -505,7 +834,7 @@ export default function CheckOutMain() {
                         <div className="right-card-sidebar-checkout " style={{ padding: '28px', top: '20px' }}>
                             <h3 className="title-checkout mb-4">Tóm tắt đơn hàng</h3>
 
-                            {/* Coupon Section (CHUYỂN SANG CỘT PHẢI) */}
+                            {/* Coupon Section */}
                             <div className="coupon-section mb-4 p-3 border rounded-3 bg-light">
                                 <div className="d-flex align-items-center mb-3">
                                     <FaTicketAlt className="text-primary me-2" style={{ fontSize: '1.2rem' }} />
@@ -514,7 +843,7 @@ export default function CheckOutMain() {
 
                                 {!couponApplied ? (
                                     <form onSubmit={applyCoupon}>
-                                        <div className="d-flex gap-5">
+                                        <div className="d-flex gap-2">
                                             <input
                                                 type="text"
                                                 placeholder="Nhập mã giảm giá"
@@ -532,7 +861,7 @@ export default function CheckOutMain() {
                                                 disabled={isApplyingCoupon || !coupon.trim()}
                                             >
                                                 {isApplyingCoupon ? (
-                                                    <><span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></>
+                                                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                                                 ) : ('Áp dụng')}
                                             </button>
                                         </div>
@@ -570,7 +899,6 @@ export default function CheckOutMain() {
                                     </div>
                                 )}
                             </div>
-                            {/* END Coupon Section */}
 
                             {/* Cart Items */}
                             <div className="order-items mb-3 border-bottom pb-3">
@@ -627,9 +955,10 @@ export default function CheckOutMain() {
                                 disabled={
                                     cartItems.length === 0 ||
                                     loadingShipping ||
-                                    defaultAddress === null ||
-                                    !billingInfo.phone || // Must have phone
-                                    (deliveryType === 'preorder' && !preOrderTime) // Must pick time for preorder
+                                    (addressMode === 'select' && !selectedAddress) ||
+                                    (addressMode === 'input' && (!manualAddress.name || !manualAddress.phone || !manualAddress.fullAddress || !selectedProvinceId || !selectedDistrictId)) ||
+                                    (deliveryType === 'preorder' && !preOrderTime)
+                                    || (errrorText !== '' && errrorText !== null)
                                 }
                             >
                                 HOÀN TẤT ĐẶT HÀNG
@@ -638,9 +967,10 @@ export default function CheckOutMain() {
                     </div>
                 </div>
             </div>
+
             <style jsx>{`
                 .checkout-area {
-                    background-color: #f7f7f7; /* Nền nhẹ nhàng */
+                    background-color: #f7f7f7;
                 }
                 .right-card-sidebar-checkout {
                     background-color: #ffffff;
@@ -655,8 +985,12 @@ export default function CheckOutMain() {
                     height: calc(2.5rem + 2px);
                     padding: 0.5rem 1rem;
                 }
-                .rts-btn.btn-primary {
-                    /* Giữ màu sắc và style của nút chính */
+                .cursor-pointer {
+                    cursor: pointer;
+                }
+                .cursor-pointer:hover {
+                    transform: translateY(-1px);
+                    transition: transform 0.2s ease;
                 }
                 button:disabled {
                     opacity: 0.6;
@@ -668,6 +1002,13 @@ export default function CheckOutMain() {
                 }
                 .single-shop-list:last-child {
                     border-bottom: none;
+                }
+                .border-primary {
+                    border-color: #0d6efd !important;
+                }
+                .bg-primary {
+                    --bs-bg-opacity: 0.1;
+                    background-color: rgba(13, 110, 253, var(--bs-bg-opacity)) !important;
                 }
             `}</style>
         </div>
