@@ -8,6 +8,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import ProductService, { Product } from "@/data/Services/ProductService";
 import CustomLoader from "../common/CustomLoader";
+import ProductHome from "../product-main/ProductHome";
 
 const FeatureProduct: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -90,7 +91,7 @@ const FeatureProduct: React.FC = () => {
                                     <SwiperSlide key={idx}>
                                         {section.map((product) => (
                                             <div key={product.id} className="single-shopping-card-one">
-                                                <WeeklyBestSellingMain
+                                                <ProductHome
                                                     Id={product.id}
                                                     Slug={product.slug}
                                                     ProductImage={product.imageUrl}
@@ -101,6 +102,7 @@ const FeatureProduct: React.FC = () => {
                                                             : product.salePrice.toString()
                                                     }
                                                     BasePrice={product.basePrice.toString()}
+                                                    UnitSize={product.unitSize ? product.unitSize : undefined}
                                                 />
                                             </div>
                                         ))}

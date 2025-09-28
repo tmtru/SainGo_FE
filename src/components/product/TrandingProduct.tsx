@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import WeeklyBestSellingMain from "@/components/product-main/WeeklyBestSellingMain";
 import ProductService, { Product } from "@/data/Services/ProductService";
 import CustomLoader from "../common/CustomLoader";
+import ProductHome from "../product-main/ProductHome";
 
 const SaledProduct: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -51,7 +52,7 @@ const SaledProduct: React.FC = () => {
                                         className="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2"
                                     >
                                         <div className="single-shopping-card-one">
-                                            <WeeklyBestSellingMain
+                                            <ProductHome
                                                 Id={product.id}
                                                 Slug={product.slug}
                                                 ProductImage={product.imageUrl}
@@ -62,6 +63,7 @@ const SaledProduct: React.FC = () => {
                                                         : product.salePrice.toString()
                                                 }
                                                 BasePrice={product.basePrice.toString()}
+                                                UnitSize={product.unitSize ? product.unitSize : undefined}
                                             />
                                         </div>
                                     </div>
