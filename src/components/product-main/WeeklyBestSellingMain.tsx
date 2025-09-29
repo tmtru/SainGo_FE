@@ -105,7 +105,6 @@ const WeeklyBestSellingMain: React.FC<WeeklyBestSellingMainProps> = ({
             <img
               src={ProductImage ?? "/assets/images/grocery/default-image.jpg"}
               alt={ProductTitle}
-              className="w-full h-auto object-cover"
             />
           </Link>
 
@@ -133,7 +132,7 @@ const WeeklyBestSellingMain: React.FC<WeeklyBestSellingMainProps> = ({
               {UnitSize ? UnitSize : "Serving size not specified"}
             </span>
             <div className="natural-value mt-3">
-              <h6 className="title">Giá trị dinh dưỡng/100g</h6>
+              <h5 className="title">Giá trị dinh dưỡng/100g</h5>
               <div className="single">
                 <span>Calories:</span>
                 <span>{Calories}</span>
@@ -143,11 +142,11 @@ const WeeklyBestSellingMain: React.FC<WeeklyBestSellingMainProps> = ({
                 <span>{Protein}</span>
               </div>
               <div className="single">
-                <span>Carbs (g):</span>
+                <span>Carbohydrate (g):</span>
                 <span>{Carbs}</span>
               </div>
               <div className="single">
-                <span>Fat (g):</span>
+                <span>Chất béo (g):</span>
                 <span>{Fat}</span>
               </div>
               {NutritionHighlights && (
@@ -173,7 +172,7 @@ const WeeklyBestSellingMain: React.FC<WeeklyBestSellingMainProps> = ({
                 className="rts-btn btn-primary radious-sm with-icon"
                 onClick={handleAdd}
               >
-                <div className="btn-text">Add To Cart</div>
+                <div className="btn-text">Thêm vào giỏ hàng</div>
                 <div className="arrow-icon">
                   <i className="fa-regular fa-cart-shopping" />
                 </div>

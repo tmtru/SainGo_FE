@@ -1,0 +1,167 @@
+.custom-product-details-wrapper {
+  background: #fff;
+  padding: 30px;
+  border-radius: 10px;
+}
+
+.custom-product-area {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.custom-thumb-area {
+  flex: 1;
+}
+
+.custom-thumb-main img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.custom-thumb-list {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.custom-thumb-item {
+  width: 60px;
+  height: 60px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.3s;
+}
+.custom-thumb-item.active,
+.custom-thumb-item:hover {
+  opacity: 1;
+  border-color: #000;
+}
+
+.custom-contents {
+  flex: 1;
+}
+
+.custom-title {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.custom-shortdesc {
+  margin: 15px 0;
+  color: #555;
+}
+
+.custom-price {
+  font-size: 22px;
+  font-weight: 700;
+  color: #dc2626;
+}
+.custom-oldprice {
+  margin-left: 10px;
+  text-decoration: line-through;
+  color: #999;
+}
+
+.custom-quantity {
+  margin: 20px 0;
+}
+.custom-quantity-input {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.custom-quantity-input input {
+  width: 60px;
+  text-align: center;
+}
+/* Nút + - trong input số lượng */
+.custom-quantity-input button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.custom-quantity-input button:hover {
+  background: #629d23;
+  border-color: #629d23;
+  color: #fff;
+}
+
+.custom-quantity-input input {
+  width: 60px;
+  height: 32px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.custom-actions {
+  margin: 20px 0;
+}
+.custom-btn {
+  background: #629d23;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.custom-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.custom-details span {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.custom-share {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+.custom-share-item {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #444;
+}
+.custom-share-item:hover {
+  color: #dc2626;
+}
+
+.custom-rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 10px 0;
+}
+
+.custom-rating i {
+  color: #ffd700;
+  font-size: 16px;
+}
+
+.custom-rating span {
+  margin-left: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+
