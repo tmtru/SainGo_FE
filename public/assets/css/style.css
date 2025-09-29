@@ -17954,14 +17954,20 @@ li.with-megamenu:hover .rts-megamenu {
 }
 
 .single-category-one img {
-  max-width: 70px;
-  max-height: 94px;
+  max-width: 200px;
+  max-height: 300px;
   margin: auto;
   margin-bottom: 18px;
-  min-height: 60px;
+  min-height: 110px;
   text-align: center;
   display: flex;
 }
+
+.category-list-main-wrapper .swiper-wrapper {
+justify-content: center !important;
+}
+
+
 
 .single-category-one p {
   font-weight: 700;

@@ -6,7 +6,6 @@ import { Navigation, Autoplay } from "swiper/modules";
 import Image from "next/image";
 import Link from "next/link";
 
-
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
@@ -33,13 +32,14 @@ function CategoryBannerBottom() {
       <div className="container">
         <div className="row">
           <div className="col-lg-12">
-            <div className="category-area-main-wrapper-one">
+            <div className="category-list-main-wrapper">
               <Swiper
                 modules={[Navigation, Autoplay]}
                 spaceBetween={12}
                 slidesPerView={10}
                 loop={true}
                 speed={1000}
+                centeredSlides={true}
                 autoplay={{
                   delay: 3000,
                   disableOnInteraction: false,
@@ -60,11 +60,12 @@ function CategoryBannerBottom() {
                       className="single-category-one"
                     >
                       <Image
-                        src={cat.iconUrl || "/assets/images/category/default.png"}
+                        src={
+                          cat.iconUrl || "/assets/images/category/default.png"
+                        }
                         alt={cat.name}
-                        width={60}
-                        height={60}
-                        style={{ objectFit: "contain" }}
+                        width={200}
+                        height={300}
                       />
                       <p>{cat.name}</p>
                     </Link>

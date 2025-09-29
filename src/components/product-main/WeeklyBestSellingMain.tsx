@@ -166,7 +166,7 @@ const WeeklyBestSellingMain: React.FC<WeeklyBestSellingMainProps> = ({
                 <span className="current">{formatCurrency(BasePrice)}</span>
               )}
             </div>
-            <div className="cart-counter-action">
+            <div className="button-area">
               <button
                 type="button"
                 className="rts-btn btn-primary radious-sm with-icon"

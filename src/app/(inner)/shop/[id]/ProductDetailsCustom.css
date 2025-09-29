@@ -119,6 +119,18 @@
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease; 
+}
+
+.custom-btn:hover {
+  background: #4e7a1b;        
+  transform: translateY(-3px); 
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15); 
+}
+
+.custom-btn:active {
+  transform: translateY(0); 
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 .custom-btn:disabled {
   background: #ccc;

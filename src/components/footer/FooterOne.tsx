@@ -89,14 +89,9 @@ function FooterOne() {
                       Đăng ký để nhận thông tin về các ưu đãi mới nhất, sản phẩm
                     </p>
                     <form className="footersubscribe-form" action="#">
-                      <input
-                        type="email"
-                        placeholder="Email"
-                        required
-                      />
+                      <input type="email" placeholder="Email" required />
                       <button className="rts-btn btn-primary">Đăng ký</button>
                     </form>
-                   
                   </div>
                   {/* single footer area wrapper */}
                 </div>
@@ -105,7 +100,10 @@ function FooterOne() {
                     <span>Theo dõi chúng tôi:</span>
                     <ul>
                       <li>
-                        <a href="#">
+                        <a
+                          href="https://www.facebook.com/profile.php?id=61581198878054&locale=vi_VN"
+                          target="_blank"
+                        >
                           <i className="fa-brands fa-facebook-f" />
                         </a>
                       </li>
@@ -119,21 +117,19 @@ function FooterOne() {
                           <i className="fa-brands fa-tiktok" />
                         </a>
                       </li>
-                      
                     </ul>
                   </div>
                   <div className="payment-access copyright-between-1">
-                      <p className="disc">
-                    Copyright 2025 <a href="#">©SainGo</a>. All rights
-                    reserved.
-                  </p>
+                    <p className="disc">
+                      Copyright 2025 <a href="#">©SainGo</a>. All rights
+                      reserved.
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-  
       </>
     </div>
   );

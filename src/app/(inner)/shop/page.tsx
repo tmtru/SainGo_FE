@@ -409,7 +409,7 @@ export default function Home() {
                   </div>
                 ) : filteredProducts.length === 0 ? (
                   <div className="col-12 text-center py-5">
-                    <h2>No Product Found</h2>
+                    <h2>Các món ăn hiện chưa kịp cập nhật. Vui lòng thử lại sau</h2>
                   </div>
                 ) : (
                   <div className="product-area-wrapper-shopgrid-list mt--20 tab-pane fade show active">

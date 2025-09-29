@@ -133,6 +133,18 @@ const ProductHome: React.FC<ProductHomeProps> = ({
               <span className="current">{formatCurrency(BasePrice)}</span>
             </div>
           )}
+          <div className="button-area">
+              <button
+                type="button"
+                className="rts-btn btn-primary radious-sm with-icon"
+                onClick={handleAdd}
+              >
+                <div className="btn-text">Thêm vào giỏ hàng</div>
+                <div className="arrow-icon">
+                  <i className="fa-regular fa-cart-shopping" />
+                </div>
+              </button>
+            </div>
         </div>
       </div>
 
