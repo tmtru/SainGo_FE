@@ -41,11 +41,11 @@ function NavItem() {
               </li>
             </ul>
           </li>
-          <li className="parent has-dropdown">
+          {/* <li className="parent has-dropdown">
             <a className="nav-link" href="/blog">
               Blog
             </a>
-          </li>
+          </li> */}
           <li className="parent">
             <a href="/contact">Liên hệ</a>
           </li>

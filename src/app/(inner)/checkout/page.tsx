@@ -4,13 +4,12 @@ import CheckOutMain from "./CheckOutMain";
 import FooterOne from "@/components/footer/FooterOne";
 
 export default function Home() {
-    return (
-        <div className="demo-one">
-            <HeaderOne />
+  return (
+    <div className="demo-one">
+      <HeaderOne />
 
-
-            <CheckOutMain />
-            <FooterOne />
-        </div>
-    );
+      <CheckOutMain />
+      <FooterOne />
+    </div>
+  );
 }

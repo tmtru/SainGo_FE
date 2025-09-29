@@ -313,12 +313,15 @@ export default function Home() {
             </div>
 
             {/* Tabs categories */}
-            <div className="title-area-between">
-              <h2 className="title-left mb--0">Danh sách món ăn</h2>
+            <div
+              className="title-area-between"
+              style={{ justifyContent: "center" }}
+            >
               <ul
                 className="nav nav-tabs best-selling-grocery"
                 id="categoryTabs"
                 role="tablist"
+                style={{ margin: "0 auto" }}
               >
                 <li className="nav-item" role="presentation">
                   <button

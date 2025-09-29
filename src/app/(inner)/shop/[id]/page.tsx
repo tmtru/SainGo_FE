@@ -217,6 +217,8 @@ const CompareElements: React.FC = () => {
               <div className="navigator-breadcrumb-wrapper">
                 <a href="/">Trang chủ</a>
                 <i className="fa-regular fa-chevron-right" />
+                <a href="/shop">Menu</a>
+                <i className="fa-regular fa-chevron-right" />
                 <a className="current" href="#">
                   Chi tiết sản phẩm
                 </a>
@@ -565,7 +567,7 @@ const CompareElements: React.FC = () => {
                         <img src="/assets/images/shop/01.svg" alt="icon" />
                       </div>
                       <div className="details">
-                        <p>Giảm giá 5% ngay lập tức cho Đơn hàng đầu tiên</p>
+                        <p>Món ăn được đảm bảo chế biến từ đầu bếp chuyên nghiệp</p>
                       </div>
                     </div>
                     <div className="single-offer-area">
@@ -574,8 +576,7 @@ const CompareElements: React.FC = () => {
                       </div>
                       <div className="details">
                         <p>
-                          Giảm giá cố định cho các giao dịch trả góp bằng thẻ
-                          tín dụng
+                          Mã giảm giá đặc biệt cho các thành viên đăng ký
                         </p>
                       </div>
                     </div>
@@ -585,8 +586,7 @@ const CompareElements: React.FC = () => {
                       </div>
                       <div className="details">
                         <p>
-                          Miễn phí vận chuyển toàn cầu cho tất cả các đơn hàng
-                          trên $100
+                          Vận chuyển nhanh chóng và an toàn
                         </p>
                       </div>
                     </div>

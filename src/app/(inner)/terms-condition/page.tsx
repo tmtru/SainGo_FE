@@ -1,4 +1,3 @@
-
 import HeaderOne from "@/components/header/HeaderOne";
 import AboutBanner from "@/components/banner/AboutBanner";
 import CounterOne from "@/components/counterup/CounterOne";
@@ -11,149 +10,148 @@ import ShortService from "@/components/service/ShortService";
 import FooterOne from "@/components/footer/FooterOne";
 
 export default function Home() {
-    return (
-        <div className="demo-one">
-            <HeaderOne />
+  return (
+    <div className="demo-one">
+      <HeaderOne />
 
-            <>
-  <div className="rts-navigation-area-breadcrumb bg_light-1">
-    <div className="container">
-      <div className="row">
-        <div className="col-lg-12">
-          <div className="navigator-breadcrumb-wrapper">
-            <a href="index.html">Home</a>
-            <i className="fa-regular fa-chevron-right" />
-            <a className="current" href="register.html">
-                Terms & Condition
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div className="section-seperator bg_light-1">
-    <div className="container">
-      <hr className="section-seperator" />
-    </div>
-  </div>
-{/* Terms & Condition area start */}
-<div className="rts-pricavy-policy-area rts-section-gap">
-    <div className="container">
-      <div className="row">
-        <div className="col-lg-12">
-          <div className="container-privacy-policy">
-            <h1 className="title mb--40">Terms &amp; Condition</h1>
-            <p className="disc">
-              It is a long established fact that a reader will be distracted by
-              the readable content of a page when looking at its layout. The
-              point of using Lorem Ipsum is that it has a more-or-less normal
-              distribution of letters, as opposed to using ‘Content here,
-              content here’, making it look like readable English.
-            </p>
-            <p className="disc">
-              Many desktop publishing packages and web page editors now use
-              Lorem Ipsum as their default model text, and a search for ‘lorem
-              ipsum’ will uncover many web sites still in their infancy. Various
-              versions have evolved over the years, sometimes by accident,
-              sometimes on purpose (injected humour and the like).
-            </p>
-            <p className="disc mb--15">
-              All the Lorem Ipsum generators on the Internet tend to repeat
-              predefined chunks as necessary, making this the first true
-              generator on the Internet. It uses a dictionary of over 200 Latin
-              words, combined with a handful of model sentence structures, to
-              generate Lorem Ipsum which looks reasonable. The generated Lorem
-              Ipsum is therefore always free from repetition, injected humour,
-              or non-characteristic words etc.
-            </p>
-            <div className="section-list mt--40">
-              <h2 className="title">
-                Determination of personal information of users
-              </h2>
-              <ul>
-                <li>
-                  <p>
-                    All the Lorem Ipsum generators on the Internet tend to
-                    repeat predefined chunks as necessary, making this the first
-                    true generator on the Internet.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    It uses a dictionary of over 200 Latin words, combined with
-                    a handful of model sentence structures, to generate Lorem
-                    Ipsum which looks reasonable. The generated Lorem Ipsum is
-                    therefore always free from repetition, injected humour, or
-                    non-characteristic words etc.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    There are many variations of passages of Lorem Ipsum
-                    available, but the majority have suffered alteration in some
-                    form, by injected humour, or randomised words which don’t
-                    look even slightly believable.
-                  </p>
-                </li>
-              </ul>
-            </div>
-            <div className="section-list mt--40">
-              <h2 className="title">
-                Reasons for collecting and processing user personal information
-              </h2>
-              <ul>
-                <li>
-                  <p>
-                    All the Lorem Ipsum generators on the Internet tend to
-                    repeat predefined chunks as necessary, making this the first
-                    true generator on the Internet.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    It uses a dictionary of over 200 Latin words, combined with
-                    a handful of model sentence structures, to generate Lorem
-                    Ipsum which looks reasonable. The generated Lorem Ipsum is
-                    therefore always free from repetition, injected humour, or
-                    non-characteristic words etc.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    There are many variations of passages of Lorem Ipsum
-                    available, but the majority have suffered alteration in some
-                    form, by injected humour, or randomised words which don’t
-                    look even slightly believable.
-                  </p>
-                </li>
-              </ul>
-              <p
-                className="disc mt--30"
-                style={{ color: "#616164", fontWeight: 500 }}
-              >
-                All generators on the Internet tend to repeat predefined chunks
-                as necessary, making this the first true generator on the
-                Internet. It uses a dictionary of over 200 Latin words, combined
-                with a handful of model sentence structures, to generate Lorem
-                Ipsum which looks reasonable. The generated Lorem Ipsum is
-                therefore always free from repetition, injected humour, or
-                non-characteristic words etc.
-              </p>
+      <>
+        <div className="rts-navigation-area-breadcrumb bg_light-1">
+          <div className="container">
+            <div className="row">
+              <div className="col-lg-12">
+                <div className="navigator-breadcrumb-wrapper">
+                  <a href="index.html">Trang chủ</a>
+                  <i className="fa-regular fa-chevron-right" />
+                  <a className="current" href="register.html">
+                    Chính sách khách hàng
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-  {/* Terms & Condition area end */}
-</>
-
-
-
-
-            <ShortService/>
-            <FooterOne />
-
+        <div className="section-seperator bg_light-1">
+          <div className="container">
+            <hr className="section-seperator" />
+          </div>
         </div>
-    );
+        {/* Terms & Condition area start */}
+        <div className="rts-pricavy-policy-area rts-section-gap">
+          <div className="container">
+            <div className="row">
+              <div className="col-lg-12">
+                <div className="container-privacy-policy">
+                  <h1 className="title mb--40">Chính sách khách hàng</h1>
+                  <p className="disc">
+                    Để đảm bảo quyền lợi tối đa cho khách hàng khi sử dụng nền
+                    tảng của chúng tôi, chúng tôi cam kết bảo vệ và tôn trọng
+                    quyền riêng tư của bạn. Chính sách này giải thích cách chúng
+                    tôi thu thập, sử dụng và bảo vệ thông tin cá nhân của bạn
+                    khi bạn đăng ký và sử dụng dịch vụ của chúng tôi. Bên cạnh
+                    những quyền lợi mà khách hàng được hưởng, chúng tôi cũng cần
+                    yêu cầu các bạn tuân thủ các quy định nhất định. Dưới đây là
+                    quyền lợi, nghĩa vụ và trách nhiệm khi bạn tham gia vào nền
+                    tảng
+                  </p>
+
+                  <div className="section-list mt--40">
+                    <h2 className="title">Quyền lợi</h2>
+                    <ul>
+                      <li>
+                        <p>
+                          Được lựa chọn món ăn, gói dịch vụ và nhận đầy đủ thông
+                          tin về thành phần, dinh dưỡng, giá cả.
+                        </p>
+                      </li>
+                      <li>
+                        <p>
+                          Được đảm bảo chất lượng món ăn: vệ sinh an toàn thực
+                          phẩm, nguyên liệu rõ nguồn gốc.
+                        </p>
+                      </li>
+                      <li>
+                        <p>
+                          Được quyền khiếu nại, yêu cầu đổi trả nếu sản phẩm
+                          không đúng cam kết (hỏng, sai món, thiếu món).
+                        </p>
+                      </li>
+                      <li>
+                        <p>
+                          Được bảo mật thông tin cá nhân, thông tin thanh toán.
+                        </p>
+                      </li>
+                      <li>
+                        <p>Có quyền chấm dứt sử dụng dịch vụ bất kỳ lúc nào.</p>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="section-list mt--40">
+                    <h2 className="title">Nghĩa vụ</h2>
+                    <ul>
+                      <li>
+                        <p>Thanh toán đầy đủ và đúng hạn theo đơn hàng.</p>
+                      </li>
+                      <li>
+                        <p>
+                          Cung cấp thông tin chính xác (tên, số điện thoại, địa
+                          chỉ).
+                        </p>
+                      </li>
+                      <li>
+                        <p>
+                          Tiếp nhận hàng theo đúng thời gian đã thỏa thuận, hỗ
+                          trợ shipper trong việc giao hàng.
+                        </p>
+                      </li>
+                      <li>
+                        <p>
+                          Không sử dụng dịch vụ vào mục đích vi phạm pháp luật
+                          (buôn bán lại trái phép, gian lận thanh toán).
+                        </p>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="section-list mt--40">
+                    <h2 className="title">Trách nhiệm pháp lý</h2>
+                    <ul>
+                      <li>
+                        <p>
+                          Người dùng vi phạm nghĩa vụ thanh toán hoặc cung cấp
+                          thông tin sai → chịu trách nhiệm và bồi thường thiệt
+                          hại (nếu có).
+                        </p>
+                      </li>
+                      <li>
+                        <p>
+                          Người dùng có hành vi gian lận, gây rối, vu khống → bị
+                          khóa tài khoản, chấm dứt cung cấp dịch vụ, có thể bị
+                          khởi kiện.
+                        </p>
+                      </li>
+                    </ul>
+                    <p
+                      className="disc mt--30"
+                      style={{ color: "#616164", fontWeight: 500 }}
+                    >
+                      Trong bất kỳ trường hợp nào mà các bạn không tuân thủ
+                      chúng tôi sẽ không chịu trách nhiệm về bất kỳ thiệt hại
+                      hoặc tổn thất nào phát sinh từ việc vi phạm của các bạn.
+                      Mong các bạn có thể hiểu và hợp tác để cùng xây dựng một
+                      cộng đồng lành mạnh và phát triển. Cảm ơn các bạn đã tin
+                      tưởng lựa chọn chúng tôi. Hy vọng sẽ được phục vụ các bạn
+                      trong thời gian dài
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Terms & Condition area end */}
+      </>
+
+      <ShortService />
+      <FooterOne />
+    </div>
+  );
 }

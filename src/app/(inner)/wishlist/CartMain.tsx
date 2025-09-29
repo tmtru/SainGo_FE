@@ -1,38 +1,49 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useWishlist } from '@/components/header/WishlistContext';
-import { useCart } from '@/components/header/CartContext';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect } from "react";
+import { useWishlist } from "@/components/header/WishlistContext";
+import { useCart } from "@/components/header/CartContext";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CartMain = () => {
-  const { wishlistItems, removeFromWishlist, updateItemQuantity } = useWishlist();
+  const { wishlistItems, removeFromWishlist, updateItemQuantity } =
+    useWishlist();
   const { addToCart } = useCart();
 
-  const [coupon, setCoupon] = useState('');
+  const [coupon, setCoupon] = useState("");
   const [discount, setDiscount] = useState(0);
-  const [couponMessage, setCouponMessage] = useState('');
+  const [couponMessage, setCouponMessage] = useState("");
   const [subtotal, setSubtotal] = useState(0);
 
   useEffect(() => {
-    const total = wishlistItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const total = wishlistItems.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
     setSubtotal(total);
   }, [wishlistItems]);
 
   const applyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
-    if (coupon === '12345') {
+    if (coupon === "12345") {
       setDiscount(0.25);
-      setCouponMessage('Coupon applied -25% successfully');
-      localStorage.setItem('coupon', coupon);
-      localStorage.setItem('discount', '0.25');
+      setCouponMessage("Coupon applied -25% successfully");
+      localStorage.setItem("coupon", coupon);
+      localStorage.setItem("discount", "0.25");
     } else {
       setDiscount(0);
-      setCouponMessage('Coupon code is incorrect');
-      localStorage.removeItem('coupon');
-      localStorage.removeItem('discount');
+      setCouponMessage("Coupon code is incorrect");
+      localStorage.removeItem("coupon");
+      localStorage.removeItem("discount");
     }
+  };
+
+  const formatVND = (value: number) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(value);
   };
 
   const finalTotal = subtotal - subtotal * discount;
@@ -41,15 +52,15 @@ const CartMain = () => {
     try {
       await addToCart({
         productId: item.productId || item.id, // Ensure correct field
-        productVariantId: '', // or actual variant ID if available
+        productVariantId: "", // or actual variant ID if available
         quantity: item.quantity,
         unitPrice: item.price,
-        cartId: '', // optional if server infers from user
+        cartId: "", // optional if server infers from user
       });
-      toast.success('Successfully added to cart!');
+      toast.success("Successfully added to cart!");
     } catch (err) {
       console.error(err);
-      toast.error('Failed to add to cart!');
+      toast.error("Failed to add to cart!");
     }
   };
 
@@ -58,21 +69,35 @@ const CartMain = () => {
       <div className="container">
         <div className="row g-5">
           <div className="col-xl-12 col-12 order-2 order-xl-1">
-          
-
             <div className="rts-cart-list-area">
               <div className="single-cart-area-list head">
-                <div className="product-main"><p>Sản phẩm</p></div>
-                <div className="price"><p>Giá</p></div>
-                <div className="quantity"><p>Số lượng</p></div>
-                <div className="subtotal"><p>Thành tiền</p></div>
-                <div className="subtotal"><p>Thêm vào giỏ hàng</p></div>
+                <div className="product-main">
+                  <p>Sản phẩm</p>
+                </div>
+                <div className="price">
+                  <p>Giá</p>
+                </div>
+                <div className="quantity">
+                  <p>Số lượng</p>
+                </div>
+                <div className="subtotal">
+                  <p>Thành tiền</p>
+                </div>
+                <div className="subtotal">
+                  <p>Thêm vào giỏ hàng</p>
+                </div>
               </div>
 
-              {wishlistItems.map(item => (
-                <div className="single-cart-area-list main item-parent" key={item.id}>
+              {wishlistItems.map((item) => (
+                <div
+                  className="single-cart-area-list main item-parent"
+                  key={item.id}
+                >
                   <div className="product-main-cart">
-                    <div className="close section-activation" onClick={() => removeFromWishlist(item.id)}>
+                    <div
+                      className="close section-activation"
+                      onClick={() => removeFromWishlist(item.id)}
+                    >
                       <i className="fa-regular fa-x" />
                     </div>
                     <div className="thumbnail">
@@ -84,23 +109,35 @@ const CartMain = () => {
                     </div>
                   </div>
 
-                  <div className="price"><p>${item.price.toFixed(2)}</p></div>
+                  <div className="price">
+                    <div className="price">
+                      <p>{formatVND(item.price)}</p>
+                    </div>
+                  </div>
 
                   <div className="quantity">
                     <div className="quantity-edit">
-                      <input type="text" className="input" value={item.quantity} readOnly />
+                      <input
+                        type="text"
+                        className="input"
+                        value={item.quantity}
+                        readOnly
+                      />
                       <div className="button-wrapper-action">
                         <button
                           className="button minus"
                           onClick={() =>
-                            item.quantity > 1 && updateItemQuantity(item.id, item.quantity - 1)
+                            item.quantity > 1 &&
+                            updateItemQuantity(item.id, item.quantity - 1)
                           }
                         >
                           <i className="fa-regular fa-chevron-down" />
                         </button>
                         <button
                           className="button plus"
-                          onClick={() => updateItemQuantity(item.id, item.quantity + 1)}
+                          onClick={() =>
+                            updateItemQuantity(item.id, item.quantity + 1)
+                          }
                         >
                           <i className="fa-regular fa-chevron-up" />
                         </button>
@@ -109,7 +146,7 @@ const CartMain = () => {
                   </div>
 
                   <div className="subtotal">
-                    <p>${(item.price * item.quantity).toFixed(2)}</p>
+                    <p>{formatVND(item.price * item.quantity)}</p>
                   </div>
 
                   <div className="button-area">
@@ -135,17 +172,24 @@ const CartMain = () => {
                     onChange={(e) => setCoupon(e.target.value)}
                     className="form-control w-50 d-inline-block me-2"
                   />
-                  <button type="submit" className="rts-btn btn-secondary">Apply</button>
+                  <button type="submit" className="rts-btn btn-secondary">
+                    Apply
+                  </button>
                 </form>
                 {couponMessage && <p className="mt-2">{couponMessage}</p>}
               </div>
 
               <div className="cart-summary mt-4">
-                <p>Tổng tiền: ${subtotal.toFixed(2)}</p>
+                <p>Tổng tiền: {formatVND(subtotal)}</p>
+
                 {discount > 0 && (
                   <p>Giảm giá: -{(discount * 100).toFixed(0)}%</p>
                 )}
-                <p><strong>Số tiền cần thanh toán: ${finalTotal.toFixed(2)}</strong></p>
+                <p>
+                  <strong>
+                    Số tiền cần thanh toán: {formatVND(finalTotal)}
+                  </strong>
+                </p>
               </div>
             </div>
           </div>

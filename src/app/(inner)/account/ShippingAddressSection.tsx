@@ -207,7 +207,7 @@ const ShippingAddressSection: React.FC<ShippingAddressSectionProps> = ({
                 city: selectedProvince?.provinceName ?? '',
                 district: selectedDistrictId?.toString() ?? '',
                 ward: selectedWardId ?? '',
-                isDefault: false,
+               isDefault: defaultAddress ? false : true,
             };
 
             // Save to database
