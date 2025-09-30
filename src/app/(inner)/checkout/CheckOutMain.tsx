@@ -21,22 +21,91 @@ function formatCurrency(value: number) {
     });
 }
 
-// Helper function to get the next 24 hours in 30-minute intervals
-const getDeliveryTimeSlots = () => {
-    const now = new Date();
-    const slots = [];
-    // Start from the next 30-minute mark
-    let current = new Date(now.getTime());
-    current.setMinutes(current.getMinutes() + (30 - (current.getMinutes() % 30)));
-    current.setSeconds(0);
-    current.setMilliseconds(0);
+// Hàm format ngày: YYYY-MM-DD
+const formatDateValue = (date: Date) => {
+    return date.toISOString().split("T")[0];
+};
 
-    for (let i = 0; i < 48; i++) { // 48 slots for 24 hours (30 min intervals)
-        const displayTime = current.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-        slots.push(displayTime);
-        current.setMinutes(current.getMinutes() + 30);
+const formatDateLabel = (date: Date) => {
+    const days = [
+        "Chủ Nhật",
+        "Thứ Hai",
+        "Thứ Ba",
+        "Thứ Tư",
+        "Thứ Năm",
+        "Thứ Sáu",
+        "Thứ Bảy",
+    ];
+    const dayName = days[date.getDay()];
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    return `${dayName}, ${day}/${month}`;
+};
+
+// Hàm sinh danh sách ngày khả dụng (bắt đầu từ ngày mai)
+const generateAvailableDates = (daysAhead: number) => {
+    const today = new Date();
+    const result = [];
+
+    // Bắt đầu từ ngày mai (i = 1)
+    for (let i = 1; i <= daysAhead; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        result.push({
+            value: formatDateValue(d),
+            label: formatDateLabel(d),
+        });
     }
-    return slots;
+    return result;
+};
+
+// Hàm kiểm tra xem có phải hôm nay không
+const isToday = (dateString: string) => {
+    const today = new Date();
+    const checkDate = new Date(dateString);
+    return today.toDateString() === checkDate.toDateString();
+};
+
+// Hàm lấy khung giờ khả dụng dựa trên ngày được chọn
+const getAvailableTimeSlots = (selectedDate: string) => {
+    const baseTimeSlots = [
+        { value: "07:00-08:00", label: "Sáng sớm (7:00 - 8:00)", disabled: false },
+        { value: "08:00-09:00", label: "Sáng (8:00 - 9:00)", disabled: false },
+        { value: "09:00-10:00", label: "Sáng (9:00 - 10:00)", disabled: false },
+        { value: "10:00-11:00", label: "Sáng muộn (10:00 - 11:00)", disabled: false },
+        { value: "11:00-12:00", label: "Trưa (11:00 - 12:00)", disabled: false },
+        { value: "12:00-13:00", label: "Trưa (12:00 - 13:00)", disabled: false },
+        { value: "13:00-14:00", label: "Chiều sớm (13:00 - 14:00)", disabled: false },
+        { value: "14:00-15:00", label: "Chiều sớm (14:00 - 15:00)", disabled: false },
+        { value: "15:00-16:00", label: "Chiều (15:00 - 16:00)", disabled: false },
+        { value: "16:00-17:00", label: "Chiều (16:00 - 17:00)", disabled: false },
+        { value: "17:00-18:00", label: "Chiều muộn (17:00 - 18:00)", disabled: false },
+        { value: "18:00-19:00", label: "Tối sớm (18:00 - 19:00)", disabled: false },
+        { value: "19:00-20:00", label: "Tối (19:00 - 20:00)", disabled: false },
+    ];
+
+    // Nếu là ngày mai
+    if (selectedDate) {
+        const selectedDateObj = new Date(selectedDate);
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        // Nếu chọn ngày mai, disable các khung giờ đã qua (tính theo giờ hiện tại + 2 tiếng chuẩn bị)
+        if (selectedDateObj.toDateString() === tomorrow.toDateString()) {
+            const now = new Date();
+            const currentHour = now.getHours() + 2; // Cộng thêm 2 tiếng để chuẩn bị
+
+            return baseTimeSlots.map(slot => {
+                const slotStartHour = parseInt(slot.value.split('-')[0].split(':')[0]);
+                return {
+                    ...slot,
+                    disabled: slotStartHour <= currentHour
+                };
+            });
+        }
+    }
+
+    return baseTimeSlots;
 };
 
 export default function CheckOutMain() {
@@ -44,12 +113,18 @@ export default function CheckOutMain() {
     const router = useRouter();
     const [leadTime, setLeadTime] = useState<string | null>(null);
     const [errrorText, setErrrorText] = useState<string | null>(null);
+    const [preOrderDate, setPreOrderDate] = useState("");
+    const [preOrderTimeSlot, setPreOrderTimeSlot] = useState("");
+    const MAX_PREORDER_DAYS = 7;
+
+    const availableDates = generateAvailableDates(MAX_PREORDER_DAYS);
+    const availableTimeSlots = getAvailableTimeSlots(preOrderDate);
 
     // Address states
     const [addresses, setAddresses] = useState<any[]>([]);
     const [selectedAddress, setSelectedAddress] = useState<any>(null);
     const [loadingAddresses, setLoadingAddresses] = useState(true);
-    const [addressMode, setAddressMode] = useState<'select' | 'input'>('select'); // 'select' or 'input'
+    const [addressMode, setAddressMode] = useState<'select' | 'input'>('select');
 
     const [shippingFee, setShippingFee] = useState<number>(0);
     const [loadingShipping, setLoadingShipping] = useState(false);
@@ -73,7 +148,6 @@ export default function CheckOutMain() {
     const [selectedWardId, setSelectedWardId] = useState<any | null>(null);
 
     const [deliveryType, setDeliveryType] = useState<'regular' | 'preorder'>('regular');
-    const [preOrderTime, setPreOrderTime] = useState('');
     const [notes, setNotes] = useState('');
 
     const [paymentMethod, setPaymentMethod] = useState('cash');
@@ -88,7 +162,11 @@ export default function CheckOutMain() {
     const [couponApplied, setCouponApplied] = useState(false);
 
     const { user } = useAuth();
-    const timeSlots = getDeliveryTimeSlots();
+
+    // Reset preOrderTimeSlot when date changes
+    useEffect(() => {
+        setPreOrderTimeSlot('');
+    }, [preOrderDate]);
 
     // Load provinces on mount for manual address input
     useEffect(() => {
@@ -175,12 +253,10 @@ export default function CheckOutMain() {
                 setAddresses(res.data);
 
                 if (res.data && res.data.length > 0) {
-                    // Find default address or use first one
                     const defaultAddr = res.data.find(addr => addr.isDefault) || res.data[0];
                     setSelectedAddress(defaultAddr);
                     setAddressMode('select');
                 } else {
-                    // No addresses available, switch to input mode
                     setAddressMode('input');
                     setManualAddress(prev => ({
                         ...prev,
@@ -235,7 +311,6 @@ export default function CheckOutMain() {
                     const res = await ShippingService.calculateShippingFee(request);
                     setShippingFee(res.data);
 
-                    // Calculate lead time
                     const leadTimeRes = await ShippingService.calculateDeliveryTime(request);
                     const date = new Date(leadTimeRes.data);
                     const formattedDate = date.toLocaleDateString("vi-VN", {
@@ -260,7 +335,6 @@ export default function CheckOutMain() {
                 setLeadTime(null);
             }
         };
-
         calculateShipping();
     }, [selectedAddress, addressMode, selectedDistrictId, selectedWardId]);
 
@@ -326,6 +400,14 @@ export default function CheckOutMain() {
         toast.info('🗑️ Đã xóa mã giảm giá');
     };
 
+    // Generate preferredTimeSlot string for backend
+    const generatePreferredTimeSlot = () => {
+        if (deliveryType === 'preorder' && preOrderDate && preOrderTimeSlot) {
+            return `${preOrderDate} ${preOrderTimeSlot}`;
+        }
+        return undefined;
+    };
+
     // Handle placing the order
     const handlePlaceOrder = async () => {
         // Validation
@@ -341,8 +423,8 @@ export default function CheckOutMain() {
             }
         }
 
-        if (deliveryType === 'preorder' && !preOrderTime) {
-            toast.error('Vui lòng chọn thời gian giao hàng cho đơn đặt trước.');
+        if (deliveryType === 'preorder' && (!preOrderDate || !preOrderTimeSlot)) {
+            toast.error('Vui lòng chọn đầy đủ ngày và khung giờ giao hàng cho đơn đặt trước.');
             return;
         }
 
@@ -366,7 +448,7 @@ export default function CheckOutMain() {
                 shippingFee,
                 totalAmount: finalTotal,
                 specialInstructions: notes,
-                preferredTimeSlot: deliveryType === 'preorder' ? preOrderTime : undefined,
+                preferredTimeSlot: generatePreferredTimeSlot(),
                 deliveryPhone: addressMode === "input" ? manualAddress.phone : selectedAddress?.phone || manualAddress.phone,
                 deliveryName: addressMode === "input" ? manualAddress.name : selectedAddress?.name || manualAddress.name,
                 deliveryNote: notes,
@@ -374,19 +456,17 @@ export default function CheckOutMain() {
 
             // Set address and phone based on mode
             if (addressMode === "select" && selectedAddress) {
-                // Đang chọn từ sổ địa chỉ
                 order.deliveryAddressId = selectedAddress.id;
                 order.deliveryName = selectedAddress.name;
                 order.deliveryPhone = selectedAddress.phone || manualAddress.phone;
             }
             else if (addressMode === "input") {
-                // Đang nhập địa chỉ mới
                 const selectedProvince = provinces.find(p => p.provinceID === selectedProvinceId);
                 const selectedDistrict = districts.find(d => d.districtID === selectedDistrictId);
                 const selectedWard = wards.find(w => w.wardCode === selectedWardId);
 
                 const stringifiedAddress: UserAddress = {
-                    userId: '', // backend sẽ lấy từ token/user context
+                    userId: '',
                     name: manualAddress.name,
                     fullAddress:
                         manualAddress.fullAddress +
@@ -399,13 +479,9 @@ export default function CheckOutMain() {
                     isDefault: false,
                 };
 
-                // 1. Gọi API để lưu address
                 const newAddress = await UserAddressService.addAddress(stringifiedAddress);
-
-                // 2. Gán id address mới cho order
                 order.deliveryAddressId = newAddress.data.id;
             }
-
 
             // Create order
             const res = await OrderService.createOrder(order);
@@ -429,7 +505,6 @@ export default function CheckOutMain() {
                 }
             } else {
                 clearCart();
-
                 localStorage.removeItem('coupon');
                 localStorage.removeItem('discount');
                 toast.success('🎉 Đặt hàng thành công!');
@@ -458,7 +533,6 @@ export default function CheckOutMain() {
                                     <span>{errrorText}</span>
                                 </div>
                             )}
-
 
                             {loadingAddresses ? (
                                 <p className="text-muted">Đang tải địa chỉ...</p>
@@ -726,8 +800,8 @@ export default function CheckOutMain() {
 
                             {/* Lựa chọn giao hàng */}
                             <div className="mb-4">
-                                <label className="form-label d-flex align-items-center small fw-bold mb-3">
-                                    <FaClock className="me-2 text-secondary" /> Thời gian giao hàng
+                                <label className="form-label d-flex align-items-center fw-bold mb-3">
+                                    <FaClock className="me-2 " /> Thời gian giao hàng
                                 </label>
                                 <div className="d-flex gap-4">
                                     <div className="form-check form-check-inline">
@@ -740,11 +814,12 @@ export default function CheckOutMain() {
                                             checked={deliveryType === 'regular'}
                                             onChange={() => {
                                                 setDeliveryType('regular');
-                                                setPreOrderTime('');
+                                                setPreOrderDate('');
+                                                setPreOrderTimeSlot('');
                                             }}
                                         />
                                         <label className="form-check-label" htmlFor="regularDelivery">
-                                            Giao hàng sớm nhất
+                                            Giao hàng sớm nhất {leadTime && <small className="text-muted">({leadTime})</small>}
                                         </label>
                                     </div>
                                     <div className="form-check form-check-inline">
@@ -758,46 +833,133 @@ export default function CheckOutMain() {
                                             onChange={() => setDeliveryType('preorder')}
                                         />
                                         <label className="form-check-label" htmlFor="preorderDelivery">
-                                            Đặt giao hàng trước
+                                            Đặt lịch giao hàng
                                         </label>
                                     </div>
                                 </div>
 
-                                {/* Pre-order Time Picker */}
-                                {deliveryType === 'preorder' && (
-                                    <div className="mt-3 form-group w-50">
-                                        <label htmlFor="preOrderTime" className="form-label small fw-bold">Chọn giờ giao hàng *</label>
-                                        <select
-                                            id="preOrderTime"
-                                            className="form-control form-control-lg"
-                                            value={preOrderTime}
-                                            onChange={(e) => setPreOrderTime(e.target.value)}
-                                            required
-                                        >
-                                            <option value="">-- Chọn giờ --</option>
-                                            {timeSlots.map(time => (
-                                                <option key={time} value={time}>{time}</option>
-                                            ))}
-                                        </select>
+                                {/* Pre-order Date and Time Picker */}
+
+                                {deliveryType === "preorder" && (
+                                    <div className="right-card-sidebar-checkout my-4" style={{ padding: '24px' }}>
+
+                                        <div className="row g-4">
+                                            {/* Cột trái: Ngày giao hàng */}
+                                            <div className="col-md-6">
+                                                <h6 className="fw-bold mb-3 d-flex align-items-center">
+                                                    <i className="fa-solid fa-calendar-day text-primary me-2"></i>
+                                                    Ngày giao hàng *
+                                                </h6>
+                                                <div className="d-flex flex-column gap-2">
+                                                    {availableDates.map((date) => (
+                                                        <div
+                                                            key={date.value}
+                                                            className={`p-2 border rounded-3 cursor-pointer d-flex align-items-center justify-content-between 
+                ${preOrderDate === date.value ? "border-success bg-success bg-opacity-10" : "border-gray-300 bg-white"}
+              `}
+                                                            onClick={() => setPreOrderDate(date.value)}
+                                                        >
+                                                            <label htmlFor={`date-${date.value}`} className="d-flex align-items-center mb-0 w-100 cursor-pointer">
+                                                                <input
+                                                                    type="radio"
+                                                                    className="form-check-input me-2"
+                                                                    id={`date-${date.value}`}
+                                                                    name="deliveryDate"
+                                                                    value={date.value}
+                                                                    checked={preOrderDate === date.value}
+                                                                    onChange={(e) => setPreOrderDate(e.target.value)}
+                                                                    required
+                                                                />
+                                                                {/* đổi text-muted thành text-dark để dễ đọc */}
+                                                                <span className={`small ${preOrderDate === date.value ? "fw-bold text-dark" : "text-dark"}`}>
+                                                                    {date.label}
+                                                                </span>
+                                                            </label>
+                                                            {preOrderDate === date.value && <i className="fa-solid fa-check text-success ms-2"></i>}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Cột phải: Khung giờ giao hàng */}
+                                            <div className="col-md-6">
+                                                <h6 className="fw-bold mb-3 d-flex align-items-center">
+                                                    <i className="fa-solid fa-clock text-primary me-2"></i>
+                                                    Khung giờ giao hàng *
+                                                </h6>
+                                                {preOrderDate ? (
+                                                    <div className="d-flex flex-column gap-2  custom-scrollbar" style={{ maxHeight: "300px", overflowY: "auto" }}>
+                                                        {availableTimeSlots.map((slot) => (
+                                                            <div
+                                                                key={slot.value}
+                                                                className={`p-2 border rounded-3 d-flex align-items-center justify-content-between
+                  ${slot.disabled ? "bg-light text-muted" : "cursor-pointer bg-white"}
+                  ${preOrderTimeSlot === slot.value ? "border-success bg-success bg-opacity-10" : "border-gray-300"}
+                `}
+                                                                onClick={() => !slot.disabled && setPreOrderTimeSlot(slot.value)}
+                                                            >
+                                                                <label htmlFor={`time-${slot.value}`} className="d-flex align-items-center mb-0 w-100 cursor-pointer">
+                                                                    <input
+                                                                        type="radio"
+                                                                        className="form-check-input me-2"
+                                                                        id={`time-${slot.value}`}
+                                                                        name="deliveryTimeSlot"
+                                                                        value={slot.value}
+                                                                        checked={preOrderTimeSlot === slot.value}
+                                                                        onChange={(e) => setPreOrderTimeSlot(e.target.value)}
+                                                                        disabled={slot.disabled}
+                                                                        required
+                                                                    />
+                                                                    <span className={`small ${slot.disabled ? "text-muted" : preOrderTimeSlot === slot.value ? "fw-bold text-dark" : "text-dark"}`}>
+                                                                        {slot.label}
+                                                                    </span>
+                                                                </label>
+                                                                {slot.disabled && <span className="badge bg-danger text-white small px-2 py-1">Hết slot</span>}
+                                                                {preOrderTimeSlot === slot.value && <i className="fa-solid fa-check text-success ms-2"></i>}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-muted small">Vui lòng chọn ngày trước để xem khung giờ khả dụng</p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Tổng kết lựa chọn */}
+                                        <div className="mt-4 p-3 border rounded-3 bg-light">
+                                            <h6 className="fw-bold mb-2">Tổng kết</h6>
+                                            {preOrderDate && preOrderTimeSlot ? (
+                                                <p className="mb-0 small text-dark">
+                                                    Bạn đã chọn: <strong>{availableDates.find(d => d.value === preOrderDate)?.label}</strong> -
+                                                    <strong> {availableTimeSlots.find(s => s.value === preOrderTimeSlot)?.label}</strong>
+                                                </p>
+                                            ) : (
+                                                <p className="mb-0 small text-muted">Vui lòng chọn ngày và khung giờ để tiếp tục</p>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
+
+
+
+
+
                             </div>
 
                             {/* Ghi chú */}
                             <div className="form-group border-top pt-3">
-                                <label htmlFor="notes" className="form-label d-flex align-items-center small fw-bold">
-                                    <FaCommentDots className="me-2 text-secondary" /> Ghi chú (tùy chọn)
+                                <label htmlFor="notes" className="form-label d-flex align-items-center fw-bold">
+                                    <FaCommentDots className="me-2" /> Ghi chú (tùy chọn)
                                 </label>
                                 <textarea
                                     id="notes"
                                     className="form-control"
                                     rows={3}
-                                    placeholder="Ví dụ: Giao sau 18h, Không gọi điện khi đến nơi,..."
+                                    placeholder="Ví dụ: Giao sau 18h, Không gọi điện khi đến nơi, Để hàng ở bảo vệ..."
                                     value={notes}
                                     onChange={(e) => setNotes(e.target.value)}
                                 ></textarea>
                             </div>
-
                         </div>
 
                         {/* 3. Phương thức Thanh toán */}
@@ -826,7 +988,6 @@ export default function CheckOutMain() {
                                 </ul>
                             </div>
                         </div>
-
                     </div>
 
                     {/* Cột 2: Tóm tắt đơn hàng và Coupon */}
@@ -940,7 +1101,22 @@ export default function CheckOutMain() {
                                 <strong className="">Tổng cộng</strong>
                                 <strong className="price text-primary">{formatCurrency(finalTotal)}</strong>
                             </div>
-
+                            {deliveryType === "preorder" && (
+                                <div className="mt-5 mb-5 p-3 border rounded-3 bg-light">
+                                    <h6 className="fw-bold mb-2">Ngày giao hàng</h6>
+                                    {preOrderDate && preOrderTimeSlot ? (
+                                        <p className="mb-0 small text-dark">
+                                            Bạn đã chọn: <strong>{availableDates.find(d => d.value === preOrderDate)?.label}</strong> -
+                                            <strong> {availableTimeSlots.find(s => s.value === preOrderTimeSlot)?.label}</strong>
+                                        </p>
+                                    ) : (
+                                        <p className="mb-0 small text-muted">Vui lòng chọn ngày và khung giờ để tiếp tục</p>
+                                    )}
+                                </div>
+                            )
+                                
+                                }
+                           
                             {discount > 0 && (
                                 <div className="savings-highlight text-center mb-3 p-2 bg-warning bg-opacity-10 rounded-3">
                                     <small className="text-success fw-bold">
@@ -957,8 +1133,8 @@ export default function CheckOutMain() {
                                     loadingShipping ||
                                     (addressMode === 'select' && !selectedAddress) ||
                                     (addressMode === 'input' && (!manualAddress.name || !manualAddress.phone || !manualAddress.fullAddress || !selectedProvinceId || !selectedDistrictId)) ||
-                                    (deliveryType === 'preorder' && !preOrderTime)
-                                    || (errrorText !== '' && errrorText !== null)
+                                    (deliveryType === 'preorder' && (!preOrderDate || !preOrderTimeSlot)) ||
+                                    (errrorText !== '' && errrorText !== null)
                                 }
                             >
                                 HOÀN TẤT ĐẶT HÀNG
@@ -1010,6 +1186,52 @@ export default function CheckOutMain() {
                     --bs-bg-opacity: 0.1;
                     background-color: rgba(13, 110, 253, var(--bs-bg-opacity)) !important;
                 }
+                .date-selection, .time-selection {
+                    max-height: 250px;
+                    overflow-y: auto;
+                    border: 1px solid #dee2e6;
+                    border-radius: 0.375rem;
+                    padding: 0.75rem;
+                }
+                .form-check-input:disabled ~ .form-check-label {
+                    opacity: 0.5;
+                }
+                .time-selection::-webkit-scrollbar {
+                    width: 6px;
+                }
+                .time-selection::-webkit-scrollbar-track {
+                    background: #f1f1f1;
+                    border-radius: 10px;
+                }
+                .time-selection::-webkit-scrollbar-thumb {
+                    background: #888;
+                    border-radius: 10px;
+                }
+                .time-selection::-webkit-scrollbar-thumb:hover {
+                    background: #555;
+                }
+                    .custom-scrollbar {
+  scrollbar-width: thin;              /* Firefox */
+  scrollbar-color: #cbd5e0 #f8f9fa;   /* thumb color + track color */
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;                         /* mảnh gọn */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f8f9fa;                /* màu nền track */
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0;          /* màu thanh kéo */
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #a0aec0;          /* hover đậm hơn */
+}
             `}</style>
         </div>
     );
