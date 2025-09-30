@@ -90,7 +90,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
                   style={{ width: '60px', height: '60px', border: '2px solid #4a7c59' }}
                 >
                   <Image
-                    src={product.thumbnailUrl || '/placeholder.png'}
+                    src={product.imageUrl || '/placeholder.png'}
                     alt={product.name}
                     width={60}
                     height={60}
@@ -149,12 +149,6 @@ const ProductTable: React.FC<ProductTableProps> = ({
                     <span className="badge bg-success">
                       <i className="fas fa-leaf me-1"></i>
                       Hữu cơ
-                    </span>
-                  )}
-                  {product.isFreshProduct && (
-                    <span className="badge bg-info">
-                      <i className="fas fa-snowflake me-1"></i>
-                      Tươi sống
                     </span>
                   )}
                 </div>
@@ -276,7 +270,6 @@ export default function ProductManagePage() {
       filtered = filtered.filter(product => {
         if (selectedFeature === 'featured') return product.isFeatured;
         if (selectedFeature === 'organic') return product.isOrganic;
-        if (selectedFeature === 'fresh') return product.isFreshProduct;
         return true;
       });
     }

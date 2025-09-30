@@ -19,28 +19,30 @@ export interface CreateAdminProductDto {
     description?: string
     shortDescription?: string
     sku?: string
-    barcode?: string
     basePrice: number
     salePrice?: number
     costPrice?: number
     weight?: number
-    dimensions?: string
-    unit: number
+    unit: string
     unitSize?: string
-    thumbnailUrl?: string
-    imageUrls?: string
-    initialStock?: number
     lowStockThreshold?: number
-    maxOrderQuantity?: number
-    minOrderQuantity?: number
     isAvailable?: boolean
     isFeatured?: boolean
     isOrganic?: boolean
-    isFreshProduct?: boolean
-    metaTitle?: string
-    metaDescription?: string
-    displayOrder?: number
-    variants?: AdminProductVariantDto[]
+    ingredients?: string
+    allergens?: string
+    isVegetarian?: boolean
+    isVegan?: boolean
+    isGlutenFree?: boolean
+    caloriesPer100g?: number
+    proteinPer100g?: number
+    carbsPer100g?: number
+    fatPer100g?: number
+    imageUrl?: string
+    cookingMethod?: string
+    nutritionHighlights?: string
+    healthBenefits?: string
+    reheatingInstructions?: string
 }
 
 export interface UpdateAdminProductDto extends CreateAdminProductDto {
@@ -92,8 +94,7 @@ export interface AdminProduct {
     dimensions?: string
     unit: number
     unitSize?: string
-    thumbnailUrl?: string
-    imageUrls?: string
+    imageUrl?: string
     stockQuantity: number
     initialStock?: number
     lowStockThreshold?: number
@@ -102,11 +103,19 @@ export interface AdminProduct {
     isAvailable?: boolean
     isFeatured?: boolean
     isOrganic?: boolean
-    isFreshProduct?: boolean
-    metaTitle?: string
-    metaDescription?: string
-    displayOrder?: number
-    variants?: AdminProductVariantDto[]
+    ingredients?: string
+    allergens?: string
+    isVegetarian?: boolean
+    isVegan?: boolean
+    isGlutenFree?: boolean
+    caloriesPer100g?: number
+    proteinPer100g?: number
+    carbsPer100g?: number
+    fatPer100g?: number
+    cookingMethod?: string
+    nutritionHighlights?: string
+    healthBenefits?: string
+    reheatingInstructions?: string
     createdAt?: string
     updatedAt?: string
 }

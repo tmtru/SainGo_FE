@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import SideLeft from "../../components/SideLeft";
 import Header from "../../components/Header";
-import DemoContent from "./DemoContent";
+// import DemoContent from "./DemoContent";
 
 export default function Home() {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -17,7 +17,7 @@ export default function Home() {
             <SideLeft collapsed={sidebarCollapsed} />
             <div className={`right-area-body-content ${sidebarCollapsed ? 'collapsed' : ''}`}>
                 <Header onToggleSidebar={toggleSidebar} />
-                <DemoContent />
+                {/* <DemoContent /> */}
             </div>
         </div>
     );

@@ -8,10 +8,14 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import CategoryService, { Category } from '@/data/Services/CategoryService';
 import AdminProductService, {
-  AdminProductVariantDto,
   CreateAdminProductDto,
 } from '@/data/Services/AdminService/ProductManageService';
 import UploadService from '@/data/Services/UploadImage';
+
+interface RecipeStep {
+  step: number;
+  description: string;
+}
 
 export default function AddProductPage() {
   const router = useRouter();
@@ -25,30 +29,29 @@ export default function AddProductPage() {
     salePrice: undefined,
     description: '',
     shortDescription: '',
-    unit: 1,
+    unit: '1',
     unitSize: '',
     lowStockThreshold: undefined,
-    maxOrderQuantity: undefined,
-    minOrderQuantity: undefined,
     isAvailable: true,
     isFeatured: false,
     isOrganic: false,
-    isFreshProduct: false,
-    displayOrder: 0,
-    variants: [],
-    initialStock: undefined,
   });
 
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [images, setImages] = useState<File[]>([]);
   const [previewThumb, setPreviewThumb] = useState('/placeholder.png');
   const [previewImages, setPreviewImages] = useState<string[]>([]);
-  const [variants, setVariants] = useState<AdminProductVariantDto[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // State for pricing calculation
   const [discountType, setDiscountType] = useState<'percentage' | 'amount'>('percentage');
   const [discountValue, setDiscountValue] = useState<number>(10);
+
+  // State for JSON fields
+  const [ingredients, setIngredients] = useState<string[]>(['']);
+  const [recipeSteps, setRecipeSteps] = useState<RecipeStep[]>([{ step: 1, description: '' }]);
+  const [healthBenefits, setHealthBenefits] = useState<string[]>(['']);
+  const [nutritionHighlights, setNutritionHighlights] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -97,14 +100,6 @@ export default function AddProductPage() {
     setDiscountValue(value);
   };
 
-  const handleManualSalePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value) || 0;
-    setForm(prev => ({
-      ...prev,
-      salePrice: value,
-    }));
-  };
-
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -127,23 +122,51 @@ export default function AddProductPage() {
     setPreviewImages(files.map(f => URL.createObjectURL(f)));
   };
 
-  const addVariant = () => {
-    setVariants(prev => [
-      ...prev,
-      { name: '', sku: '', priceAdjustment: 0, attributeName: '', attributeValue: '' },
-    ]);
+  // Ingredient handlers
+  const addIngredient = () => {
+    setIngredients([...ingredients, '']);
   };
 
-  const updateVariant = (idx: number, key: keyof AdminProductVariantDto, val: any) => {
-    setVariants(prev => {
-      const arr = [...prev];
-      (arr[idx] as any)[key] = val;
-      return arr;
-    });
+  const updateIngredient = (index: number, value: string) => {
+    const updated = [...ingredients];
+    updated[index] = value;
+    setIngredients(updated);
   };
 
-  const removeVariant = (idx: number) => {
-    setVariants(prev => prev.filter((_, i) => i !== idx));
+  const removeIngredient = (index: number) => {
+    setIngredients(ingredients.filter((_, i) => i !== index));
+  };
+
+  // Recipe step handlers
+  const addRecipeStep = () => {
+    setRecipeSteps([...recipeSteps, { step: recipeSteps.length + 1, description: '' }]);
+  };
+
+  const updateRecipeStep = (index: number, description: string) => {
+    const updated = [...recipeSteps];
+    updated[index] = { step: index + 1, description };
+    setRecipeSteps(updated);
+  };
+
+  const removeRecipeStep = (index: number) => {
+    const filtered = recipeSteps.filter((_, i) => i !== index);
+    const reindexed = filtered.map((step, idx) => ({ step: idx + 1, description: step.description }));
+    setRecipeSteps(reindexed);
+  };
+
+  // Health benefit handlers
+  const addHealthBenefit = () => {
+    setHealthBenefits([...healthBenefits, '']);
+  };
+
+  const updateHealthBenefit = (index: number, value: string) => {
+    const updated = [...healthBenefits];
+    updated[index] = value;
+    setHealthBenefits(updated);
+  };
+
+  const removeHealthBenefit = (index: number) => {
+    setHealthBenefits(healthBenefits.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -151,12 +174,6 @@ export default function AddProductPage() {
     setIsSubmitting(true);
 
     try {
-      if (variants.length === 0 && (!form.initialStock || form.initialStock < 0)) {
-        toast.error('Please enter initial stock if there are no variants.');
-        setIsSubmitting(false);
-        return;
-      }
-
       let thumbUrl = '';
       if (thumbnail) {
         const res = await UploadService.uploadSingle(thumbnail);
@@ -169,11 +186,18 @@ export default function AddProductPage() {
         imgUrls.push(res.data);
       }
 
+      // Filter out empty values and serialize to JSON
+      const filteredIngredients = ingredients.filter(i => i.trim() !== '');
+      const filteredRecipeSteps = recipeSteps.filter(r => r.description.trim() !== '');
+      const filteredHealthBenefits = healthBenefits.filter(h => h.trim() !== '');
+
       const payload: CreateAdminProductDto = {
         ...form,
-        thumbnailUrl: thumbUrl,
-        imageUrls: imgUrls.join(','),
-        variants: variants,
+        imageUrl: thumbUrl,
+        ingredients: filteredIngredients.length > 0 ? JSON.stringify(filteredIngredients) : undefined,
+        cookingMethod: filteredRecipeSteps.length > 0 ? JSON.stringify(filteredRecipeSteps) : undefined,
+        healthBenefits: filteredHealthBenefits.length > 0 ? JSON.stringify(filteredHealthBenefits) : undefined,
+        nutritionHighlights: nutritionHighlights.trim() || undefined,
       };
 
       await AdminProductService.create(payload);
@@ -265,9 +289,7 @@ export default function AddProductPage() {
                             </div>
                           </div>
 
-
                           <div className="col-md-6">
-                            {/* Enhanced Pricing Section */}
                             <div className="mb-3">
                               <label className="form-label fw-bold">
                                 Giá Gốc <span className="text-danger">*</span>
@@ -293,8 +315,6 @@ export default function AddProductPage() {
 
                             <div className="mb-3">
                               <label className="form-label fw-bold">Giá Khuyến Mãi</label>
-
-                              {/* Discount Type Selection */}
                               <div className="mb-2">
                                 <div className="btn-group w-100" role="group">
                                   <input
@@ -325,13 +345,11 @@ export default function AddProductPage() {
                                 </div>
                               </div>
 
-                              {/* Discount Input */}
                               <div className="input-group mb-2">
                                 <span className="input-group-text" style={{ backgroundColor: '#e8f5e8', color: '#2d5a3d' }}>
                                   {discountType === 'percentage' ? '%' : '₫'}
                                 </span>
                                 <input
-          
                                   type="number"
                                   value={discountValue || ''}
                                   onChange={handleDiscountChange}
@@ -341,14 +359,12 @@ export default function AddProductPage() {
                                 />
                               </div>
 
-                              {/* Sale Price Display */}
                               <div className="input-group">
                                 <span className="input-group-text" style={{ backgroundColor: '#e8f5e8', color: '#2d5a3d' }}>₫</span>
                                 <input
                                   readOnly
                                   type="number"
                                   value={form.salePrice || ''}
-                                  onChange={handleManualSalePriceChange}
                                   className="form-control"
                                   style={{ borderColor: '#4a7c59' }}
                                   placeholder="0"
@@ -368,18 +384,10 @@ export default function AddProductPage() {
                                 </div>
                               )}
                             </div>
-
-
                           </div>
                         </div>
-                        <div
-                          className="p-3"
-                          style={{
-                            border: '1px solid #4a7c59',
-                            backgroundColor: '#f8f9fa',
-                            marginBottom: '1rem',
-                          }}
-                        >
+
+                        <div className="p-3" style={{ border: '1px solid #4a7c59', backgroundColor: '#f8f9fa', marginBottom: '1rem' }}>
                           <div className="row">
                             <div className="col-6">
                               <div className="mb-3">
@@ -390,9 +398,7 @@ export default function AddProductPage() {
                                   <input
                                     id="unit"
                                     name="unit"
-                                    type="number"
-                                    step="any"
-                                    min="0"
+                                    type="text"
                                     value={form.unit}
                                     onChange={handleChange}
                                     required
@@ -400,10 +406,7 @@ export default function AddProductPage() {
                                     style={{ borderColor: '#4a7c59' }}
                                     placeholder="Ví dụ: 500, 1.5, 2..."
                                   />
-                                  <span
-                                    className="input-group-text bg-light border-start-0"
-                                    style={{ borderColor: '#4a7c59' }}
-                                  >
+                                  <span className="input-group-text bg-light border-start-0" style={{ borderColor: '#4a7c59' }}>
                                     {form.unitSize || 'đơn vị'}
                                   </span>
                                 </div>
@@ -436,6 +439,7 @@ export default function AddProductPage() {
                   </div>
                 </div>
 
+                {/* Description Section */}
                 <div className="row mb-4">
                   <div className="col-12">
                     <div className="card border-0 mb-4" style={{ backgroundColor: '#f0f8f0' }}>
@@ -460,7 +464,7 @@ export default function AddProductPage() {
                                 rows={3}
                                 className="form-control"
                                 style={{ borderColor: '#4a7c59' }}
-                                placeholder="Nhập mô tả ngắn gọn về sản phẩm (tối đa 200 ký tự)..."
+                                placeholder="Nhập mô tả ngắn gọn về sản phẩm..."
                                 maxLength={200}
                               />
                               <div className="form-text d-flex justify-content-between">
@@ -484,14 +488,192 @@ export default function AddProductPage() {
                                 rows={8}
                                 className="form-control"
                                 style={{ borderColor: '#4a7c59' }}
-                                placeholder="Nhập mô tả chi tiết về sản phẩm, bao gồm thành phần, cách sử dụng, bảo quản..."
+                                placeholder="Nhập mô tả chi tiết về sản phẩm..."
                               />
-                              <div className="form-text">
-                                Mô tả chi tiết sẽ hiển thị trong trang chi tiết sản phẩm
-                              </div>
                             </div>
                           </div>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Ingredients Section */}
+                <div className="row mb-4">
+                  <div className="col-12">
+                    <div className="card border-0 mb-4" style={{ backgroundColor: '#f0f8f0' }}>
+                      <div className="card-header bg-transparent border-bottom-0">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <h5 className="mb-0" style={{ color: '#2d5a3d' }}>
+                            <i className="fas fa-apple-alt me-2"></i>
+                            Thành Phần
+                          </h5>
+                          <button
+                            type="button"
+                            onClick={addIngredient}
+                            className="btn btn-success btn-sm"
+                            style={{ backgroundColor: '#4a7c59', borderColor: '#4a7c59' }}
+                          >
+                            <i className="fas fa-plus me-1"></i>
+                            Thêm Thành Phần
+                          </button>
+                        </div>
+                      </div>
+                      <div className="card-body">
+                        {ingredients.map((ingredient, index) => (
+                          <div key={index} className="mb-2">
+                            <div className="input-group">
+                              <span className="input-group-text" style={{ backgroundColor: '#e8f5e8' }}>
+                                {index + 1}
+                              </span>
+                              <input
+                                type="text"
+                                value={ingredient}
+                                onChange={(e) => updateIngredient(index, e.target.value)}
+                                className="form-control"
+                                style={{ borderColor: '#4a7c59' }}
+                                placeholder="Nhập thành phần..."
+                              />
+                              {ingredients.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeIngredient(index)}
+                                  className="btn btn-outline-danger"
+                                >
+                                  <i className="fas fa-trash"></i>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recipe Steps Section */}
+                <div className="row mb-4">
+                  <div className="col-12">
+                    <div className="card border-0 mb-4" style={{ backgroundColor: '#f0f8f0' }}>
+                      <div className="card-header bg-transparent border-bottom-0">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <h5 className="mb-0" style={{ color: '#2d5a3d' }}>
+                            <i className="fas fa-list-ol me-2"></i>
+                            Hướng Dẫn Chế Biến
+                          </h5>
+                          <button
+                            type="button"
+                            onClick={addRecipeStep}
+                            className="btn btn-success btn-sm"
+                            style={{ backgroundColor: '#4a7c59', borderColor: '#4a7c59' }}
+                          >
+                            <i className="fas fa-plus me-1"></i>
+                            Thêm Bước
+                          </button>
+                        </div>
+                      </div>
+                      <div className="card-body">
+                        {recipeSteps.map((step, index) => (
+                          <div key={index} className="mb-3">
+                            <label className="form-label fw-bold">Bước {step.step}</label>
+                            <div className="input-group">
+                              <textarea
+                                value={step.description}
+                                onChange={(e) => updateRecipeStep(index, e.target.value)}
+                                className="form-control"
+                                style={{ borderColor: '#4a7c59' }}
+                                rows={2}
+                                placeholder="Mô tả chi tiết bước này..."
+                              />
+                              {recipeSteps.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeRecipeStep(index)}
+                                  className="btn btn-outline-danger"
+                                >
+                                  <i className="fas fa-trash"></i>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Health Benefits Section */}
+                <div className="row mb-4">
+                  <div className="col-12">
+                    <div className="card border-0 mb-4" style={{ backgroundColor: '#f0f8f0' }}>
+                      <div className="card-header bg-transparent border-bottom-0">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <h5 className="mb-0" style={{ color: '#2d5a3d' }}>
+                            <i className="fas fa-heartbeat me-2"></i>
+                            Lợi Ích Sức Khỏe
+                          </h5>
+                          <button
+                            type="button"
+                            onClick={addHealthBenefit}
+                            className="btn btn-success btn-sm"
+                            style={{ backgroundColor: '#4a7c59', borderColor: '#4a7c59' }}
+                          >
+                            <i className="fas fa-plus me-1"></i>
+                            Thêm Lợi Ích
+                          </button>
+                        </div>
+                      </div>
+                      <div className="card-body">
+                        {healthBenefits.map((benefit, index) => (
+                          <div key={index} className="mb-2">
+                            <div className="input-group">
+                              <span className="input-group-text" style={{ backgroundColor: '#e8f5e8' }}>
+                                <i className="fas fa-check text-success"></i>
+                              </span>
+                              <input
+                                type="text"
+                                value={benefit}
+                                onChange={(e) => updateHealthBenefit(index, e.target.value)}
+                                className="form-control"
+                                style={{ borderColor: '#4a7c59' }}
+                                placeholder="Nhập lợi ích sức khỏe..."
+                              />
+                              {healthBenefits.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeHealthBenefit(index)}
+                                  className="btn btn-outline-danger"
+                                >
+                                  <i className="fas fa-trash"></i>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Nutrition Highlights */}
+                <div className="row mb-4">
+                  <div className="col-12">
+                    <div className="card border-0 mb-4" style={{ backgroundColor: '#f0f8f0' }}>
+                      <div className="card-header bg-transparent border-bottom-0">
+                        <h5 className="mb-0" style={{ color: '#2d5a3d' }}>
+                          <i className="fas fa-chart-pie me-2"></i>
+                          Điểm Nổi Bật Dinh Dưỡng
+                        </h5>
+                      </div>
+                      <div className="card-body">
+                        <textarea
+                          value={nutritionHighlights}
+                          onChange={(e) => setNutritionHighlights(e.target.value)}
+                          className="form-control"
+                          style={{ borderColor: '#4a7c59' }}
+                          rows={4}
+                          placeholder="Ví dụ: Giàu protein, ít calo, nhiều vitamin C..."
+                        />
                       </div>
                     </div>
                   </div>
@@ -528,11 +710,6 @@ export default function AddProductPage() {
                                       className="rounded-3"
                                     />
                                   </div>
-                                  {previewThumb !== '/placeholder.png' && (
-                                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
-                                      <i className="fas fa-check"></i>
-                                    </span>
-                                  )}
                                 </div>
                                 <input
                                   type="file"
@@ -542,189 +719,10 @@ export default function AddProductPage() {
                                   style={{ borderColor: '#4a7c59' }}
                                   id="thumbnail"
                                 />
-                                <label htmlFor="thumbnail" className="btn btn-outline-success mt-2">
-                                  <i className="fas fa-upload me-2"></i>
-                                  Chọn Hình Đại Diện
-                                </label>
                               </div>
-                            </div>
-                          </div>
-
-                          <div className="col-md-6">
-                            <div className="mb-3">
-                              <label className="form-label fw-bold">Thư Viện Hình Ảnh</label>
-                              <div className="row g-2 mb-3">
-                                {previewImages.map((src, i) => (
-                                  <div key={i} className="col-3">
-                                    <div
-                                      className="position-relative rounded-3 overflow-hidden shadow-sm"
-                                      style={{ height: '80px', border: '2px solid #4a7c59' }}
-                                    >
-                                      <Image
-                                        src={src}
-                                        alt={`img-${i}`}
-                                        fill
-                                        style={{ objectFit: 'cover' }}
-                                        className="rounded-3"
-                                      />
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                onChange={handleImagesChange}
-                                className="form-control"
-                                style={{ borderColor: '#4a7c59' }}
-                                id="gallery"
-                              />
-                              <label htmlFor="gallery" className="btn btn-outline-success mt-2">
-                                <i className="fas fa-plus me-2"></i>
-                                Thêm Hình Ảnh
-                              </label>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Variants Section */}
-                <div className="row mb-4">
-                  <div className="col-12">
-                    <div className="card border-0 mb-4" style={{ backgroundColor: '#f0f8f0' }}>
-                      {/* <div className="card-header bg-transparent border-bottom-0">
-                        <div className="d-flex justify-content-between align-items-center">
-                          <h5 className="mb-0" style={{ color: '#2d5a3d' }}>
-                            <i className="fas fa-boxes me-2"></i>
-                            Biến Thể Sản Phẩm
-                          </h5>
-                          <button
-                            type="button"
-                            onClick={addVariant}
-                            className="btn btn-success btn-sm"
-                            style={{ backgroundColor: '#4a7c59', borderColor: '#4a7c59' }}
-                          >
-                            <i className="fas fa-plus me-1"></i>
-                            Thêm Biến Thể
-                          </button>
-                        </div>
-                      </div> */}
-                      <div className="card-body">
-                        {/* {variants.length === 0 ? (
-                          <div className="text-center py-4">
-                            <i className="fas fa-box-open fa-3x text-muted mb-3"></i>
-                            <p className="text-muted">Chưa có biến thể nào. Nhấn "Thêm Biến Thể" để bắt đầu.</p>
-                            <div className="alert alert-info mt-3">
-                              <strong>Lưu ý:</strong> Nếu không có biến thể, vui lòng nhập số lượng ban đầu bên dưới.
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="table-responsive">
-                            <table className="table table-bordered">
-                              <thead style={{ backgroundColor: '#e8f5e8' }}>
-                                <tr>
-                                  <th style={{ color: '#2d5a3d' }}>Tên Biến Thể</th>
-                                  <th style={{ color: '#2d5a3d' }}>SKU</th>
-                                  <th style={{ color: '#2d5a3d' }}>Điều Chỉnh Giá</th>
-                                  <th style={{ color: '#2d5a3d' }}>Thuộc Tính</th>
-                                  <th style={{ color: '#2d5a3d' }}>Giá Trị</th>
-                                  <th style={{ color: '#2d5a3d' }}>Hành Động</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {variants.map((v, idx) => (
-                                  <tr key={idx}>
-                                    <td>
-                                      <input
-                                        placeholder="Tên biến thể"
-                                        value={v.name}
-                                        onChange={e => updateVariant(idx, 'name', e.target.value)}
-                                        className="form-control form-control-sm"
-                                        style={{ borderColor: '#4a7c59' }}
-                                      />
-                                    </td>
-                                    <td>
-                                      <input
-                                        placeholder="SKU123"
-                                        value={v.sku}
-                                        onChange={e => updateVariant(idx, 'sku', e.target.value)}
-                                        className="form-control form-control-sm"
-                                        style={{ borderColor: '#4a7c59' }}
-                                      />
-                                    </td>
-                                    <td>
-                                      <div className="input-group input-group-sm">
-                                        <span className="input-group-text" style={{ backgroundColor: '#e8f5e8', color: '#2d5a3d' }}>₫</span>
-                                        <input
-                                          placeholder="0"
-                                          type="number"
-                                          value={v.priceAdjustment}
-                                          onChange={e => updateVariant(idx, 'priceAdjustment', +e.target.value)}
-                                          className="form-control"
-                                          style={{ borderColor: '#4a7c59' }}
-                                        />
-                                      </div>
-                                    </td>
-                                    <td>
-                                      <input
-                                        placeholder="Màu sắc"
-                                        value={v.attributeName}
-                                        onChange={e => updateVariant(idx, 'attributeName', e.target.value)}
-                                        className="form-control form-control-sm"
-                                        style={{ borderColor: '#4a7c59' }}
-                                      />
-                                    </td>
-                                    <td>
-                                      <input
-                                        placeholder="Đỏ"
-                                        value={v.attributeValue}
-                                        onChange={e => updateVariant(idx, 'attributeValue', e.target.value)}
-                                        className="form-control form-control-sm"
-                                        style={{ borderColor: '#4a7c59' }}
-                                      />
-                                    </td>
-                                    <td>
-                                      <button
-                                        type="button"
-                                        onClick={() => removeVariant(idx)}
-                                        className="btn btn-outline-danger btn-sm"
-                                      >
-                                        <i className="fas fa-trash"></i>
-                                      </button>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        )} */}
-
-                        {/* Initial stock nếu không có variants */}
-                        {variants.length === 0 && (
-                          <div className="row">
-                            <div className="col-md-4">
-                              <div className="mb-3">
-                                <label className="form-label fw-bold">
-                                  Số Lượng Ban Đầu <span className="text-danger">*</span>
-                                </label>
-                                <input
-                                  id="initialStock"
-                                  type="number"
-                                  value={form.initialStock || ''}
-                                  onChange={handleChange}
-                                  required
-                                  className="form-control"
-                                  style={{ borderColor: '#4a7c59' }}
-                                  placeholder="Nhập số lượng..."
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -787,20 +785,6 @@ export default function AddProductPage() {
                                   Hữu Cơ
                                 </label>
                               </div>
-                              <div className="form-check form-switch mb-2">
-                                <input
-                                  className="form-check-input"
-                                  type="checkbox"
-                                  id="isFreshProduct"
-                                  checked={form.isFreshProduct!}
-                                  onChange={handleChange}
-                                  style={{ backgroundColor: form.isFreshProduct ? '#4a7c59' : '', borderColor: '#4a7c59' }}
-                                />
-                                <label className="form-check-label" htmlFor="isFreshProduct">
-                                  <i className="fas fa-snowflake text-info me-1"></i>
-                                  Sản Phẩm Tươi Sống
-                                </label>
-                              </div>
                             </div>
                           </div>
 
@@ -810,67 +794,21 @@ export default function AddProductPage() {
                               <div className="row">
                                 <div className="col-12 mb-3">
                                   <label className="form-label fw-bold">
-                                    Ngưỡng Hàng Tồn Kho Thấp <span className="text-danger">*</span>
+                                    Ngưỡng Hàng Tồn Kho Thấp
                                   </label>
                                   <input
                                     id="lowStockThreshold"
                                     type="number"
                                     min="0"
-                                    value={form.lowStockThreshold ?? ''}  // Hiển thị rỗng nếu undefined
+                                    value={form.lowStockThreshold ?? ''}
                                     onChange={handleChange}
-                                    required
                                     className="form-control"
                                     style={{ borderColor: '#4a7c59' }}
                                     placeholder="Nhập ngưỡng cảnh báo..."
                                   />
                                   <div className="form-text">Số lượng tối thiểu để cảnh báo hết hàng</div>
                                 </div>
-                                <div className="col-6 mb-3">
-                                  <label className="form-label fw-bold">
-                                    Số Lượng Tối Thiểu <span className="text-danger">*</span>
-                                  </label>
-                                  <input
-                                    id="minOrderQuantity"
-                                    type="number"
-                                    min="1"
-                                    value={form.minOrderQuantity ?? ''}  // Hiển thị rỗng nếu undefined
-                                    onChange={handleChange}
-                                    required
-                                    className="form-control"
-                                    style={{ borderColor: '#4a7c59' }}
-                                    placeholder="Ví dụ: 1"
-                                  />
-                                </div>
-                                <div className="col-6 mb-3">
-                                  <label className="form-label fw-bold">
-                                    Số Lượng Tối Đa <span className="text-danger">*</span>
-                                  </label>
-                                  <input
-                                    id="maxOrderQuantity"
-                                    type="number"
-                                    min="1"
-                                    value={form.maxOrderQuantity ?? ''}  // Hiển thị rỗng nếu undefined
-                                    onChange={handleChange}
-                                    required
-                                    className="form-control"
-                                    style={{ borderColor: '#4a7c59' }}
-                                    placeholder="Ví dụ: 100"
-                                  />
-                                </div>
-                                <div className="col-12">
-                                  <label className="form-label fw-bold">Thứ Tự Hiển Thị</label>
-                                  <input
-                                    id="displayOrder"
-                                    type="number"
-                                    min="0"
-                                    value={form.displayOrder ?? ''}  // Hiển thị rỗng nếu undefined
-                                    onChange={handleChange}
-                                    className="form-control"
-                                    style={{ borderColor: '#4a7c59' }}
-                                    placeholder="0 (mặc định)"
-                                  />
-                                  <div className="form-text">Số thứ tự hiển thị sản phẩm (càng nhỏ càng ưu tiên)</div>
-                                </div>
+
                               </div>
                             </div>
                           </div>
@@ -927,6 +865,8 @@ export default function AddProductPage() {
         </div>
       </div>
 
+      <ToastContainer position="top-right" autoClose={3000} />
+
       <style jsx>{`
         .form-control:focus, .form-select:focus {
           border-color: #4a7c59;
@@ -936,16 +876,13 @@ export default function AddProductPage() {
         .btn-outline-success {
           color: #4a7c59;
           border-color: #4a7c59;
-                    margin-right: 20px;
+          margin-right: 0;
         }
         
         .btn-outline-success:hover {
           background-color: #4a7c59;
           border-color: #4a7c59;
           color: white;
-        }
-                  .btn-outline-success::before {
-          opacity: 0;
         }
         
         .btn-check:checked + .btn-outline-success {
@@ -960,16 +897,14 @@ export default function AddProductPage() {
         .bg-success {
           background-color: #4a7c59 !important;
         }
+        
         input[type="radio"] {
           display: none;
-
         }
+        
         label:after {
-        display:none;
-      }
-        input[type="text"], input[type="number"], input[type="email"], input[type="password"], select {
-          border: 1px solid #4a7c59;
-          }
+          display: none;
+        }
       `}</style>
     </div>
   );
