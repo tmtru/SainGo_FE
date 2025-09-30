@@ -396,14 +396,17 @@ const AccountTabs = () => {
                 <>
                   <div className="modal fade show d-block" tabIndex={-1} role="dialog">
                     <div className="modal-dialog modal-lg modal-dialog-centered">
-                      <div className="modal-content border-0 shadow-lg">
+                      <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
                         <form onSubmit={handleAddAddress}>
-                          {/* Modal Header */}
-                          <div className="modal-header text-white border-0 rounded-top">
-                            <h4 className="modal-title fw-bold mb-0">
-                              <i className="fas fa-plus-circle me-2"></i>
-                              Thêm địa chỉ giao hàng mới
-                            </h4>
+                          {/* Header */}
+                          <div
+                            className="modal-header text-white p-4 ps-5"
+                            style={{ backgroundColor: "#629D23" , color: 'white'}}
+                          >
+                            <h3 className="fw-bold mb-0" style={{ color: 'white' }}>
+                              <i className="fas fa-map-location-dot me-2"></i>
+                              Thêm địa chỉ mới
+                            </h3>
                             <button
                               type="button"
                               className="btn-close btn-close-white"
@@ -412,155 +415,166 @@ const AccountTabs = () => {
                             ></button>
                           </div>
 
-                          {/* Modal Body */}
-                          <div className="modal-body p-4">
+                          {/* Body */}
+                          <div className="modal-body p-5 bg-light">
                             <div className="row g-4">
-                              {/* Full width for name */}
+                              {/* Người nhận */}
                               <div className="col-12">
-                                <div className="mb-3">
-                                  <label className="form-label fw-semibold text-dark">
-                                    <i className="fas fa-user text-success me-2"></i>
-                                    Tên người nhận
-                                    <span className="text-danger ms-1">*</span>
-                                  </label>
-                                  <input
-                                    type="text"
-                                    name="name"
-                                    className="form-control form-control-lg border-2"
-                                    value={newAddress.name}
-                                    onChange={handleNewAddressChange}
-                                    placeholder="Nhập tên người nhận"
-                                    required
-                                  />
-                                </div>
+                                <label className="form-label fw-semibold text-dark">
+                                  <i
+                                    className="fas fa-user me-2"
+                                    style={{ color: "#629D23" }}
+                                  ></i>
+                                  Tên người nhận<span className="text-danger">*</span>
+                                </label>
+                                <input
+                                  type="text"
+                                  name="name"
+                                  className="form-control form-control-lg border-2 rounded-3"
+                                  value={newAddress.name}
+                                  onChange={handleNewAddressChange}
+                                  placeholder="VD: Nguyễn Văn A"
+                                  required
+                                />
                               </div>
 
-                              {/* Address fields in logical order */}
+                              {/* Tỉnh / Thành phố */}
                               <div className="col-md-4">
-                                <div className="mb-3">
-                                  <label className="form-label fw-semibold text-dark">
-                                    <i className="fas fa-map-marked-alt text-success me-2"></i>
-                                    Tỉnh / Thành phố
-                                    <span className="text-danger ms-1">*</span>
-                                  </label>
-                                  <select
-                                    className="form-select form-select-lg border-2"
-                                    value={selectedProvinceId || ""}
-                                    onChange={(e) => {
-                                      const provinceId = Number.parseInt(e.target.value)
-                                      const selected = provinces.find((p) => p.provinceID === provinceId)
-                                      setSelectedProvinceId(provinceId)
-                                      setSelectedDistrictId(null)
-                                      setSelectedWardId(null)
-                                      setNewAddress((prev) => ({
-                                        ...prev,
-                                        city: selected?.provinceName || "",
-                                        district: "",
-                                        ward: "",
-                                      }))
-                                    }}
-                                    required
-                                  >
-                                    <option value="">Chọn tỉnh/thành phố</option>
-                                    {provinces.map((province) => (
-                                      <option key={province.provinceID} value={province.provinceID}>
-                                        {province.provinceName}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
+                                <label className="form-label fw-semibold text-dark">
+                                  <i
+                                    className="fas fa-city me-2"
+                                    style={{ color: "#629D23" }}
+                                  ></i>
+                                  Tỉnh / Thành phố<span className="text-danger">*</span>
+                                </label>
+                                <select
+                                  className="form-select form-select-lg border-2 rounded-3"
+                                  value={selectedProvinceId || ""}
+                                  onChange={(e) => {
+                                    const provinceId = Number.parseInt(e.target.value)
+                                    const selected = provinces.find(
+                                      (p) => p.provinceID === provinceId
+                                    )
+                                    setSelectedProvinceId(provinceId)
+                                    setSelectedDistrictId(null)
+                                    setSelectedWardId(null)
+                                    setNewAddress((prev) => ({
+                                      ...prev,
+                                      city: selected?.provinceName || "",
+                                      district: "",
+                                      ward: "",
+                                    }))
+                                  }}
+                                  required
+                                >
+                                  <option value="">-- Chọn tỉnh/thành phố --</option>
+                                  {provinces.map((province) => (
+                                    <option key={province.provinceID} value={province.provinceID}>
+                                      {province.provinceName}
+                                    </option>
+                                  ))}
+                                </select>
                               </div>
 
+                              {/* Quận / Huyện */}
                               <div className="col-md-4">
-                                <div className="mb-3">
-                                  <label className="form-label fw-semibold text-dark">
-                                    <i className="fas fa-building text-success me-2"></i>
-                                    Quận / Huyện
-                                    <span className="text-danger ms-1">*</span>
-                                  </label>
-                                  <select
-                                    className="form-select form-select-lg border-2"
-                                    value={selectedDistrictId || ""}
-                                    onChange={(e) => {
-                                      const districtId = Number.parseInt(e.target.value)
-                                      const selected = districts.find((d) => d.districtID === districtId)
-                                      setSelectedDistrictId(districtId)
-                                      setSelectedWardId(null)
-                                      setNewAddress((prev) => ({
-                                        ...prev,
-                                        district: selected?.districtName || "",
-                                        ward: "",
-                                      }))
-                                    }}
-                                    disabled={!selectedProvinceId}
-                                    required
-                                  >
-                                    <option value="">Chọn quận/huyện</option>
-                                    {districts.map((district) => (
-                                      <option key={district.districtID} value={district.districtID}>
-                                        {district.districtName}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
+                                <label className="form-label fw-semibold text-dark">
+                                  <i
+                                    className="fas fa-building me-2"
+                                    style={{ color: "#629D23" }}
+                                  ></i>
+                                  Quận / Huyện<span className="text-danger">*</span>
+                                </label>
+                                <select
+                                  className="form-select form-select-lg border-2 rounded-3"
+                                  value={selectedDistrictId || ""}
+                                  onChange={(e) => {
+                                    const districtId = Number.parseInt(e.target.value)
+                                    const selected = districts.find(
+                                      (d) => d.districtID === districtId
+                                    )
+                                    setSelectedDistrictId(districtId)
+                                    setSelectedWardId(null)
+                                    setNewAddress((prev) => ({
+                                      ...prev,
+                                      district: selected?.districtName || "",
+                                      ward: "",
+                                    }))
+                                  }}
+                                  disabled={!selectedProvinceId}
+                                  required
+                                >
+                                  <option value="">-- Chọn quận/huyện --</option>
+                                  {districts.map((district) => (
+                                    <option key={district.districtID} value={district.districtID}>
+                                      {district.districtName}
+                                    </option>
+                                  ))}
+                                </select>
                               </div>
 
+                              {/* Phường / Xã */}
                               <div className="col-md-4">
-                                <div className="mb-3">
-                                  <label className="form-label fw-semibold text-dark">
-                                    <i className="fas fa-home text-success me-2"></i>
-                                    Phường / Xã
-                                  </label>
-                                  <select
-                                    className="form-select form-select-lg border-2"
-                                    value={selectedWardId || ""}
-                                    onChange={(e) => {
-                                      const wardCode = e.target.value
-                                      const selected = wards.find((w) => w.wardCode === wardCode)
-                                      setSelectedWardId(wardCode)
-                                      setNewAddress((prev) => ({
-                                        ...prev,
-                                        ward: selected?.wardCode || "",
-                                      }))
-                                    }}
-                                    disabled={!selectedDistrictId}
-                                  >
-                                    <option value="">Chọn phường/xã</option>
-                                    {wards.map((ward) => (
-                                      <option key={ward.wardCode} value={ward.wardCode}>
-                                        {ward.wardName}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
+                                <label className="form-label fw-semibold text-dark">
+                                  <i
+                                    className="fas fa-home me-2"
+                                    style={{ color: "#629D23" }}
+                                  ></i>
+                                  Phường / Xã
+                                </label>
+                                <select
+                                  className="form-select form-select-lg border-2 rounded-3"
+                                  value={selectedWardId || ""}
+                                  onChange={(e) => {
+                                    const wardCode = e.target.value
+                                    const selected = wards.find((w) => w.wardCode === wardCode)
+                                    setSelectedWardId(wardCode)
+                                    setNewAddress((prev) => ({
+                                      ...prev,
+                                      ward: selected?.wardCode || "",
+                                    }))
+                                  }}
+                                  disabled={!selectedDistrictId}
+                                >
+                                  <option value="">-- Chọn phường/xã --</option>
+                                  {wards.map((ward) => (
+                                    <option key={ward.wardCode} value={ward.wardCode}>
+                                      {ward.wardName}
+                                    </option>
+                                  ))}
+                                </select>
                               </div>
 
-                              {/* Full width for detailed address */}
+                              {/* Địa chỉ chi tiết */}
                               <div className="col-12">
-                                <div className="mb-3">
-                                  <label className="form-label fw-semibold text-dark">
-                                    <i className="fas fa-location-dot text-success me-2"></i>
-                                    Địa chỉ chi tiết
-                                    <span className="text-danger ms-1">*</span>
-                                  </label>
-                                  <textarea
-                                    name="fullAddress"
-                                    className="form-control form-control-lg border-2"
-                                    rows={3}
-                                    value={newAddress.fullAddress}
-                                    onChange={(e) => handleNewAddressChange(e as any)}
-                                    placeholder="Số nhà, tên đường, khu vực... (VD: 123 Nguyễn Trãi, Khu phố 1)"
-                                    required
-                                  />
-                                </div>
+                                <label className="form-label fw-semibold text-dark">
+                                  <i
+                                    className="fas fa-location-dot me-2"
+                                    style={{ color: "#629D23" }}
+                                  ></i>
+                                  Địa chỉ chi tiết<span className="text-danger">*</span>
+                                </label>
+                                <textarea
+                                  name="fullAddress"
+                                  className="form-control form-control-lg border-2 rounded-3"
+                                  rows={3}
+                                  value={newAddress.fullAddress}
+                                  onChange={(e) => handleNewAddressChange(e as any)}
+                                  placeholder="VD: 123 Nguyễn Trãi, Khu phố 1"
+                                  required
+                                />
                               </div>
-
                             </div>
                           </div>
 
-                          {/* Modal Footer */}
-                          <div className="modal-footer bg-light border-0 rounded-bottom p-4">
-                            <button type="submit" className="btn btn-success btn-lg px-4" disabled={isLoading}>
+                          {/* Footer */}
+                          <div className="modal-footer bg-white border-0 p-5">
+                            <button
+                              type="submit"
+                              className="rts-btn btn-primary"
+                              style={{ backgroundColor: "#629D23", borderColor: "#629D23" }}
+                              disabled={isLoading}
+                            >
                               {isLoading ? (
                                 <>
                                   <span
@@ -585,6 +599,8 @@ const AccountTabs = () => {
                   <div className="modal-backdrop fade show"></div>
                 </>
               )}
+
+
 
 
 
@@ -660,63 +676,7 @@ const AccountTabs = () => {
           </div>
         </div>
       </div>
-      <style jsx>{`
-        .form-control:focus, .form-select:focus {
-
-          box-shadow: 0 0 0 0.2rem rgba(74, 124, 89, 0.25);
-        }
-        
-        .btn-outline-success {
-          margin-right: 20px;
-        }
-        
-        .btn-outline-success:hover {
-
-          color: white;
-        }
-        
-        .btn-outline-success::before {
-          opacity: 0;
-        }
-        
-        .btn-check:checked + .btn-outline-success {
-
-        }
-        
-        .text-success {
-
-        }
-        
-        .bg-success {
-
-        }
-        
-        input[type="radio"] {
-          display: none;
-        }
-        
-        label:before {
-          display: none;
-        }
-        
-        input[type="text"], input[type="number"], input[type="email"], input[type="password"], select {
-          border: 1px solid #4a7c59;
-        }
-        
-        .card {
-          border: 1px solid #e0e0e0;
-          transition: box-shadow 0.3s ease;
-        }
-        
-        .card:hover {
-          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        .btn-sm {
-          padding: 0.25rem 0.5rem;
-          font-size: 0.875rem;
-        }
-      `}</style>
+      
     </div>
   );
 };

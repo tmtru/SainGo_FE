@@ -28,7 +28,7 @@ export function parseBody<T>(response: AxiosResponse<ApiResponse<T>>): {
 
   if (!success) {
     const errorMsg = message || `Lỗi hệ thống(SC${statusCode})`;
-    toast.error(errorMsg);
+    console.error("API Error:", { statusCode, message });
     throw new Error(errorMsg);
   }
 
