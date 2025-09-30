@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useCart } from '@/components/header/CartContext';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import UserAddressService, { UserAddress } from '@/data/Services/UserAddress';
 import OrderService from '@/data/Services/OrderService';
 import ShippingService from '@/data/Services/ShippingService';
@@ -15,10 +15,10 @@ import { set } from 'lodash';
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaPhone, FaCommentDots, FaTicketAlt, FaCreditCard, FaMoneyBillWave } from 'react-icons/fa';
 
 function formatCurrency(value: number) {
-  return value.toLocaleString("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  });
+    return value.toLocaleString("vi-VN", {
+        style: "currency",
+        currency: "VND",
+    });
 }
 
 // Hàm format ngày: YYYY-MM-DD
@@ -150,19 +150,19 @@ export default function CheckOutMain() {
     const [deliveryType, setDeliveryType] = useState<'regular' | 'preorder'>('regular');
     const [notes, setNotes] = useState('');
 
-  const [paymentMethod, setPaymentMethod] = useState("cash");
-  const [error, setError] = useState<string | null>(null);
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.unitPrice * item.quantity,
-    0
-  );
+    const [paymentMethod, setPaymentMethod] = useState("cash");
+    const [error, setError] = useState<string | null>(null);
+    const subtotal = cartItems.reduce(
+        (sum, item) => sum + item.unitPrice * item.quantity,
+        0
+    );
 
-  // Coupon states
-  const [coupon, setCoupon] = useState("");
-  const [discount, setDiscount] = useState(0);
-  const [couponMessage, setCouponMessage] = useState("");
-  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
-  const [couponApplied, setCouponApplied] = useState(false);
+    // Coupon states
+    const [coupon, setCoupon] = useState("");
+    const [discount, setDiscount] = useState(0);
+    const [couponMessage, setCouponMessage] = useState("");
+    const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+    const [couponApplied, setCouponApplied] = useState(false);
 
     const { user } = useAuth();
 
@@ -228,25 +228,25 @@ export default function CheckOutMain() {
         fetchWards();
     }, [selectedDistrictId]);
 
-  // Load saved coupon and discount from localStorage
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedDiscount = parseFloat(
-        localStorage.getItem("discount") || "0"
-      );
-      const storedCouponCode = localStorage.getItem("coupon") || "";
+    // Load saved coupon and discount from localStorage
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const storedDiscount = parseFloat(
+                localStorage.getItem("discount") || "0"
+            );
+            const storedCouponCode = localStorage.getItem("coupon") || "";
 
-      setDiscount(storedDiscount);
-      setCoupon(storedCouponCode);
+            setDiscount(storedDiscount);
+            setCoupon(storedCouponCode);
 
-      if (storedCouponCode && storedDiscount > 0) {
-        setCouponApplied(true);
-        setCouponMessage(`Mã giảm giá "${storedCouponCode}" đã được áp dụng`);
-      }
-    }
-  }, []);
+            if (storedCouponCode && storedDiscount > 0) {
+                setCouponApplied(true);
+                setCouponMessage(`Mã giảm giá "${storedCouponCode}" đã được áp dụng`);
+            }
+        }
+    }, []);
 
-  const finalTotal = subtotal - discount + shippingFee;
+    const finalTotal = subtotal - discount + shippingFee;
 
     // Load addresses and set default
     useEffect(() => {
@@ -353,14 +353,14 @@ export default function CheckOutMain() {
     const applyCoupon = async (e: React.FormEvent) => {
         e.preventDefault();
 
-    if (!coupon || !subtotal) {
-      setCouponMessage("Vui lòng nhập mã giảm giá hợp lệ");
-      setDiscount(0);
-      setCouponApplied(false);
-      return;
-    }
+        if (!coupon || !subtotal) {
+            setCouponMessage("Vui lòng nhập mã giảm giá hợp lệ");
+            setDiscount(0);
+            setCouponApplied(false);
+            return;
+        }
 
-    setIsApplyingCoupon(true);
+        setIsApplyingCoupon(true);
 
         try {
             const res = await UserCouponService.applyCoupon({
@@ -368,43 +368,43 @@ export default function CheckOutMain() {
                 orderAmount: subtotal
             });
 
-      if (res?.data) {
-        const discountAmount = res.data;
-        setDiscount(discountAmount);
-        const discountPercentage = ((discountAmount / subtotal) * 100).toFixed(
-          0
-        );
-        setCouponMessage(
-          `Tuyệt vời! Bạn đã tiết kiệm được ${formatCurrency(
-            discountAmount
-          )} (${discountPercentage}%)`
-        );
-        setCouponApplied(true);
-        localStorage.setItem("coupon", coupon);
-        localStorage.setItem("discount", discountAmount.toString());
-        toast.success(
-          `🎉 Áp dụng mã giảm giá thành công! Tiết kiệm ${formatCurrency(
-            discountAmount
-          )}`
-        );
-      } else {
-        setDiscount(0);
-        setCouponMessage("Mã giảm giá không hợp lệ hoặc đã hết hạn sử dụng");
-        setCouponApplied(false);
-        localStorage.removeItem("coupon");
-        localStorage.removeItem("discount");
-      }
-    } catch (err) {
-      console.error(err);
-      setDiscount(0);
-      setCouponMessage(
-        "Có lỗi xảy ra khi xác minh mã giảm giá. Vui lòng thử lại"
-      );
-      setCouponApplied(false);
-    } finally {
-      setIsApplyingCoupon(false);
-    }
-  };
+            if (res?.data) {
+                const discountAmount = res.data;
+                setDiscount(discountAmount);
+                const discountPercentage = ((discountAmount / subtotal) * 100).toFixed(
+                    0
+                );
+                setCouponMessage(
+                    `Tuyệt vời! Bạn đã tiết kiệm được ${formatCurrency(
+                        discountAmount
+                    )} (${discountPercentage}%)`
+                );
+                setCouponApplied(true);
+                localStorage.setItem("coupon", coupon);
+                localStorage.setItem("discount", discountAmount.toString());
+                toast.success(
+                    `🎉 Áp dụng mã giảm giá thành công! Tiết kiệm ${formatCurrency(
+                        discountAmount
+                    )}`
+                );
+            } else {
+                setDiscount(0);
+                setCouponMessage("Mã giảm giá không hợp lệ hoặc đã hết hạn sử dụng");
+                setCouponApplied(false);
+                localStorage.removeItem("coupon");
+                localStorage.removeItem("discount");
+            }
+        } catch (err) {
+            console.error(err);
+            setDiscount(0);
+            setCouponMessage(
+                "Có lỗi xảy ra khi xác minh mã giảm giá. Vui lòng thử lại"
+            );
+            setCouponApplied(false);
+        } finally {
+            setIsApplyingCoupon(false);
+        }
+    };
 
     // Remove coupon function
     const removeCoupon = () => {
@@ -445,16 +445,16 @@ export default function CheckOutMain() {
             return;
         }
 
-    try {
-      const orderItems = cartItems.map((item) => ({
-        productId: item.productId,
-        productVariantId: item.productVariantId,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        productName: item.productName,
-      }));
+        try {
+            const orderItems = cartItems.map((item) => ({
+                productId: item.productId,
+                productVariantId: item.productVariantId,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                productName: item.productName,
+            }));
 
-      let couponCode = couponApplied ? coupon : undefined;
+            let couponCode = couponApplied ? coupon : undefined;
 
             const order: any = {
                 orderitems: orderItems,
@@ -1007,13 +1007,13 @@ export default function CheckOutMain() {
                         </div>
                     </div>
 
-          {/* Cột 2: Tóm tắt đơn hàng và Coupon */}
-          <div className="col-lg-4 order-1 order-xl-2">
-            <div
-              className="right-card-sidebar-checkout "
-              style={{ padding: "28px", top: "20px" }}
-            >
-              <h3 className="title-checkout mb-4">Tóm tắt đơn hàng</h3>
+                    {/* Cột 2: Tóm tắt đơn hàng và Coupon */}
+                    <div className="col-lg-4 order-1 order-xl-2">
+                        <div
+                            className="right-card-sidebar-checkout "
+                            style={{ padding: "28px", top: "20px" }}
+                        >
+                            <h3 className="title-checkout mb-4">Tóm tắt đơn hàng</h3>
 
                             {/* Coupon Section */}
                             <div className="coupon-section mb-4 p-3 border rounded-3 bg-light">
@@ -1081,79 +1081,79 @@ export default function CheckOutMain() {
                                 )}
                             </div>
 
-              {/* Cart Items */}
-              <div className="order-items mb-3 border-bottom pb-3">
-                <h6 className="fw-bold mb-2">Sản phẩm</h6>
-                {cartItems.map((item) => (
-                  <div
-                    className="single-shop-list small"
-                    key={item.id}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    <div className="left-area">
-                      <span className="title">
-                        {item.productName} × {item.quantity}
-                      </span>
-                    </div>
-                    <span className="price text-end">
-                      {formatCurrency(item.unitPrice * item.quantity)}
-                    </span>
-                  </div>
-                ))}
-              </div>
+                            {/* Cart Items */}
+                            <div className="order-items mb-3 border-bottom pb-3">
+                                <h6 className="fw-bold mb-2">Sản phẩm</h6>
+                                {cartItems.map((item) => (
+                                    <div
+                                        className="single-shop-list small"
+                                        key={item.id}
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            marginBottom: "8px",
+                                        }}
+                                    >
+                                        <div className="left-area">
+                                            <span className="title">
+                                                {item.productName} × {item.quantity}
+                                            </span>
+                                        </div>
+                                        <span className="price text-end">
+                                            {formatCurrency(item.unitPrice * item.quantity)}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
 
-              {/* Price Summary */}
-              <div className="price-summary mb-3 border-bottom pb-3">
-                <div
-                  className="single-shop-list"
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "8px",
-                  }}
-                >
-                  <span>Tạm tính</span>
-                  <span className="price">{formatCurrency(subtotal)}</span>
-                </div>
+                            {/* Price Summary */}
+                            <div className="price-summary mb-3 border-bottom pb-3">
+                                <div
+                                    className="single-shop-list"
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        marginBottom: "8px",
+                                    }}
+                                >
+                                    <span>Tạm tính</span>
+                                    <span className="price">{formatCurrency(subtotal)}</span>
+                                </div>
 
-                {discount > 0 && (
-                  <div
-                    className="single-shop-list"
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    <span className="text-success small">
-                      <i className="fa-solid fa-tag me-1"></i> Giảm giá
-                    </span>
-                    <span className="price text-success small">
-                      -{formatCurrency(discount)}
-                    </span>
-                  </div>
-                )}
+                                {discount > 0 && (
+                                    <div
+                                        className="single-shop-list"
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            marginBottom: "8px",
+                                        }}
+                                    >
+                                        <span className="text-success small">
+                                            <i className="fa-solid fa-tag me-1"></i> Giảm giá
+                                        </span>
+                                        <span className="price text-success small">
+                                            -{formatCurrency(discount)}
+                                        </span>
+                                    </div>
+                                )}
 
-                <div
-                  className="single-shop-list"
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "8px",
-                  }}
-                >
-                  <span>Phí vận chuyển</span>
-                  <span className="price fw-bold">
-                    {loadingShipping
-                      ? "Đang tính..."
-                      : formatCurrency(shippingFee)}
-                  </span>
-                </div>
-              </div>
+                                <div
+                                    className="single-shop-list"
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        marginBottom: "8px",
+                                    }}
+                                >
+                                    <span>Phí vận chuyển</span>
+                                    <span className="price fw-bold">
+                                        {loadingShipping
+                                            ? "Đang tính..."
+                                            : formatCurrency(shippingFee)}
+                                    </span>
+                                </div>
+                            </div>
 
                             {/* Total and Place Order Button */}
                             <div className="single-shop-list mb-3" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1173,9 +1173,9 @@ export default function CheckOutMain() {
                                     )}
                                 </div>
                             )
-                                
-                                }
-                           
+
+                            }
+
                             {discount > 0 && (
                                 <div className="savings-highlight text-center mb-3 p-2 bg-warning bg-opacity-10 rounded-3">
                                     <small className="text-success fw-bold">
@@ -1292,6 +1292,7 @@ export default function CheckOutMain() {
   background-color: #a0aec0;          /* hover đậm hơn */
 }
             `}</style>
+            <ToastContainer />
         </div>
     );
 }
