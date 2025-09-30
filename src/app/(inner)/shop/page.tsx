@@ -475,6 +475,297 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <style jsx>{`
+      /* ============================================
+   HEALTH FOOD MENU - CUSTOM STYLES
+   ============================================ */
+
+/* Main Container */
+
+/* Category Tabs */
+.title-area-between {
+  margin: 50px 0 40px;
+  padding: 0 20px;
+}
+
+.nav-tabs.best-selling-grocery {
+  border: none !important;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.nav-tabs.best-selling-grocery .nav-item {
+  margin: 0;
+}
+
+.nav-tabs.best-selling-grocery .nav-link {
+  border: 2px solid #e5e7eb !important;
+  background: #ffffff;
+  color: #6b7280;
+  padding: 12px 28px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-tabs.best-selling-grocery .nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  transition: all 0.4s ease;
+  z-index: -1;
+}
+
+.nav-tabs.best-selling-grocery .nav-link:hover {
+  border-color: #10b981 !important;
+  color: #047857;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.nav-tabs.best-selling-grocery .nav-link.active {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+  transform: translateY(-2px);
+}
+
+.nav-tabs.best-selling-grocery .nav-link.active::before {
+  left: 0;
+}
+
+/* Filter Area */
+.filter-select-area {
+  margin-bottom: 30px;
+}
+
+.top-filter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0fdf4;
+}
+
+.top-filter span {
+  color: #047857;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.sort-dropdown-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sort-dropdown-wrapper span {
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.sort-dropdown-wrapper select {
+  padding: 10px 16px !important;
+  border: 2px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+  min-width: 180px !important;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sort-dropdown-wrapper select:hover {
+  border-color: #10b981 !important;
+}
+
+.sort-dropdown-wrapper select:focus {
+  outline: none;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Product Cards */
+.single-shopping-card-one {
+  background: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  border: 2px solid #f0fdf4;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.single-shopping-card-one:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+}
+
+/* Pagination */
+.pagination-area-main-wrappper ul {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pagination-area-main-wrappper ul li button {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  background: #ffffff;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-area-main-wrappper ul li button:hover {
+  background: #f0fdf4;
+  border-color: #10b981;
+  color: #047857;
+  transform: translateY(-2px);
+}
+
+.pagination-area-main-wrappper ul li button.active {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border-color: #10b981;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Empty State */
+.col-12.text-center.py-5 h2 {
+  color: #6b7280;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+/* Loading State */
+.text-danger {
+  color: #ef4444 !important;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .vendor-search-area-wrapper h1.title {
+    font-size: 36px;
+  }
+  
+  .search-vendor-form {
+    flex-direction: column;
+    border-radius: 16px;
+    padding: 12px;
+  }
+  
+  .search-vendor-form input[type="text"],
+  .search-vendor-form button[type="submit"] {
+    width: 100%;
+  }
+  
+  .nav-tabs.best-selling-grocery {
+    padding: 15px;
+  }
+  
+  .nav-tabs.best-selling-grocery .nav-link {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .top-filter {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .sort-dropdown-wrapper {
+    width: 100%;
+  }
+  
+  .sort-dropdown-wrapper select {
+    width: 100%;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.product-area-wrapper-shopgrid-list {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Health Icons & Badges */
+.discount-offer::after {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+/* Section Separator */
+.section-seperator {
+  border-color: #e5e7eb !important;
+  opacity: 0.5;
+}
+
+/* Additional Health-themed Accents */
+.shop-grid-sidebar-area {
+  background: #ffffff;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus States for Accessibility */
+*:focus {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+button:focus,
+input:focus,
+select:focus {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+            `}</style>
 
       <FooterOne />
     </div>

@@ -28,18 +28,20 @@ function CategoryBannerBottom() {
   }, []);
 
   return (
-    <div className="rts-caregory-area-one">
+    <div className="rts-caregory-area-one nutrition-theme">
       <div className="container">
+        <div className="section-title text-center mb--20">
+          <h3 className="title">
+            Khám phá danh mục <span className="highlight">dinh dưỡng</span>
+          </h3>
+        </div>
         <div className="row">
           <div className="col-lg-12">
             <div className="category-list-main-wrapper">
               <Swiper
                 modules={[Navigation, Autoplay]}
-                spaceBetween={12}
-                slidesPerView={10}
                 loop={true}
                 speed={1000}
-                centeredSlides={true}
                 autoplay={{
                   delay: 3000,
                   disableOnInteraction: false,
@@ -47,10 +49,12 @@ function CategoryBannerBottom() {
                 breakpoints={{
                   0: { slidesPerView: 2, spaceBetween: 12 },
                   320: { slidesPerView: 2, spaceBetween: 12 },
-                  480: { slidesPerView: 3, spaceBetween: 12 },
-                  640: { slidesPerView: 4, spaceBetween: 12 },
-                  840: { slidesPerView: 4, spaceBetween: 12 },
-                  1140: { slidesPerView: 7, spaceBetween: 12 },
+                  480: { slidesPerView: 4, spaceBetween: 12 },
+                  640: { slidesPerView: 6, spaceBetween: 12 },
+                  840: { slidesPerView: 7, spaceBetween: 12 },
+                  1140: {
+                    slidesPerView: 7, spaceBetween: 20
+                  },
                 }}
               >
                 {categories.map((cat) => (
@@ -59,15 +63,16 @@ function CategoryBannerBottom() {
                       href={`/shop?categoryId=${cat.id}`}
                       className="single-category-one"
                     >
-                      <Image
-                        src={
-                          cat.iconUrl || "/assets/images/category/default.png"
-                        }
-                        alt={cat.name}
-                        width={200}
-                        height={300}
-                      />
-                      <p>{cat.name}</p>
+                      <div className="category-image-wrapper">
+                        <Image
+                          src={cat.iconUrl || "/assets/images/category/default.png"}
+                          alt={cat.name}
+                          fill
+                          sizes="150px"
+                          className="category-image"
+                        />
+                      </div>
+                      <p className="category-name">{cat.name}</p>
                     </Link>
                   </SwiperSlide>
                 ))}
@@ -76,6 +81,44 @@ function CategoryBannerBottom() {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .single-category-one {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          justify-content: flex-start !important;
+          text-align: center !important;
+          gap: 8px !important;
+          text-decoration: none !important;
+          padding: 10px !important;
+        }
+
+        .category-image-wrapper {
+          width: 160px !important;
+          height: 100px !important;
+          min-height: 100px !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          border-radius: 8px !important;
+          background: #f5f5f5 !important;
+          position: relative !important;
+          overflow: hidden !important;
+        }
+
+        .category-image {
+          object-fit: contain !important;
+        }
+
+        .category-name {
+          margin: 0 !important;
+          margin-top: 8px !important;
+          word-break: break-word !important;
+        }
+
+
+      `}</style>
     </div>
   );
 }

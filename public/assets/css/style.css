@@ -17953,19 +17953,7 @@ li.with-megamenu:hover .rts-megamenu {
   margin-top: 15px;
 }
 
-.single-category-one img {
-  max-width: 200px;
-  max-height: 300px;
-  margin: auto;
-  margin-bottom: 18px;
-  min-height: 110px;
-  text-align: center;
-  display: flex;
-}
 
-.category-list-main-wrapper .swiper-wrapper {
-justify-content: center !important;
-}
 
 
 
@@ -23562,7 +23550,6 @@ body.modal-open {
 }
 
 .vendor-search-area-wrapper {
-  padding: 100px 0;
   position: relative;
   max-width: 615px;
   margin: auto;
