@@ -626,7 +626,7 @@ export default function CheckOutMain() {
                                             </div>
 
                                             {/* Manual phone input for selected address if needed */}
-                                            {selectedAddress && (!selectedAddress.phone || selectedAddress.phone === '') && (
+           
                                                 <div className="form-group mt-3">
                                                     <label htmlFor="deliveryPhone" className="form-label small fw-bold">
                                                         <FaPhone className="me-2 text-secondary" /> Số điện thoại nhận hàng *
@@ -641,7 +641,7 @@ export default function CheckOutMain() {
                                                         required
                                                     />
                                                 </div>
-                                            )}
+                              
 
                                             <button
                                                 className="rts-btn btn-primary btn-sm mt-3"
