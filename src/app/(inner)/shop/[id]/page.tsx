@@ -252,9 +252,8 @@ const CompareElements: React.FC = () => {
                             {thumbnails.map((thumb) => (
                               <div
                                 key={thumb.id}
-                                className={`custom-thumb-item ${
-                                  activeImage === thumb.src ? "active" : ""
-                                }`}
+                                className={`custom-thumb-item ${activeImage === thumb.src ? "active" : ""
+                                  }`}
                                 onClick={() => setActiveImage(thumb.src)}
                               >
                                 <img src={thumb.src} alt={thumb.alt} />
@@ -380,9 +379,8 @@ const CompareElements: React.FC = () => {
                     <li className="nav-item" role="presentation">
                       <button
                         onClick={() => setActiveTab("tab1")}
-                        className={`nav-link ${
-                          activeTab === "tab1" ? "active" : ""
-                        }`}
+                        className={`nav-link ${activeTab === "tab1" ? "active" : ""
+                          }`}
                       >
                         Chi tiết sản phẩm
                       </button>
@@ -390,9 +388,8 @@ const CompareElements: React.FC = () => {
                     <li className="nav-item" role="presentation">
                       <button
                         onClick={() => setActiveTab("tab2")}
-                        className={`nav-link ${
-                          activeTab === "tab2" ? "active" : ""
-                        }`}
+                        className={`nav-link ${activeTab === "tab2" ? "active" : ""
+                          }`}
                       >
                         Thông tin dinh dưỡng
                       </button>
@@ -400,9 +397,8 @@ const CompareElements: React.FC = () => {
                     <li className="nav-item" role="presentation">
                       <button
                         onClick={() => setActiveTab("tab3")}
-                        className={`nav-link ${
-                          activeTab === "tab3" ? "active" : ""
-                        }`}
+                        className={`nav-link ${activeTab === "tab3" ? "active" : ""
+                          }`}
                       >
                         Thành phần & Công thức
                       </button>
@@ -591,16 +587,14 @@ const CompareElements: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="our-payment-method">
-                    <h5 className="title">Thanh toán an toàn được đảm bảo</h5>
-                    <img src="/assets/images/shop/03.png" alt="" />
-                  </div>
+ 
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
 
       <FooterOne />
       <ToastContainer />
@@ -612,6 +606,675 @@ const CompareElements: React.FC = () => {
         productTitle={blogPost.name}
         productPrice={currentPrice.toString()}
       />
+      <style jsx>{`
+      /* ============================================
+   PRODUCT DETAILS - HEALTH & NUTRITION FOCUS
+   ============================================ */
+
+
+
+/* Custom Product Section */
+.custom-product-section {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 4px 24px rgba(16, 185, 129, 0.08);
+  border: 2px solid #f0fdf4;
+}
+
+.custom-product-area {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+/* Thumbnail Area */
+.custom-thumb-area {
+  flex: 0 0 45%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.custom-thumb-main {
+  width: 100%;
+  height: 450px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f9fafb;
+  border: 3px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.custom-thumb-main:hover {
+  border-color: #10b981;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+}
+
+.custom-thumb-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.custom-thumb-list {
+  display: flex;
+  gap: 12px;
+}
+
+.custom-thumb-item {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #f9fafb;
+}
+
+.custom-thumb-item:hover {
+  border-color: #10b981;
+  transform: translateY(-2px);
+}
+
+.custom-thumb-item.active {
+  border-color: #10b981;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.custom-thumb-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Product Content */
+.custom-contents {
+  flex: 1;
+}
+
+.custom-status {
+  margin-bottom: 15px;
+}
+
+.custom-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fbbf24;
+  font-size: 16px;
+}
+
+.custom-rating span {
+  color: #6b7280;
+  font-size: 14px;
+  margin-left: 8px;
+}
+
+.custom-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #047857;
+  margin: 15px 0;
+  line-height: 1.3;
+}
+
+.custom-shortdesc {
+  color: #4b5563;
+  font-size: 16px;
+  line-height: 1.7;
+  margin-bottom: 25px;
+}
+
+/* Price Section */
+.custom-price {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 36px;
+  font-weight: 700;
+  color: #10b981;
+  margin-bottom: 30px;
+}
+
+.custom-oldprice {
+  font-size: 24px;
+  color: #9ca3af;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+/* Quantity Section */
+.custom-quantity {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 25px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: 12px;
+  border: 2px solid #bbf7d0;
+}
+
+.custom-quantity label {
+  font-weight: 600;
+  color: #047857;
+  font-size: 16px;
+}
+
+.custom-quantity-input {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid #10b981;
+}
+
+.custom-quantity-input button {
+  width: 40px;
+  height: 40px;
+  background: #ffffff;
+  border: none;
+  color: #10b981;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-quantity-input button:hover:not(:disabled) {
+  background: #f0fdf4;
+  color: #047857;
+}
+
+.custom-quantity-input button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.custom-quantity-input input {
+  width: 60px;
+  height: 40px;
+  border: none;
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  text-align: center;
+  font-weight: 600;
+  color: #047857;
+  font-size: 16px;
+}
+
+.custom-quantity-input input:focus {
+  outline: none;
+}
+
+/* Action Buttons */
+.custom-actions {
+  margin-bottom: 30px;
+}
+
+.custom-btn {
+  width: 100%;
+  padding: 18px 32px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+}
+
+.custom-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.custom-btn:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Product Details Grid */
+.custom-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  padding: 25px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 12px;
+  margin-bottom: 25px;
+  border: 2px solid #fcd34d;
+}
+
+.custom-details span {
+  color: #92400e;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.custom-details span strong {
+  color: #78350f;
+  font-weight: 600;
+}
+
+.custom-details span::before {
+  content: "✓";
+  color: #10b981;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* Share Section */
+.custom-share {
+  display: flex;
+  gap: 15px;
+}
+
+.custom-share-item {
+  flex: 1;
+  padding: 12px 20px;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.custom-share-item:hover {
+  border-color: #10b981;
+  background: #f0fdf4;
+  color: #047857;
+  transform: translateY(-2px);
+}
+
+.custom-share-item i {
+  font-size: 18px;
+}
+
+/* Tabs Navigation */
+.product-discription-tab-shop {
+  margin-top: 50px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 4px 24px rgba(16, 185, 129, 0.08);
+  border: 2px solid #f0fdf4;
+}
+
+.nav-tabs {
+  border-bottom: 3px solid #e5e7eb !important;
+  margin-bottom: 30px;
+  display: flex;
+  gap: 10px;
+}
+
+.nav-tabs .nav-item {
+  margin: 0;
+}
+
+.nav-tabs .nav-link {
+  border: none !important;
+  background: transparent;
+  color: #6b7280;
+  padding: 15px 25px;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 10px 10px 0 0;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-tabs .nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  transition: width 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+  background: #f0fdf4;
+  color: #047857;
+}
+
+.nav-tabs .nav-link.active {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  color: #047857;
+  font-weight: 700;
+}
+
+.nav-tabs .nav-link.active::after {
+  width: 100%;
+}
+
+/* Tab Content */
+.single-tab-content-shop-details {
+  padding: 20px 0;
+}
+
+.single-tab-content-shop-details h5 {
+  color: #047857;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.single-tab-content-shop-details h5::before {
+  content: "🌿";
+  font-size: 24px;
+}
+
+.single-tab-content-shop-details p.disc {
+  color: #4b5563;
+  font-size: 16px;
+  line-height: 1.8;
+  margin-bottom: 25px;
+}
+
+.single-tab-content-shop-details ul {
+  list-style: none;
+  padding: 0;
+}
+
+.single-tab-content-shop-details ul li {
+  padding: 12px 0 12px 30px;
+  color: #374151;
+  font-size: 15px;
+  line-height: 1.6;
+  position: relative;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.single-tab-content-shop-details ul li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #10b981;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.single-tab-content-shop-details ul li:last-child {
+  border-bottom: none;
+}
+
+.single-tab-content-shop-details ol {
+  list-style: none;
+  counter-reset: step-counter;
+  padding: 0;
+}
+
+.single-tab-content-shop-details ol li {
+  counter-increment: step-counter;
+  padding: 20px;
+  margin-bottom: 15px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: 12px;
+  border-left: 4px solid #10b981;
+  position: relative;
+  padding-left: 70px;
+}
+
+.single-tab-content-shop-details ol li::before {
+  content: counter(step-counter);
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 35px;
+  height: 35px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.single-tab-content-shop-details ol li strong {
+  display: none;
+}
+
+/* Nutrition Table */
+.table-shop-details-pd {
+  margin-top: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.table-shop-details-pd table {
+  width: 100%;
+  background: #ffffff;
+  margin: 0;
+}
+
+.table-shop-details-pd thead {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.table-shop-details-pd thead th {
+  color: #ffffff;
+  font-weight: 600;
+  padding: 18px 20px;
+  font-size: 16px;
+  border: none;
+}
+
+.table-shop-details-pd tbody tr {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.table-shop-details-pd tbody tr:hover {
+  background: #f0fdf4;
+}
+
+.table-shop-details-pd tbody td {
+  padding: 16px 20px;
+  color: #374151;
+  font-size: 15px;
+  border: none;
+}
+
+.table-shop-details-pd tbody td:first-child {
+  font-weight: 600;
+  color: #047857;
+}
+
+.table-shop-details-pd tbody td:last-child {
+  font-weight: 700;
+  color: #10b981;
+}
+
+/* Allergens & Highlights */
+.allergens,
+.nutrition-highlights {
+  padding: 20px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 12px;
+  border-left: 4px solid #f59e0b;
+  color: #92400e;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.allergens span,
+.nutrition-highlights span {
+  font-weight: 700;
+  color: #78350f;
+  display: block;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+/* Sidebar */
+.shop-sight-sticky-sidevbar {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+  border: 2px solid #f0fdf4;
+}
+
+.shop-sight-sticky-sidevbar h6.title {
+  color: #047857;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.single-offer-area {
+  display: flex;
+  gap: 15px;
+  padding: 18px;
+  margin-bottom: 15px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: 12px;
+  border: 2px solid #bbf7d0;
+  transition: all 0.3s ease;
+}
+
+.single-offer-area:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.single-offer-area .icon {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  background: #ffffff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+}
+
+.single-offer-area .icon img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.single-offer-area .details p {
+  color: #047857;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+  font-weight: 500;
+}
+
+.our-payment-method {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 16px;
+  padding: 25px;
+  text-align: center;
+  border: 2px solid #fcd34d;
+}
+
+.our-payment-method h5.title {
+  color: #78350f;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.our-payment-method img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .custom-product-area {
+    flex-direction: column;
+  }
+  
+  .custom-thumb-area {
+    flex: 1;
+    width: 100%;
+  }
+  
+  .custom-details {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .custom-title {
+    font-size: 24px;
+  }
+  
+  .custom-price {
+    font-size: 28px;
+  }
+  
+  .custom-thumb-main {
+    height: 350px;
+  }
+  
+  .nav-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .nav-tabs .nav-link {
+    padding: 12px 18px;
+    font-size: 14px;
+  }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.custom-product-section {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.product-discription-tab-shop {
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+} 
+      `}</style>
     </div>
   );
 };

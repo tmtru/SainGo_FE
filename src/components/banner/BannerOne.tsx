@@ -3,6 +3,8 @@ import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import CategoryBb from './CategoryBb';
+import { Nut } from 'lucide-react';
+import { NutritionHighlights, WhyChooseUs } from './About';
 
 const BannerOne = () => {
     return (
@@ -39,17 +41,17 @@ const BannerOne = () => {
                                         <div className="banner-bg-image bg_image bg_one-banner ptb--120 ptb_md--80 ptb_sm--60">
                                             <div className="banner-one-inner-content">
                                                 <span className="pre">
-                                                    Giảm đến 30% cho đơn hàng đầu tiên từ 150.000đ
+                                                    Dinh dưỡng trọn vẹn – Sức khỏe cho mọi nhà
                                                 </span>
                                                 <h1 className="title">
-                                                    Đừng bỏ lỡ những ưu đãi <br />
-                                                    thực phẩm tuyệt vời của chúng tôi
+                                                    Chúng tôi cung cấp những món ăn <br />
+                                                    đáp ứng nhu cầu dinh dưỡng & sức khỏe
                                                 </h1>
                                                 <a
                                                     href="/shop"
                                                     className="rts-btn btn-primary radious-sm with-icon"
                                                 >
-                                                    <div className="btn-text">Mua ngay</div>
+                                                    <div className="btn-text">Khám phá ngay</div>
                                                     <div className="arrow-icon">
                                                         <i className="fa-light fa-arrow-right"></i>
                                                     </div>
@@ -65,11 +67,11 @@ const BannerOne = () => {
                                         <div className="banner-bg-image bg_image bg_one-banner two ptb--120 ptb_md--80 ptb_sm--60">
                                             <div className="banner-one-inner-content">
                                                 <span className="pre">
-                                                    Giảm đến 30% cho đơn hàng đầu tiên từ 150.000đ
+                                                    Ăn ngon, sống khỏe, phù hợp với mọi gia đình
                                                 </span>
                                                 <h1 className="title">
-                                                    Đừng bỏ lỡ những ưu đãi <br />
-                                                    thực phẩm tuyệt vời của chúng tôi
+                                                    Mỗi bữa ăn – một lựa chọn <br />
+                                                    cho cuộc sống lành mạnh hơn
                                                 </h1>
                                                 <a
                                                     href="/shop"
@@ -102,8 +104,10 @@ const BannerOne = () => {
             {/* Khu vực banner kết thúc */}
 
             <CategoryBb />
+
         </div>
     );
 };
 
 export default BannerOne;
+
