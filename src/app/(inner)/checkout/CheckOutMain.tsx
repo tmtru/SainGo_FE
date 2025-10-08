@@ -69,18 +69,11 @@ const isToday = (dateString: string) => {
 // Hàm lấy khung giờ khả dụng dựa trên ngày được chọn
 const getAvailableTimeSlots = (selectedDate: string) => {
     const baseTimeSlots = [
-        { value: "07:00-08:00", label: "Sáng sớm (7:00 - 8:00)", disabled: false },
-        { value: "08:00-09:00", label: "Sáng (8:00 - 9:00)", disabled: false },
-        { value: "09:00-10:00", label: "Sáng (9:00 - 10:00)", disabled: false },
-        { value: "10:00-11:00", label: "Sáng muộn (10:00 - 11:00)", disabled: false },
-        { value: "11:00-12:00", label: "Trưa (11:00 - 12:00)", disabled: false },
-        { value: "12:00-13:00", label: "Trưa (12:00 - 13:00)", disabled: false },
-        { value: "13:00-14:00", label: "Chiều sớm (13:00 - 14:00)", disabled: false },
-        { value: "14:00-15:00", label: "Chiều sớm (14:00 - 15:00)", disabled: false },
-        { value: "15:00-16:00", label: "Chiều (15:00 - 16:00)", disabled: false },
-        { value: "16:00-17:00", label: "Chiều (16:00 - 17:00)", disabled: false },
-        { value: "17:00-18:00", label: "Chiều muộn (17:00 - 18:00)", disabled: false },
-        { value: "18:00-19:00", label: "Tối sớm (18:00 - 19:00)", disabled: false },
+        { value: "07:00-09:00", label: "Sáng sớm (7:00 - 10:00)", disabled: false },
+        { value: "09:00-10:00", label: "Trưa (10:00 - 12:30)", disabled: false },
+        { value: "12:00-13:00", label: "Chiều sớm (12:30 - 15:00)", disabled: false },
+        { value: "15:00-16:00", label: "Chiều (15:00 - 17:00)", disabled: false },
+        { value: "17:00-18:00", label: "Chiều muộn (17:00 - 19:00)", disabled: false },
         { value: "19:00-20:00", label: "Tối (19:00 - 20:00)", disabled: false },
     ];
 
@@ -147,7 +140,7 @@ export default function CheckOutMain() {
     const [selectedDistrictId, setSelectedDistrictId] = useState<number | null>(null);
     const [selectedWardId, setSelectedWardId] = useState<any | null>(null);
 
-    const [deliveryType, setDeliveryType] = useState<'regular' | 'preorder'>('regular');
+    const [deliveryType, setDeliveryType] = useState<'regular' | 'preorder'>('preorder');
     const [notes, setNotes] = useState('');
 
     const [paymentMethod, setPaymentMethod] = useState("cash");
@@ -626,22 +619,22 @@ export default function CheckOutMain() {
                                             </div>
 
                                             {/* Manual phone input for selected address if needed */}
-           
-                                                <div className="form-group mt-3">
-                                                    <label htmlFor="deliveryPhone" className="form-label small fw-bold">
-                                                        <FaPhone className="me-2 text-secondary" /> Số điện thoại nhận hàng *
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        id="deliveryPhone"
-                                                        className="form-control"
-                                                        placeholder="Nhập số điện thoại"
-                                                        value={manualAddress.phone}
-                                                        onChange={(e) => setManualAddress(prev => ({ ...prev, phone: e.target.value }))}
-                                                        required
-                                                    />
-                                                </div>
-                              
+
+                                            <div className="form-group mt-3">
+                                                <label htmlFor="deliveryPhone" className="form-label small fw-bold">
+                                                    <FaPhone className="me-2 text-secondary" /> Số điện thoại nhận hàng *
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    id="deliveryPhone"
+                                                    className="form-control"
+                                                    placeholder="Nhập số điện thoại"
+                                                    value={manualAddress.phone}
+                                                    onChange={(e) => setManualAddress(prev => ({ ...prev, phone: e.target.value }))}
+                                                    required
+                                                />
+                                            </div>
+
 
                                             <button
                                                 className="rts-btn btn-primary btn-sm mt-3"
@@ -821,7 +814,7 @@ export default function CheckOutMain() {
                                     <FaClock className="me-2 " /> Thời gian giao hàng
                                 </label>
                                 <div className="d-flex gap-4">
-                                    <div className="form-check form-check-inline">
+                                    {/* <div className="form-check form-check-inline">
                                         <input
                                             className="form-check-input"
                                             type="radio"
@@ -838,7 +831,7 @@ export default function CheckOutMain() {
                                         <label className="form-check-label" htmlFor="regularDelivery">
                                             Giao hàng sớm nhất {leadTime && <small className="text-muted">({leadTime})</small>}
                                         </label>
-                                    </div>
+                                    </div> */}
                                     <div className="form-check form-check-inline">
                                         <input
                                             className="form-check-input"
