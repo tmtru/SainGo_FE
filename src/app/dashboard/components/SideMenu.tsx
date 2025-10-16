@@ -1,8 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft } from "lucide-react"
+import { useAuth } from "@/components/Context/AuthContext";
 interface MenuItem {
   title: string;
   icon: any;
@@ -10,7 +10,7 @@ interface MenuItem {
   href?: string;
 }
 
-const menuItems: MenuItem[] = [
+const adminMenuItems: MenuItem[] = [
   // {
   //   title: "Dashboard",
   //   icon: "/assets/images-dashboard/icons/01.svg",
@@ -59,9 +59,26 @@ const menuItems: MenuItem[] = [
   },
 ];
 
+const shipperMenuItems: MenuItem[] = [
+  {
+    title: "Đơn giao",
+    icon: "/assets/images-dashboard/icons/09.svg",
+    href: "/dashboard/shipper/orders",
+  },
+];
+
 const SidebarMenu = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0); // 0 means Dashboard open by default
   const pathname = usePathname();
+  const { user } = useAuth();
+  const role = user?.roleName?.toLowerCase();
+
+  const menuItems = useMemo(() => {
+    if (role === "shipper") {
+      return shipperMenuItems;
+    }
+    return adminMenuItems;
+  }, [role]);
 
   useEffect(() => {
     // Find the index of the menu item that has a child matching the current path
@@ -74,7 +91,7 @@ const SidebarMenu = () => {
     if (activeIndex !== -1) {
       setOpenIndex(activeIndex);
     }
-  }, [pathname]);
+  }, [pathname, menuItems]);
 
   const handleToggle = (index: number) => {
     setOpenIndex(prev => (prev === index ? null : index));
@@ -87,7 +104,7 @@ const SidebarMenu = () => {
         const isOpen = openIndex === index;
         const isDirectActive = pathname.includes(item.href || "");
         return (
-          <li className="single-menu-item" key={index}>
+          <li className="single-menu-item" key={item.href ?? item.title}>
             {hasSubmenu ? (
               <Link
                 href="#"
@@ -113,10 +130,10 @@ const SidebarMenu = () => {
 
             {hasSubmenu && (
               <ul className={`submenu mm-collapse parent-nav ${isOpen ? "mm-show" : ""}`}>
-                {item.children!.map((sub, subIndex) => {
+                {item.children!.map((sub) => {
                   const isActive = pathname === sub.href || (sub.title === "Main Demo" && pathname === "/index");
                   return (
-                    <li key={subIndex}>
+                    <li key={sub.href}>
                       <Link
                         href={sub.href}
                         className={`mobile-menu-link ${isActive ? "active" : ""}`}

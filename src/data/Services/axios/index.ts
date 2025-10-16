@@ -59,6 +59,25 @@ interface CustomAxiosRequestConfig extends AxiosRequestConfig {
 let isRefreshing = false;
 let failedQueue: FailedQueueItem[] = [];
 
+const normalizeError = (reason: unknown): Error => {
+  if (reason instanceof Error) {
+    return reason;
+  }
+
+  try {
+    const serialized = typeof reason === "string" ? reason : JSON.stringify(reason);
+    return new Error(serialized);
+  } catch {
+    return new Error("Unknown error");
+  }
+};
+
+const clearAuthStorage = () => {
+  deleteStorage(STORAGE.TOKEN);
+  deleteStorage(STORAGE.USER_INFO);
+  deleteStorage(STORAGE.REFRESH_TOKEN);
+};
+
 const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach(({ resolve, reject }) => {
     if (error) {
@@ -70,12 +89,86 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = [];
 };
 
+const attachAuthorizationHeader = (request: CustomAxiosRequestConfig, token: string) => {
+  request.headers = {
+    ...request.headers,
+    Authorization: `Bearer ${token} `,
+  };
+};
+
+const requestNewAccessToken = async (refreshToken: string): Promise<string> => {
+  const res = await AuthService.refreshToken(refreshToken);
+  const { accessToken, refreshToken: nextRefreshToken } = res.data;
+
+  setStorage(STORAGE.TOKEN, accessToken);
+  if (nextRefreshToken) {
+    setStorage(STORAGE.REFRESH_TOKEN, nextRefreshToken);
+  }
+
+  processQueue(null, accessToken);
+  return accessToken;
+};
+
+const enqueueRequestWhileRefreshing = (request: CustomAxiosRequestConfig) =>
+  new Promise<AxiosResponse>((resolve, reject) => {
+    failedQueue.push({
+      resolve: (token: string) => {
+        attachAuthorizationHeader(request, token);
+        resolve(instance(request));
+      },
+      reject,
+    });
+  });
+
+const handleUnauthorizedResponse = async (
+  response: AxiosResponse<ApiResponse<unknown>>,
+): Promise<AxiosResponse<ApiResponse<unknown>>> => {
+  const originalRequest = response.config as CustomAxiosRequestConfig;
+
+  if (originalRequest._retry) {
+    clearAuthStorage();
+    throw new Error("Không thể làm mới token");
+  }
+
+  originalRequest._retry = true;
+
+  const refreshToken = getStorage(STORAGE.REFRESH_TOKEN);
+  if (!refreshToken) {
+    clearAuthStorage();
+    throw new Error("Không có refresh token");
+  }
+
+  if (isRefreshing) {
+    return enqueueRequestWhileRefreshing(originalRequest) as Promise<AxiosResponse<ApiResponse<unknown>>>;
+  }
+
+  isRefreshing = true;
+
+  try {
+    const newAccessToken = await requestNewAccessToken(refreshToken);
+    attachAuthorizationHeader(originalRequest, newAccessToken);
+    return instance(originalRequest);
+  } catch (refreshError) {
+    processQueue(refreshError, null);
+    clearAuthStorage();
+    throw refreshError;
+  } finally {
+    isRefreshing = false;
+  }
+};
+
+const isBlobResponse = (response: AxiosResponse): response is AxiosResponse<Blob> =>
+  response.config?.responseType === "blob" && response.data instanceof Blob;
+
+const shouldHandleUnauthorized = (payload: ApiResponse<unknown>): boolean =>
+  payload.statusCode === 401 && payload.success === false;
+
 // ================== Request Interceptor ==================
 instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
     if (config.method?.toLowerCase() === "get") {
       config.params = {
-        ...config.params
+        ...config.params,
       };
     }
 
@@ -90,102 +183,33 @@ instance.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(normalizeError(error))
 );
 
 // ================== Response Interceptor ==================
 instance.interceptors.response.use(
-  async (response: AxiosResponse<ApiResponse<unknown>>) => {
-    const { success, message, statusCode } = response.data;
-
-    // Handle API-level 401 (Unauthorized) indicated in response body
-    if (statusCode === 401 && success === false) {
-      const originalRequest = response.config as CustomAxiosRequestConfig;
-
-      if (originalRequest._retry) {
-        deleteStorage(STORAGE.TOKEN);
-        deleteStorage(STORAGE.USER_INFO);
-        deleteStorage(STORAGE.REFRESH_TOKEN);
-        if (typeof window !== "undefined") {
-          // window.location.replace("/login");
-        }
-        throw new Error("Không thể làm mới token");
-      }
-
-      originalRequest._retry = true;
-
-      const refreshToken = getStorage(STORAGE.REFRESH_TOKEN);
-      if (!refreshToken) {
-        deleteStorage(STORAGE.TOKEN);
-        deleteStorage(STORAGE.USER_INFO);
-        deleteStorage(STORAGE.REFRESH_TOKEN);
-        if (typeof window !== "undefined") {
-          // window.location.replace("/login");
-        }
-        throw new Error("Không có refresh token");
-      }
-
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({
-            resolve: (token: string) => {
-              originalRequest.headers = {
-                ...originalRequest.headers,
-                Authorization: `Bearer ${token} `,
-              };
-              resolve(instance(originalRequest));
-            },
-            reject,
-          });
-        });
-      }
-
-      isRefreshing = true;
-
-      try {
-        const res = await AuthService.refreshToken(refreshToken);
-        const accessToken = res.data.accessToken; // Use parseBody to handle response
-        const newrefreshToken = res.data.refreshToken;
-        setStorage(STORAGE.TOKEN, accessToken);
-        setStorage(STORAGE.REFRESH_TOKEN, newrefreshToken);
-
-        processQueue(null, accessToken);
-        isRefreshing = false;
-
-        originalRequest.headers = {
-          ...originalRequest.headers,
-          Authorization: `Bearer ${accessToken} `,
-        };
-
-        return instance(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError, null);
-        deleteStorage(STORAGE.TOKEN);
-        deleteStorage(STORAGE.USER_INFO);
-        deleteStorage(STORAGE.REFRESH_TOKEN);
-        if (typeof window !== "undefined") {
-          // window.location.replace("/login");
-        }
-        throw refreshError;
-      }
+  async (response: AxiosResponse) => {
+    if (isBlobResponse(response)) {
+      return response;
     }
 
-    const parsed = parseBody(response);
+    const apiResponse = response as AxiosResponse<ApiResponse<unknown>>;
+
+    if (shouldHandleUnauthorized(apiResponse.data)) {
+      return handleUnauthorizedResponse(apiResponse);
+    }
+
+    const parsed = parseBody(apiResponse);
     return {
-      ...response,
+      ...apiResponse,
       data: parsed.data,
-      message: parsed.message,
-      statusCode: parsed.statusCode
     };
   },
   (error: AxiosError<ApiResponse<unknown>>) => {
-    // Handle non-200 HTTP statuses (e.g., network errors, 500)
     const errorMsg =
-      error.response?.data?.message ||
-      error.message ||
-      "Lỗi không xác định hoặc mất kết nối";
+      error.response?.data?.message || error.message || "Lỗi không xác định hoặc mất kết nối";
     toast.error(errorMsg);
-    return Promise.reject(error);
+    return Promise.reject(normalizeError(error));
   }
 );
 

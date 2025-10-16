@@ -1,3 +1,4 @@
+import { AxiosResponse } from "axios";
 import http from "../axios/index"
 import { UserAddress } from "../UserAddress";
 
@@ -13,6 +14,9 @@ export interface Order {
     id?: string;
     orderNumber?: string;
     customerId?: string;
+    customerName?: string;
+    customerEmail?: string;
+    customerPhone?: string;
     deliveryPhone?: string;
     deliveryAddressId?: string;
     paymentMethod: string;
@@ -24,17 +28,41 @@ export interface Order {
     orderItems: OrderItem[];
     statusId?: string;
     createdAt?: string;
+    updatedAt?: string;
     deliveryAddress?: UserAddress;
+    deliveryFee?: number;
+    serviceFee?: number;
+    taxAmount?: number;
     orderType?: string;
     requestedDeliveryTime?: string; // ISO format, e.g. "2025-07-27T11:34:55.126Z"
     preferredTimeSlot?: string; // e.g. "Morning", "Afternoon", "Evening"
-    specialInstructions?: string, 
-    deliveryTime?: string // e.g. "ASAP", "Scheduled"
+    preferredDeliveryDate?: string;
+    specialInstructions?: string;
+    deliveryTime?: string; // e.g. "ASAP", "Scheduled"
+    paymentStatus?: string;
+    paidAt?: string;
+    cancellationReason?: string;
+    estimatedDeliveryTime?: string;
+    actualDeliveryTime?: string;
+    shipperId?: string;
+    shipperName?: string;
 
 }
 export interface ChangeOrderStatus {
     statusId: string;
     orderId: string;
+}
+export interface AssignOrderPayload {
+    orderId: string;
+    shipperId: string;
+}
+export interface ShipperOption {
+    userId: string;
+    userName?: string;
+    fullName?: string;
+    phone?: string;
+    email?: string;
+    avatarUrl?: string;
 }
 export interface OrderFilterDto {
     pageNumber?: number
@@ -88,6 +116,21 @@ const getOrderStatuses = () =>
 const updateOrderStatus = (changeOrderStatus: ChangeOrderStatus) =>
     http.post(`/api/Order/admin/change_order_statuses`, changeOrderStatus);
 
+const updateOrderStatusAsShipper = (payload: ChangeOrderStatus) =>
+    http.post(`/api/Order/shipper/change_order_status`, payload);
+
+const assignOrderToShipper = (payload: AssignOrderPayload) =>
+    http.post(`/api/Order/admin/assign-shipper`, payload);
+
+const getActiveShippers = () =>
+    http.get<ShipperOption[]>("/api/Order/admin/shippers");
+
+const filterShipperOrders = (filter: OrderFilterDto) =>
+    http.post<PaginatedResponse<Order>>("/api/Order/shipper/filter", filter);
+
+const exportOrders = (filter: OrderFilterDto): Promise<AxiosResponse<Blob>> =>
+    http.post<Blob>("/api/Order/admin/export", filter, { responseType: "blob" });
+
 
 const OrderService = {
     createOrder,
@@ -98,7 +141,12 @@ const OrderService = {
     createMomoPayment,
     getOrderStatuses,
     updateOrderStatus,
-    filterAdminOrders
+    updateOrderStatusAsShipper,
+    filterAdminOrders,
+    filterShipperOrders,
+    assignOrderToShipper,
+    getActiveShippers,
+    exportOrders
 };
 
 export default OrderService;

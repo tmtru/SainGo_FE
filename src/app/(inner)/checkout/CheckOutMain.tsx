@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useCart } from '@/components/header/CartContext';
 import { useRouter } from 'next/navigation';
 import { toast, ToastContainer } from 'react-toastify';
@@ -11,7 +11,6 @@ import UserCouponService from '@/data/Services/UserCouponService';
 import GhnService from '@/data/Services/GhnService';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from '@/components/Context/AuthContext';
-import { set } from 'lodash';
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaPhone, FaCommentDots, FaTicketAlt, FaCreditCard, FaMoneyBillWave } from 'react-icons/fa';
 
 function formatCurrency(value: number) {
@@ -149,6 +148,7 @@ export default function CheckOutMain() {
         (sum, item) => sum + item.unitPrice * item.quantity,
         0
     );
+    const totalQuantity = useMemo(() => cartItems.reduce((sum, item) => sum + item.quantity, 0), [cartItems]);
 
     // Coupon states
     const [coupon, setCoupon] = useState("");
@@ -307,7 +307,7 @@ export default function CheckOutMain() {
                     };
 
                     const res = await ShippingService.calculateShippingFee(request);
-                    setShippingFee(res.data);
+                    setShippingFee(0);
 
                     const leadTimeRes = await ShippingService.calculateDeliveryTime(request);
                     const date = new Date(leadTimeRes.data);
@@ -410,16 +410,9 @@ export default function CheckOutMain() {
         toast.info('🗑️ Đã xóa mã giảm giá');
     };
 
-    // Generate preferredTimeSlot string for backend
-    const generatePreferredTimeSlot = () => {
-        if (deliveryType === 'preorder' && preOrderDate && preOrderTimeSlot) {
-            return `${preOrderDate} ${preOrderTimeSlot}`;
-        }
-        return undefined;
-    };
-
     // Handle placing the order
     const handlePlaceOrder = async () => {
+        setLoadingShipping(true);
         // Validation
         if (addressMode === 'select' && !selectedAddress) {
             toast.error('Vui lòng chọn địa chỉ giao hàng.');
@@ -449,19 +442,26 @@ export default function CheckOutMain() {
 
             let couponCode = couponApplied ? coupon : undefined;
 
+            const preferredDate = deliveryType === 'preorder' ? preOrderDate : '';
+            const preferredSlot = deliveryType === 'preorder' ? preOrderTimeSlot : '';
+            const requestedDeliveryTime = deliveryType === 'preorder' ? undefined : (leadTime || 'ASAP');
+
             const order: any = {
                 orderitems: orderItems,
                 paymentMethod,
                 subtotal,
                 couponCode: couponCode || undefined,
                 discountAmount: discount,
+                deliveryFee: shippingFee,
                 shippingFee,
                 totalAmount: finalTotal,
-                specialInstructions: notes,
-                preferredTimeSlot: generatePreferredTimeSlot(),
+                specialInstructions: notes || undefined,
+                preferredDeliveryDate: preferredDate || undefined,
+                preferredTimeSlot: preferredSlot || undefined,
+                requestedDeliveryTime,
                 deliveryPhone: addressMode === "input" ? manualAddress.phone : selectedAddress?.phone || manualAddress.phone,
                 deliveryName: addressMode === "input" ? manualAddress.name : selectedAddress?.name || manualAddress.name,
-                deliveryNote: notes,
+                deliveryNote: notes || undefined,
             };
 
             // Set address and phone based on mode
@@ -808,6 +808,7 @@ export default function CheckOutMain() {
                                 <FaCalendarAlt className="me-2 text-primary" /> Thông tin giao nhận
                             </h3>
 
+
                             {/* Lựa chọn giao hàng */}
                             <div className="mb-4">
                                 <label className="form-label d-flex align-items-center fw-bold mb-3">
@@ -1007,6 +1008,10 @@ export default function CheckOutMain() {
                             style={{ padding: "28px", top: "20px" }}
                         >
                             <h3 className="title-checkout mb-4">Tóm tắt đơn hàng</h3>
+                            <div className="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                                <span className="text-muted">Tổng số lượng</span>
+                                <span className="fw-semibold">{totalQuantity}</span>
+                            </div>
 
                             {/* Coupon Section */}
                             <div className="coupon-section mb-4 p-3 border rounded-3 bg-light">
