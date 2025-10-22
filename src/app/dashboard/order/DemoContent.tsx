@@ -234,10 +234,8 @@ const OverviewTable: React.FC = () => {
   const overviewCards = useMemo(
     () => [
       { label: "Tổng đơn hàng", value: statistics.totalOrders.toString() },
-      { label: "Tổng doanh thu", value: formatCurrency(statistics.totalRevenue) },
       { label: "Đơn hoàn thành", value: statistics.completedOrders.toString() },
       { label: "Chờ xử lý", value: statistics.pendingOrders.toString() },
-      { label: "Giá trị TB", value: formatCurrency(statistics.averageOrderValue) },
     ],
     [formatCurrency, statistics],
   );
@@ -272,12 +270,7 @@ const OverviewTable: React.FC = () => {
         <span className="fw-semibold text-dark text-truncate" title={row.customerName || row.customerId}>
           {row.customerName || row.customerId || "N/A"}
         </span>
-        {row.customerEmail && (
-          <span className="text-muted small text-truncate" title={row.customerEmail}>{row.customerEmail}</span>
-        )}
-        <span className="text-muted small">
-          {(row.customerPhone || row.deliveryPhone) ?? "—"}
-        </span>
+
       </div>
     ),
     [],
@@ -481,24 +474,6 @@ const OverviewTable: React.FC = () => {
         cell: renderStatusCell,
         width: "140px",
       },
-      {
-        name: "Thanh toán",
-        selector: (row) => row.paymentStatus || "",
-        cell: renderPaymentStatusCell,
-        width: "160px",
-      },
-      {
-        name: "Shipper",
-        selector: (row) => row.shipperName || "",
-        cell: renderShipperCell,
-        width: "280px",
-      },
-      {
-        name: "Phương thức TT",
-        selector: (row) => row.paymentMethod || "",
-        cell: renderPaymentMethodCell,
-        width: "160px",
-      },
     ],
     [
       renderCreatedAtCell,
@@ -508,9 +483,7 @@ const OverviewTable: React.FC = () => {
       renderPaymentMethodCell,
       renderPaymentStatusCell,
       renderScheduleCell,
-      renderShipperCell,
-      renderStatusCell,
-      renderTotalAmountCell,
+
     ],
   );
 
