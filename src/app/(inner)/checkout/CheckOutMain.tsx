@@ -464,7 +464,7 @@ export default function CheckOutMain() {
                 totalAmount: finalTotal,
                 specialInstructions: notes || undefined,
                 preferredDeliveryDate: preferredDate || undefined,
-                preferredTimeSlot: preferredSlot || undefined,
+                preferredTimeSlot: preferredDate + " " + preferredSlot || undefined,
                 requestedDeliveryTime,
                 deliveryPhone: addressMode === "input" ? manualAddress.phone : selectedAddress?.phone || manualAddress.phone,
                 deliveryName: addressMode === "input" ? manualAddress.name : selectedAddress?.name || manualAddress.name,
