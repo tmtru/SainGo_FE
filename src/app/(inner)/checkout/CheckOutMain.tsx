@@ -41,20 +41,27 @@ const formatDateLabel = (date: Date) => {
     return `${dayName}, ${day}/${month}`;
 };
 
-// Hàm sinh danh sách ngày khả dụng (bắt đầu từ ngày mai)
+const ALLOWED_DELIVERY_DAYS = [5, 6, 0]; // Chỉ cho phép đặt trước vào Thứ Sáu, Thứ Bảy, Chủ Nhật
+
+// Hàm sinh danh sách ngày khả dụng (bắt đầu từ ngày mai) và chỉ giữ các ngày được phép
 const generateAvailableDates = (daysAhead: number) => {
     const today = new Date();
     const result = [];
 
-    // Bắt đầu từ ngày mai (i = 1)
     for (let i = 1; i <= daysAhead; i++) {
         const d = new Date(today);
         d.setDate(today.getDate() + i);
+
+        if (!ALLOWED_DELIVERY_DAYS.includes(d.getDay())) {
+            continue;
+        }
+
         result.push({
             value: formatDateValue(d),
             label: formatDateLabel(d),
         });
     }
+
     return result;
 };
 
