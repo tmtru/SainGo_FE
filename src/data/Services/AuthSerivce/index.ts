@@ -42,7 +42,7 @@ const resendVerificationEmail = (payload: ResendEmailPayload) =>
     http.post("/api/Login/resend-verification", payload);
 
 const googleLogin = (idToken: any) =>
-    http.post<AuthResponse>("/api/Login/google-login", { idToken });
+    http.post<AuthResponse>("/api/Login/google-logi", { idToken });
 
 
 const AuthService = {
